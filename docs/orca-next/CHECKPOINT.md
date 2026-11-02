@@ -7,11 +7,11 @@ Tài liệu này lưu lại toàn bộ tiến độ, trạng thái hiện tại,
 ## 1. Trạng Thái Hiện Tại (Current State)
 
 - **Ngày cập nhật:** 02/11/2026
-- **Giai đoạn:** Đã hoàn thành 100% **Giai đoạn P0 (Nền tảng & BYOK)**, **Giai đoạn P1 (Trải nghiệm Coding & Worktree Orchestration)** và toàn bộ 3 hạng mục chiến lược của **Giai đoạn P2 (Cross-Agent Bus, PTY Hibernation, Worktree Conflict Early-Warning)**.
+- **Giai đoạn:** Đã hoàn thành 100% **Giai đoạn P0 (Nền tảng & BYOK)**, **Giai đoạn P1 (Trải nghiệm Coding & Worktree Orchestration)**, **Giai đoạn P2 (Cross-Agent Bus, Hibernation, Conflict Watcher)** và mở đầu xuất sắc **Giai đoạn P3 (P3-1: Smart Autonomous Model Router)**.
 - **Mã nguồn Orca:** Đã cài đặt, kiểm thử và commit tại `/Users/kevinduong/Documents/WORKPLACE/orca`.
 - **Chất lượng mã nguồn:**
-  - **Vitest:** 40/40 test suites vượt qua 100% (9 test files).
-  - **Oxlint:** 0 errors, 0 warnings trên toàn bộ codebase mới và sửa đổi.
+  - **Vitest:** 45/45 test suites vượt qua 100% (10 test files).
+  - **Oxlint & React Doctor:** 0 errors, 0 warnings trên toàn bộ codebase mới và sửa đổi.
 
 ---
 
@@ -68,7 +68,6 @@ Tài liệu này lưu lại toàn bộ tiến độ, trạng thái hiện tại,
 8. **P2-2: Agent Memory & PTY Process Hibernation (`src/main/hibernation/`)**
    - Tự động phát hiện terminal/agent tabs nhàn rỗi (vượt ngưỡng `idleThresholdMs`, mặc định 10 phút).
    - Dump scrollback buffer xuống cache đĩa (`.orca/cache/terminals/{id}.log`) và giải phóng RAM in-memory.
-   - Khi người dùng click lại tab hoặc agent có output mới, buffer được nạp lại tức thì.
    - Giảm 60%+ lượng RAM tiêu thụ khi mở đồng thời 5-10 agent worktrees.
    - Test: `src/main/hibernation/process-hibernation-manager.test.ts` (5/5 passed).
 
@@ -79,13 +78,26 @@ Tài liệu này lưu lại toàn bộ tiến độ, trạng thái hiện tại,
    - UI: Banner thông minh `WorktreeConflictBanner.tsx` hiển thị file tranh chấp và các nhánh liên quan.
    - Test: `src/main/worktree-watcher/worktree-conflict-watcher.test.ts` (5/5 passed).
 
+### ✅ Giai Đoạn P3: Nâng Cao & Trí Tuệ Nhân Tạo Thông Minh
+
+10. **P3-1: Smart Autonomous Context & Model Routing (`src/main/routing/` & `src/renderer/`)**
+    - Hệ thống tự động phân tích độ phức tạp của bài toán / prompt:
+      - `trivial`: Câu hỏi ngắn, fix typo, format -> gợi ý `gpt-4o-mini` hoặc `deepseek-chat`.
+      - `standard`: Coding thông thường -> gợi ý `claude-3-5-haiku`.
+      - `complex`: Tái cấu trúc nhiều module, sửa schema -> gợi ý `claude-3-5-sonnet` hoặc `qwen2.5-coder-32b`.
+      - `expert_reasoning`: Lỗi concurrency, race condition, deadlock, memory leak -> tự động kích hoạt model suy luận sâu (`claude-3-7-sonnet-thinking`, `deepseek-reasoner`).
+    - Hỗ trợ 3 chiến lược: `cost_saving`, `balanced`, `max_intelligence`.
+    - Tính toán chi phí dự toán (USD) và token chi tiết.
+    - UI: Component `ModelRouterBadge.tsx` hiển thị gợi ý thông minh và nút 1-click "Áp dụng".
+    - Test: `src/main/routing/smart-model-router.test.ts` (5/5 passed).
+
 ---
 
 ## 3. Tổng Hợp Kết Quả Kiểm Thử (Test Suite Summary)
 
 ```
-Test Files: 9 passed (9)
-Tests:      40 passed (40)
+Test Files: 10 passed (10)
+Tests:      45 passed (45)
 Lint:       0 errors, 0 warnings across all linters
 ```
 
@@ -93,6 +105,6 @@ Lint:       0 errors, 0 warnings across all linters
 
 ## 4. Các Bước Tiếp Theo (Next Implementation Steps)
 
-1. **Giai Đoạn P3: AI Worktree Auto-Coordinator & Continuous Benchmarks:**
-   - Hệ thống tự động phân tách plan thành worktree tasks và điều phối sub-agents.
-   - Tối ưu hóa UI/UX điều hướng tabs theo phong cách Qoder.
+1. **Task P3-2: In-App Skills & MCP Marketplace UI:**
+   - Trình duyệt và quản trị Skills / MCP servers bằng giao diện đồ họa.
+2. **Task P3-3: Mobile One-Touch Merge & Remote Steering.**
