@@ -1,3 +1,4 @@
+import { CustomProviderSettingsSection } from './CustomProviderSettingsSection'
 import { useEffect, useRef, useState } from 'react'
 import type {
   ClaudeRateLimitAccountsState,
@@ -376,6 +377,7 @@ export function AccountsPane({
     matchesSettingsSearch(searchQuery, getAccountsCursorSearchEntries()) ? (
       <CursorAccountsSection key="cursor" />
     ) : null,
+    <CustomProviderSettingsSection key="custom-providers" />,
     matchesSettingsSearch(searchQuery, getAccountsZcodePlanSearchEntries()) ? (
       <ZcodePlanAccountsSection
         key={`zcode:${accountOwnerKey}`}
