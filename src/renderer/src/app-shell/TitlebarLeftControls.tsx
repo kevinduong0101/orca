@@ -65,9 +65,15 @@ export function TitlebarLeftControls({ layout }: { layout: AppChromeLayout }): R
           <ContextMenu>
             <ContextMenuTrigger asChild>
               <div
-                className="titlebar-app-name"
+                className="titlebar-app-name flex items-center gap-1.5"
                 aria-label={translate('auto.App.5096cbbc86', 'Orca')}
               >
+                <img
+                  src={logo}
+                  alt=""
+                  aria-hidden
+                  className="size-3.5 object-contain invert dark:invert-0"
+                />
                 <span className="titlebar-app-name-main">
                   {translate('auto.App.5096cbbc86', 'Orca')}
                 </span>

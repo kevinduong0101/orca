@@ -1,4 +1,5 @@
-import { MessageSquare, TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
+import logo from '../../../../../resources/logo.svg'
 import { translate } from '@/i18n/i18n'
 import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { NATIVE_CHAT_EMPTY_STATE_COPY } from '../../../../shared/native-chat/native-chat-empty-state'
@@ -26,13 +27,18 @@ export function NativeChatEmptyState({
         className={
           kind === 'error'
             ? 'flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive'
-            : 'flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground'
+            : 'flex size-14 items-center justify-center rounded-2xl border border-border/80 bg-accent/50 p-2.5 text-accent-foreground shadow-xs'
         }
       >
         {kind === 'error' ? (
           <TriangleAlert className="size-6" />
         ) : (
-          <MessageSquare className="size-6" />
+          <img
+            src={logo}
+            alt=""
+            aria-hidden
+            className="size-8 object-contain invert dark:invert-0"
+          />
         )}
       </div>
       <p className="text-sm font-medium text-chat-foreground-strong">{copy.title}</p>
