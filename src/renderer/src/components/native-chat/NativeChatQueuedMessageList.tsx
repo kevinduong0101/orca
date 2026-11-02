@@ -101,7 +101,7 @@ export function NativeChatQueuedMessageList({
     <div ref={regionRef} aria-live="polite">
       {cards.length > 0 ? (
         <div ref={queueRef} className="mx-auto w-full max-w-(--chat-content-max-width) px-4 py-1">
-          <div className="divide-y divide-border rounded-md border border-border bg-card text-card-foreground">
+          <div className="divide-y divide-border/60 overflow-hidden rounded-xl border border-border/80 bg-card/90 text-card-foreground shadow-xs backdrop-blur-md transition-all duration-200">
             <NativeChatQueueHeader
               count={cards.length}
               attentionCaption={attentionCaption}
@@ -198,18 +198,33 @@ function NativeChatQueueHeader({
   return (
     <div
       className={cn(
-        'flex items-center gap-1 rounded-t-md py-1 pr-1 pl-2.5 text-xs text-muted-foreground',
-        pause && 'bg-muted',
-        !expanded && 'rounded-b-md'
+        'flex items-center gap-2 rounded-t-xl py-1.5 pr-1.5 pl-3 text-xs text-muted-foreground',
+        pause ? 'bg-muted/80' : 'bg-muted/30',
+        !expanded && 'rounded-b-xl'
       )}
     >
-      <p className={cn('truncate', pause && 'font-medium text-foreground')}>
+      {pause ? (
+        <span className="size-2 shrink-0 rounded-full bg-amber-500" aria-hidden />
+      ) : (
+        <span className="relative flex size-2 shrink-0" aria-hidden>
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60 opacity-75" />
+          <span className="relative inline-flex size-2 rounded-full bg-primary" />
+        </span>
+      )}
+      <p className={cn('truncate', pause && 'text-foreground font-medium')}>
         {pause
           ? translate('components.native-chat.queuedMessages.paused', 'Paused')
           : translate('components.native-chat.queuedMessages.queued', 'Queued')}
       </p>
-      <span aria-hidden>·</span>
-      <span className={cn('tabular-nums', attentionCaption ? 'shrink-0' : 'min-w-0 flex-1')}>
+      <span aria-hidden className="text-muted-foreground/60">
+        ·
+      </span>
+      <span
+        className={cn(
+          'tabular-nums rounded-full bg-primary/10 px-2 py-0.5 text-2xs font-semibold text-primary',
+          attentionCaption ? 'shrink-0' : 'mr-auto'
+        )}
+      >
         {count}
       </span>
       {attentionCaption ? (
@@ -227,6 +242,7 @@ function NativeChatQueueHeader({
             size="xs"
             disabled={!clearCapable || queuePending !== null}
             onClick={onClearAll}
+            className="text-muted-foreground hover:text-destructive"
           >
             <NativeChatPendingIcon pending={queuePending === 'clear'} className="size-3">
               <Trash2 className="size-3" />
@@ -235,10 +251,11 @@ function NativeChatQueueHeader({
           </Button>
           <Button
             type="button"
-            variant="ghost"
+            variant="secondary"
             size="xs"
             disabled={queuePending !== null}
             onClick={onResume}
+            className="gap-1 font-medium shadow-2xs hover:bg-primary hover:text-primary-foreground"
           >
             <NativeChatPendingIcon pending={queuePending === 'resume'} className="size-3">
               <Play className="size-3" />
@@ -261,7 +278,11 @@ function NativeChatQueueHeader({
             aria-controls={listId}
             onClick={onToggle}
           >
-            {expanded ? <ChevronDown /> : <ChevronRight />}
+            {expanded ? (
+              <ChevronDown className="size-3.5" />
+            ) : (
+              <ChevronRight className="size-3.5" />
+            )}
           </Button>
         </TooltipTrigger>
         <TooltipContent side="top" sideOffset={4}>

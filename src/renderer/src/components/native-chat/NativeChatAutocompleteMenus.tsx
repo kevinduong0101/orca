@@ -1,10 +1,9 @@
 import { createPortal } from 'react-dom'
 import { memo, useEffect, useRef, useLayoutEffect, useState } from 'react'
-import { Package, RotateCcw } from 'lucide-react'
+import { RotateCcw, Sparkles, Terminal } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import { cn } from '@/lib/utils'
-import type { SkillSourceKind } from '../../../../shared/skills'
 import { FilenameFirstPath } from '@/components/file-path-cursor-tooltip'
 import { FileTypeIcon } from '@/components/FileTypeIcon'
 import type {
@@ -14,6 +13,11 @@ import type {
 import type { NativeChatMentionFiles } from './use-native-chat-mention-files'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { localizeSlashCommandDescription } from './native-chat-slash-command-descriptions'
+import {
+  getPickerAnnotation,
+  getPickerEmptyText,
+  scopeLabel
+} from './native-chat-picker-annotations'
 
 export const NativeChatPickerMenu = memo(function NativeChatPickerMenu({
   autocomplete,
@@ -139,24 +143,9 @@ export const NativeChatPickerMenu = memo(function NativeChatPickerMenu({
   )
 })
 
-function getPickerEmptyText(
-  autocomplete: Extract<ComposerAutocomplete, { mode: 'slash' }>
-): string {
-  if (!autocomplete.commandsEnabled) {
-    return translate('components.native-chat.composer.noSkills', 'No matching skills')
-  }
-  if (autocomplete.skillsEnabled) {
-    return translate(
-      'components.native-chat.composer.noCommandsOrSkills',
-      'No matching commands or skills'
-    )
-  }
-  return translate('components.native-chat.composer.noCommands', 'No matching commands')
-}
-
 function PickerGroupHeading({ kind }: { kind: 'commands' | 'skills' }): React.JSX.Element {
   return (
-    <div className="px-2 pb-1 pt-1.5 text-2xs font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+    <div className="px-2.5 pb-1 pt-2 text-2xs font-semibold uppercase tracking-wider text-muted-foreground/80">
       {kind === 'commands'
         ? translate('components.native-chat.composer.commands', 'Commands')
         : translate('components.native-chat.composer.skills', 'Skills')}
@@ -192,6 +181,7 @@ function PickerOption({
     item.kind === 'command'
       ? localizeSlashCommandDescription(item.name, item.description)
       : item.description
+  const isProjectSkill = item.kind === 'skill' && item.sources[0]?.sourceKind === 'repo'
   return (
     <PickerOptionButton
       id={`${listboxId}-option-${index}`}
@@ -200,8 +190,21 @@ function PickerOption({
       onChoose={() => onChoose(item)}
     >
       {item.kind === 'skill' ? (
-        <Package className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-      ) : null}
+        <span
+          className={cn(
+            'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md transition-colors',
+            isProjectSkill
+              ? 'bg-primary/15 text-primary'
+              : 'bg-muted text-muted-foreground group-hover/option:text-foreground'
+          )}
+        >
+          <Sparkles className="size-3" />
+        </span>
+      ) : (
+        <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground transition-colors group-hover/option:text-foreground">
+          <Terminal className="size-3" />
+        </span>
+      )}
       <span className="min-w-0 flex-1">
         <span className="flex min-w-0 items-baseline gap-1.5">
           <span className="min-w-0 truncate font-mono text-chat-code font-medium">
@@ -221,7 +224,14 @@ function PickerOption({
         ) : null}
       </span>
       {item.kind === 'skill' ? (
-        <span className="shrink-0 pt-0.5 text-2xs text-muted-foreground">
+        <span
+          className={cn(
+            'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-2xs font-medium',
+            isProjectSkill
+              ? 'bg-primary/15 font-semibold text-primary'
+              : 'bg-muted text-muted-foreground'
+          )}
+        >
           {scopeLabel(item.sources[0]?.sourceKind)}
         </span>
       ) : null}
@@ -281,7 +291,7 @@ function PickerListbox({
               bottom: window.innerHeight - bounds.top + 4
             }}
             // Inside a popover (the launch setup), take the menu layer Select and DropdownMenu use above popovers.
-            className={`scrollbar-sleek max-h-72 overflow-y-auto rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-floating ${marker.current?.closest('[data-slot="popover-content"]') ? 'z-[70]' : 'z-50'}`}
+            className={`scrollbar-sleek max-h-72 overflow-y-auto rounded-xl border border-border/80 bg-popover/95 p-1.5 text-popover-foreground shadow-xl backdrop-blur-md ${marker.current?.closest('[data-slot="popover-content"]') ? 'z-[70]' : 'z-50'}`}
           >
             {children}
           </div>,
@@ -319,45 +329,14 @@ function PickerOptionButton({
         }
       }}
       className={cn(
-        'flex w-full items-start gap-2 rounded-md border border-transparent px-2 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground hover:[--muted-foreground:var(--accent-foreground)]',
+        'group/option flex w-full items-start gap-2.5 rounded-lg border border-transparent px-2.5 py-1.5 text-left text-sm transition-colors duration-150 hover:bg-accent/70 hover:text-accent-foreground hover:[--muted-foreground:var(--accent-foreground)]',
         selected &&
-          'border-border bg-accent text-accent-foreground [--muted-foreground:var(--accent-foreground)]'
+          'border-primary/20 bg-accent text-accent-foreground shadow-2xs [--muted-foreground:var(--accent-foreground)]'
       )}
     >
       {children}
     </button>
   )
-}
-
-function getPickerAnnotation(item: NativeChatPickerItem): string | null {
-  if (item.kind === 'skill' && item.location) {
-    return item.location
-  }
-  if (item.kind === 'command' && item.skillCollision) {
-    return translate(
-      'components.native-chat.composer.skillCommandCollision',
-      'Also a skill name - agent decides'
-    )
-  }
-  if (item.kind === 'skill' && item.sources.length > 1) {
-    // Use sourceCount because i18next treats count as pluralization input and these keys have no plural variants.
-    return translate(
-      'components.native-chat.composer.skillMultipleSources',
-      '{{sourceCount}} sources - agent resolves',
-      { sourceCount: item.sources.length }
-    )
-  }
-  return null
-}
-
-function scopeLabel(sourceKind: SkillSourceKind | undefined): string {
-  const labels: Record<string, string> = {
-    repo: translate('components.native-chat.composer.skillScopeProject', 'Project'),
-    home: translate('components.native-chat.composer.skillScopePersonal', 'Personal'),
-    bundled: translate('components.native-chat.composer.skillScopeBuiltIn', 'Built-in'),
-    plugin: translate('components.native-chat.composer.skillScopePlugin', 'Plugin')
-  }
-  return sourceKind ? (labels[sourceKind] ?? '') : ''
 }
 
 export const NativeChatMentionMenu = memo(function NativeChatMentionMenu({

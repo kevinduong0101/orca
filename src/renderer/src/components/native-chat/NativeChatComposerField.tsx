@@ -320,10 +320,10 @@ export function NativeChatComposerField({
           <div
             className={cn(
               // Use a constant container border so focus changes cannot flash it.
-              'group/composer rounded-xl border p-1.5 shadow-xs',
+              'group/composer rounded-2xl border p-2 shadow-xs transition-all duration-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 focus-within:shadow-md',
               launch
                 ? 'border-foreground/10 bg-background dark:bg-foreground/[0.04]'
-                : 'border-chat-composer-border bg-chat-composer-surface',
+                : 'border-chat-composer-border/80 bg-chat-composer-surface/95 hover:border-chat-composer-border',
               // Contain caret-blink repaint to the composer; keep 4px slack around overhanging attachment buttons, while menus use portals.
               '[contain:paint]'
             )}

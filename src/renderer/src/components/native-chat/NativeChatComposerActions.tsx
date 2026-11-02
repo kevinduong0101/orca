@@ -3,6 +3,7 @@ import { ArrowUp, CircleAlert, Mic, Plus, Square } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { translate } from '@/i18n/i18n'
+import { cn } from '@/lib/utils'
 import { getScreenSubmitShortcutLabel } from '@/lib/screen-submit-shortcut'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 import type { NativeChatFollowUpBehavior } from '../../../../shared/native-chat-follow-up-behavior'
@@ -140,7 +141,12 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
       onClick={handleCriticalAction}
       variant={stops ? 'secondary' : 'default'}
       size="icon"
-      className="size-8 rounded-full pointer-coarse:size-10"
+      className={cn(
+        'size-8 rounded-full pointer-coarse:size-10 transition-all active:scale-95',
+        stops
+          ? 'border border-destructive/20 bg-destructive/15 text-destructive hover:bg-destructive/25'
+          : 'shadow-xs hover:shadow-sm'
+      )}
     >
       {stops ? <Square className="size-3.5 fill-current" /> : <ArrowUp className="size-4" />}
     </Button>

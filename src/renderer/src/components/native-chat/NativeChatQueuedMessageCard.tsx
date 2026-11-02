@@ -192,7 +192,7 @@ export function NativeChatQueuedMessageCard({
       style={drag?.rowStyle}
       data-queued-message-id={card.messageId}
       data-queued-message-state={card.state}
-      className="group/queued relative px-2.5 py-1.5"
+      className="group/queued relative px-2.5 py-1.5 transition-colors duration-150 hover:bg-muted/40"
     >
       {drag?.insertion ? (
         <span
