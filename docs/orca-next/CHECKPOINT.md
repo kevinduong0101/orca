@@ -7,11 +7,11 @@ Tài liệu này lưu lại toàn bộ tiến độ, trạng thái hiện tại,
 ## 1. Trạng Thái Hiện Tại (Current State)
 
 - **Ngày cập nhật:** 02/11/2026
-- **Giai đoạn:** Đã hoàn thành toàn bộ **Giai đoạn P0 (Nền tảng & BYOK)**, **Giai đoạn P1 (Trải nghiệm Coding & Worktree Orchestration)** và 2 hạng mục chiến lược cốt lõi của **Giai đoạn P2 (Cross-Agent Bus & Process Hibernation)**.
-- **Mã nguồn Orca:** Đã cài đặt và kiểm thử tại `/Users/kevinduong/Documents/WORKPLACE/orca`.
+- **Giai đoạn:** Đã hoàn thành 100% **Giai đoạn P0 (Nền tảng & BYOK)**, **Giai đoạn P1 (Trải nghiệm Coding & Worktree Orchestration)** và toàn bộ 3 hạng mục chiến lược của **Giai đoạn P2 (Cross-Agent Bus, PTY Hibernation, Worktree Conflict Early-Warning)**.
+- **Mã nguồn Orca:** Đã cài đặt, kiểm thử và commit tại `/Users/kevinduong/Documents/WORKPLACE/orca`.
 - **Chất lượng mã nguồn:**
-  - **Vitest:** 35/35 test suites vượt qua 100% (8 test files).
-  - **Oxlint:** 0 errors, 0 warnings trên toàn bộ 27 files mới và sửa đổi.
+  - **Vitest:** 40/40 test suites vượt qua 100% (9 test files).
+  - **Oxlint:** 0 errors, 0 warnings trên toàn bộ codebase mới và sửa đổi.
 
 ---
 
@@ -72,22 +72,27 @@ Tài liệu này lưu lại toàn bộ tiến độ, trạng thái hiện tại,
    - Giảm 60%+ lượng RAM tiêu thụ khi mở đồng thời 5-10 agent worktrees.
    - Test: `src/main/hibernation/process-hibernation-manager.test.ts` (5/5 passed).
 
+9. **P2-3: Background Worktree Watcher & Conflict Early-Warning (`src/main/worktree-watcher/` & `src/renderer/`)**
+   - Giám sát các tệp đang bị sửa đổi (dirty/modified files) giữa nhiều worktrees chạy song song.
+   - Phát hiện giao điểm và cảnh báo sớm các file bị sửa đổi đồng thời trước khi chờ đến lúc merge.
+   - Tự động phát sinh event thông báo lên `CrossAgentBus` để các agent nhận biết.
+   - UI: Banner thông minh `WorktreeConflictBanner.tsx` hiển thị file tranh chấp và các nhánh liên quan.
+   - Test: `src/main/worktree-watcher/worktree-conflict-watcher.test.ts` (5/5 passed).
+
 ---
 
 ## 3. Tổng Hợp Kết Quả Kiểm Thử (Test Suite Summary)
 
 ```
-Test Files: 8 passed (8)
-Tests:      35 passed (35)
-Lint:       0 errors, 0 warnings across 27 files
+Test Files: 9 passed (9)
+Tests:      40 passed (40)
+Lint:       0 errors, 0 warnings across all linters
 ```
 
 ---
 
 ## 4. Các Bước Tiếp Theo (Next Implementation Steps)
 
-1. **Commit & Staging:**
-   - Tạo atomic git commit trong repository `/Users/kevinduong/Documents/WORKPLACE/orca` cho các module đã hoàn thiện.
-2. **P2-3: Background Worktree Watcher & Conflict Early-Warning:**
-   - Daemon theo dõi git index của các worktree song song và cảnh báo ngay khi 2 agent cùng sửa một file.
-3. **P3: AI Worktree Auto-Coordinator & Continuous Benchmarks.**
+1. **Giai Đoạn P3: AI Worktree Auto-Coordinator & Continuous Benchmarks:**
+   - Hệ thống tự động phân tách plan thành worktree tasks và điều phối sub-agents.
+   - Tối ưu hóa UI/UX điều hướng tabs theo phong cách Qoder.
