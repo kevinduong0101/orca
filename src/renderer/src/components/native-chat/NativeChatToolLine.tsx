@@ -31,7 +31,7 @@ import { useNativeChatDisclosure } from './native-chat-disclosure-store'
 import { NativeChatToolOutput } from './NativeChatToolOutput'
 
 const TARGET_CLASS =
-  'min-w-0 truncate text-chat-foreground transition-colors group-hover/tool-line:text-chat-foreground-strong'
+  'min-w-0 truncate rounded border border-border/60 bg-muted/40 px-1.5 py-0.5 text-xs text-chat-foreground transition-colors group-hover/tool-line:border-border group-hover/tool-line:text-chat-foreground-strong'
 
 /** Mount detail separately so collapsed rows do no diff work. */
 function ToolLineDetail({
@@ -122,7 +122,7 @@ export function NativeChatToolLine({
         type="button"
         onClick={() => hasDetail && setExpanded(!expanded)}
         className={cn(
-          'group/tool-line flex min-h-6.5 w-full items-center gap-2 rounded-md text-left font-sans text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+          'group/tool-line flex min-h-6.5 w-full items-center gap-2 rounded-md px-1.5 py-0.5 text-left font-sans text-sm transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
           hasDetail ? 'cursor-pointer' : 'cursor-default'
         )}
         aria-expanded={hasDetail ? expanded : undefined}
@@ -132,7 +132,11 @@ export function NativeChatToolLine({
             mcpIdentity={block.mcpIdentity}
             rowWord={name}
             input={block.input}
-            className={failed ? 'text-destructive/70' : 'text-chat-foreground-faint'}
+            className={
+              failed
+                ? 'text-destructive/70'
+                : 'text-emerald-500/80 transition-colors group-hover/tool-line:text-emerald-500'
+            }
           />
         ) : (
           /* Translated result labels identify no tool category; reserve an empty slot for alignment. */

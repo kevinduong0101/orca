@@ -192,7 +192,12 @@ export function NativeChatToolRun({
           <button
             type="button"
             onClick={() => setOpen(!open)}
-            className="group/tool-run flex min-h-6 min-w-0 flex-1 items-start gap-1.5 rounded-md py-0.5 text-left text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+            className={cn(
+              'group/tool-run flex min-h-7 min-w-0 flex-1 items-center gap-2 rounded-lg border px-2 py-1 text-left text-sm leading-relaxed transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+              live
+                ? 'border-primary/30 bg-primary/5 shadow-2xs'
+                : 'border-border/60 bg-muted/20 hover:border-border hover:bg-muted/40'
+            )}
             aria-expanded={open}
             aria-live="polite"
             data-native-chat-tool-run-state={live ? 'live' : 'settled'}
@@ -220,6 +225,16 @@ export function NativeChatToolRun({
               failed={failedCallCount}
               interrupted={interruptedCallCount}
             />
+            {callCount > 0 ? (
+              <span
+                className={cn(
+                  'ml-auto inline-flex shrink-0 items-center rounded-full px-2 py-0.5 font-mono text-2xs font-semibold tabular-nums',
+                  live ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'
+                )}
+              >
+                {live ? `Step ${callCount}` : `${callCount} steps`}
+              </span>
+            ) : null}
             {/* Mark only stated success after settlement; idle gaps between live calls are not completion. */}
             {!live && runSucceeded ? (
               <span className="flex h-[1lh] shrink-0 items-center">
