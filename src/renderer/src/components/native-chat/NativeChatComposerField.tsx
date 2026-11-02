@@ -320,7 +320,7 @@ export function NativeChatComposerField({
           <div
             className={cn(
               // Use a constant container border so focus changes cannot flash it.
-              'group/composer rounded-2xl border p-2 shadow-xs transition-all duration-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 focus-within:shadow-md',
+              'group/composer rounded-2xl border p-2.5 sm:p-3 shadow-xs transition-all duration-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 focus-within:shadow-md',
               launch
                 ? 'border-foreground/10 bg-background dark:bg-foreground/[0.04]'
                 : 'border-chat-composer-border/80 bg-chat-composer-surface/95 hover:border-chat-composer-border',
@@ -381,10 +381,11 @@ export function NativeChatComposerField({
               // Let layout handle wrapping and touch targets; scroll after eight lines (a launch prompt: one line growing to six) without JavaScript measurement.
               // An empty launch prompt also grows to fit a placeholder that wraps: its zero-width float keeps its height.
               className={cn(
-                'w-full bg-transparent px-2 py-1 text-sm outline-none',
+                'w-full bg-transparent px-2 py-1.5 text-sm outline-none leading-relaxed',
+
                 launch
                   ? 'min-h-7 max-h-[calc(6lh+0.5rem)] text-foreground placeholder:text-muted-foreground [&_p.is-editor-empty:first-child]:before:!h-auto [&_p.is-editor-empty:first-child]:before:mr-[-100%]'
-                  : 'min-h-12 max-h-[calc(8lh+0.5rem)] text-chat-foreground-strong placeholder:text-chat-foreground-faint pointer-coarse:min-h-14',
+                  : 'min-h-[52px] max-h-[calc(8lh+0.5rem)] text-chat-foreground-strong placeholder:text-chat-foreground-faint pointer-coarse:min-h-14',
                 'overflow-y-auto scrollbar-sleek',
                 // Why: the editor is a contenteditable, which `:disabled` never matches.
                 '[&[contenteditable=false]]:cursor-not-allowed [&[contenteditable=false]]:opacity-50'
@@ -392,7 +393,7 @@ export function NativeChatComposerField({
             />
             <div
               className={cn(
-                'flex flex-wrap items-center gap-2 pt-0.5',
+                'flex flex-wrap items-center gap-2 pt-2 mt-1 border-t border-border/40',
                 // An empty launch prompt is one line; its controls appear once it has focus, content or live dictation.
                 launch &&
                   !isDictating &&

@@ -66,6 +66,20 @@ export function useBrowserPageViewportSizeFeedback(
         hideBrowserFeedback()
         return
       }
+
+      // Responsive auto-fit scaling for narrow split browser viewports (< 720px)
+      if (box.width > 0 && webviewRef.current) {
+        try {
+          if (box.width < 720) {
+            const fitFactor = Math.min(1, Math.max(0.48, box.width / 680))
+            webviewRef.current.setZoomFactor(fitFactor)
+          } else {
+            webviewRef.current.setZoomFactor(1)
+          }
+        } catch {
+          // Ignore if guest is not yet ready or attached
+        }
+      }
       const uiZoomFactor = getUIZoomFactor()
       const hostDip = { width: box.width * uiZoomFactor, height: box.height * uiZoomFactor }
       const previous = previousHostDip

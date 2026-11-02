@@ -100,12 +100,14 @@ function PickerTrigger(props: {
             size="xs"
             aria-label={props.accessibleName}
             disabled={props.disabled}
-            className="max-w-64"
+            className="h-7 max-w-48 sm:max-w-64 px-2.5 rounded-lg bg-foreground/[0.04] hover:bg-foreground/[0.08] border border-border/60 text-xs font-medium gap-1.5 transition-colors"
             onKeyDown={props.onKeyDown}
           >
             <span className="truncate text-chat-foreground">{props.modelLabel}</span>
-            {props.optionsLabel ? <span className="shrink-0">{props.optionsLabel}</span> : null}
-            <ChevronDown className="size-3" />
+            {props.optionsLabel ? (
+              <span className="shrink-0 text-muted-foreground">{props.optionsLabel}</span>
+            ) : null}
+            <ChevronDown className="size-3 text-muted-foreground shrink-0" />
           </Button>
         </PopoverTrigger>
       </TooltipTrigger>

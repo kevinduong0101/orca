@@ -121,7 +121,8 @@ export function ensureBrowserPageViewport(
 
   const scroller = document.createElement('div')
   scroller.dataset.browserPageScroller = ''
-  scroller.className = 'scrollbar-sleek relative min-h-0 min-w-0 flex-1 overflow-hidden'
+  scroller.className =
+    'scrollbar-sleek relative min-h-0 min-w-0 flex-1 overflow-x-auto overflow-y-auto'
 
   const content = document.createElement('div')
   content.dataset.browserPageContent = ''
@@ -162,7 +163,7 @@ function applyViewportPresetSizeStyles(
     viewport.content.style.width = '100%'
     viewport.content.style.height = '100%'
   }
-  viewport.scroller.style.overflow = size ? 'auto' : ''
+  viewport.scroller.style.overflow = 'auto'
 }
 
 export function setBrowserPageViewportPresetSize(

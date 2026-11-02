@@ -114,6 +114,19 @@ function showRetainedHost(host: HTMLDivElement, container: HTMLElement): () => v
       width: `${bounds.width}px`,
       height: `${bounds.height}px`
     })
+    if (bounds.width > 0) {
+      const webview = host.querySelector('webview') as Electron.WebviewTag | null
+      try {
+        if (bounds.width < 720) {
+          const fitFactor = Math.min(1, Math.max(0.48, bounds.width / 680))
+          webview?.setZoomFactor(fitFactor)
+        } else {
+          webview?.setZoomFactor(1)
+        }
+      } catch {
+        // Ignore if guest is not yet ready or attached
+      }
+    }
   }
   const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(syncViewport)
   observer?.observe(container)

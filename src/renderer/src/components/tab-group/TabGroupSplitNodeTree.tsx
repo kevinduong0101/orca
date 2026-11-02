@@ -6,8 +6,8 @@ import type { HoveredTabInsertion } from './useTabDragSplit'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
 import { setGroupRatioThroughLayoutOwner } from './tab-group-layout-owner-commands'
 
-const MIN_RATIO = 0.15
-const MAX_RATIO = 0.85
+const MIN_RATIO = 0.22
+const MAX_RATIO = 0.78
 
 export function ResizeHandle({
   direction,
@@ -136,6 +136,8 @@ export function ResizeHandle({
         isHorizontal ? 'is-vertical' : 'is-horizontal'
       }${dragging ? ' is-dragging' : ''}`}
       onPointerDown={onPointerDown}
+      onDoubleClick={() => onRatioChange(0.5)}
+      title="Drag to resize, double-click to reset 50/50"
     />
   )
 }
@@ -215,7 +217,7 @@ function SplitNode({
       className="flex flex-1 min-w-0 min-h-0 overflow-hidden"
       style={{ flexDirection: isHorizontal ? 'row' : 'column' }}
     >
-      <div className="flex min-w-0 min-h-0 overflow-hidden" style={{ flex: `${ratio} 1 0%` }}>
+      <div className="flex min-w-[260px] min-h-0 overflow-hidden" style={{ flex: `${ratio} 1 0%` }}>
         <SplitNode
           node={node.first}
           nodePath={nodePath.length > 0 ? `${nodePath}.first` : 'first'}
@@ -246,7 +248,10 @@ function SplitNode({
             : setTabGroupSplitRatio(worktreeId, nodePath, nextRatio)
         }
       />
-      <div className="flex min-w-0 min-h-0 overflow-hidden" style={{ flex: `${1 - ratio} 1 0%` }}>
+      <div
+        className="flex min-w-[260px] min-h-0 overflow-hidden"
+        style={{ flex: `${1 - ratio} 1 0%` }}
+      >
         <SplitNode
           node={node.second}
           nodePath={nodePath.length > 0 ? `${nodePath}.second` : 'second'}
