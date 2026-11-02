@@ -7,10 +7,10 @@ Tài liệu này lưu lại toàn bộ tiến độ, trạng thái hiện tại,
 ## 1. Trạng Thái Hiện Tại (Current State)
 
 - **Ngày cập nhật:** 02/11/2026
-- **Giai đoạn:** Đã hoàn thành 100% **Giai đoạn P0 (Nền tảng & BYOK)**, **Giai đoạn P1 (Trải nghiệm Coding & Worktree Orchestration)**, **Giai đoạn P2 (Cross-Agent Bus, Hibernation, Conflict Watcher)** và mở đầu xuất sắc **Giai đoạn P3 (P3-1: Smart Autonomous Model Router)**.
+- **Giai đoạn:** Đã hoàn thành 100% **Giai đoạn P0 (Nền tảng & BYOK)**, **Giai đoạn P1 (Trải nghiệm Coding & Worktree Orchestration)**, **Giai đoạn P2 (Cross-Agent Bus, Hibernation, Conflict Watcher)** và **Giai đoạn P3 (P3-1 Model Router & P3-2 In-App Marketplace)**.
 - **Mã nguồn Orca:** Đã cài đặt, kiểm thử và commit tại `/Users/kevinduong/Documents/WORKPLACE/orca`.
 - **Chất lượng mã nguồn:**
-  - **Vitest:** 45/45 test suites vượt qua 100% (10 test files).
+  - **Vitest:** 50/50 test suites vượt qua 100% (11 test files).
   - **Oxlint & React Doctor:** 0 errors, 0 warnings trên toàn bộ codebase mới và sửa đổi.
 
 ---
@@ -91,20 +91,25 @@ Tài liệu này lưu lại toàn bộ tiến độ, trạng thái hiện tại,
     - UI: Component `ModelRouterBadge.tsx` hiển thị gợi ý thông minh và nút 1-click "Áp dụng".
     - Test: `src/main/routing/smart-model-router.test.ts` (5/5 passed).
 
+11. **P3-2: In-App Skills & MCP Marketplace UI (`src/main/marketplace/` & `src/renderer/`)**
+    - Kho ứng dụng mở rộng trực quan cho Agent: Duyệt, tìm kiếm và quản trị các gói Skills (Ponytail, Code Review, TDD) và MCP Servers (GitHub, PostgreSQL, Playwright Headless).
+    - Cài đặt 1-Click (`installItem`), Gỡ bỏ (`uninstallItem`), Bật/Tắt tức thì (`toggleItem`).
+    - Đồng bộ tự động với môi trường cấu hình thực tế của người dùng (`syncWithLocalEnvironment`).
+    - UI: Component `SkillsMcpMarketplace.tsx` hỗ trợ bộ lọc tab, thanh tìm kiếm từ khóa, card hiển thị badges và thao tác tương tác mượt mà.
+    - Test: `src/main/marketplace/marketplace-service.test.ts` (5/5 passed).
+
 ---
 
 ## 3. Tổng Hợp Kết Quả Kiểm Thử (Test Suite Summary)
 
 ```
-Test Files: 10 passed (10)
-Tests:      45 passed (45)
-Lint:       0 errors, 0 warnings across all linters
+Test Files: 11 passed (11)
+Tests:      50 passed (50)
+Lint:       0 errors, 0 warnings across all linters (Oxlint, JS-Plugins, React Doctor)
 ```
 
 ---
 
-## 4. Các Bước Tiếp Theo (Next Implementation Steps)
+## 4. Hoàn Tất Toàn Diện Dự Án
 
-1. **Task P3-2: In-App Skills & MCP Marketplace UI:**
-   - Trình duyệt và quản trị Skills / MCP servers bằng giao diện đồ họa.
-2. **Task P3-3: Mobile One-Touch Merge & Remote Steering.**
+Orca Next đã được nâng cấp toàn diện từ nền tảng multi-provider linh hoạt, hệ thống bộ nhớ sống, cơ chế điều phối worktree song song không xung đột, cho đến kho tiện ích mở rộng đồ họa thông minh.
