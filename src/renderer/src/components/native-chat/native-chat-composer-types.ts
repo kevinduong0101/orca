@@ -147,6 +147,8 @@ export type NativeChatComposerProps = {
   notices?: readonly NativeChatComposerNotice[]
   /** The conversation Up/Down recalls prompts from. */
   recallSource?: NativeChatRecallSource
+  /** Allows intercepting PTY sends (e.g. to queue while agent is busy). Return true to consume. */
+  onQueuePtySend?: (text: string, imagePaths?: string[]) => boolean
 }
 
 /** The unsent TUI launch prefill and this pane’s adoption/cleanup authority. */

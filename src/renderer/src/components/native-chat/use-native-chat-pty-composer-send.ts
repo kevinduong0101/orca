@@ -51,6 +51,7 @@ export function useNativeChatPtyComposerSend(args: {
   clearSkillOrigin: () => void
   clearImageAttachments: () => void
   setNotice: (notice: string | null) => void
+  onQueuePtySend?: (text: string, imagePaths?: string[]) => boolean
 }): () => void {
   return useCallback(() => {
     let text = args.draft
@@ -75,6 +76,20 @@ export function useNativeChatPtyComposerSend(args: {
     }
     const submitted = readNativeChatComposerDraft(args.draftScopeKey)
     text = serializeNativeChatAgentReferences(text, submitted.document, submitted.pastedTextFiles)
+    if (args.onQueuePtySend?.(text, imagePaths)) {
+      emitNativeChatMessageSent({
+        agent: args.agent,
+        runtime: nativeChatComposerTargetIsRemote(target.ptyId) ? 'remote' : 'local'
+      })
+      args.onSubmitted?.()
+      args.setDraft('')
+      args.setCaret(0)
+      args.clearSkillOrigin()
+      args.clearImageAttachments()
+      args.setNotice(null)
+      useAppStore.getState().clearNativeChatLaunchDraft(args.terminalTabId)
+      return
+    }
     const { sendOptions: launchSendOptions } = resolveNativeChatLaunchDraftSend({
       launchDraft: args.launchDraft,
       launchDraftResolved: args.launchDraftResolved,

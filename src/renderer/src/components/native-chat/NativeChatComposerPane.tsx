@@ -60,7 +60,8 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       inputOwnedByCard = false,
       notices: chatNotices,
       workspacePending: pending = false,
-      launchPrompt
+      launchPrompt,
+      onQueuePtySend
     },
     ref
   ): React.JSX.Element {
@@ -274,7 +275,8 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       classifySend,
       onOptimisticSend,
       optimisticSendOutcome,
-      terminalTabId
+      terminalTabId,
+      onQueuePtySend
     })
     const submission = useNativeChatComposerSubmit({
       structuredTransport,
