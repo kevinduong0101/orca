@@ -120,11 +120,21 @@ const OMP_COMMANDS: readonly SlashCommandSuggestion[] = [
   { name: 'hotkeys', description: 'Show keyboard shortcuts in Terminal' }
 ]
 
+const ANTIGRAVITY_COMMANDS: readonly SlashCommandSuggestion[] = [
+  { name: 'model', description: 'Choose the model' },
+  { name: 'effort', description: 'Choose reasoning effort' },
+  { name: 'clear', description: 'Clear conversation context' },
+  { name: 'compact', description: 'Compact conversation context' },
+  { name: 'plan', description: 'Switch to Plan mode' },
+  { name: 'help', description: 'Show available commands' }
+]
+
 const COMMANDS_BY_AGENT: Partial<Record<AgentType, readonly SlashCommandSuggestion[]>> = {
   claude: CLAUDE_COMMANDS,
   openclaude: OPENCLAUDE_COMMANDS,
   codex: CODEX_COMMANDS,
-  omp: OMP_COMMANDS
+  omp: OMP_COMMANDS,
+  antigravity: ANTIGRAVITY_COMMANDS
 }
 
 /** Known slash commands for an agent, falling back to a small common set so the

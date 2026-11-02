@@ -61,6 +61,19 @@ const NATIVE_CHAT_AGENT_PROFILES: Partial<Record<AgentType, NativeChatAgentProfi
     skillPrefix: '/',
     skillSourceOwner: 'pi',
     skillNamePrefix: 'skill:'
+  },
+  antigravity: {
+    skillPrefix: '/',
+    skillSourceOwner: 'antigravity',
+    readsSkillFoldersOf: 'gemini',
+    keepsScannedSkills: true,
+    expandsSlashCommandsFromText: true
+  },
+  gemini: {
+    skillPrefix: '/',
+    skillSourceOwner: 'gemini',
+    keepsScannedSkills: true,
+    expandsSlashCommandsFromText: true
   }
 }
 
@@ -70,6 +83,9 @@ export function readsSkillSource(
   profile: Pick<NativeChatAgentProfile, 'skillSourceOwner' | 'readsSkillFoldersOf'>,
   source: Pick<SkillDiscoverySource, 'owner' | 'sourceKind'>
 ): boolean {
+  if (profile.skillSourceOwner === 'antigravity') {
+    return true
+  }
   return (
     source.owner === null ||
     source.owner === profile.skillSourceOwner ||

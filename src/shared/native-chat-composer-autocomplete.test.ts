@@ -650,3 +650,19 @@ it('selected slash membership uses real token starts and keeps Codex provider me
     expect(pickedSkillsInText(text, picked, ['$', '/'])).toEqual([])
   }
 })
+
+it('loads skills for antigravity chat with / prefix and keeps scanned skills', () => {
+  const profile = getNativeChatAgentProfile('antigravity')
+  expect(profile).not.toBeNull()
+  expect(profile?.skillPrefix).toBe('/')
+  expect(profile?.keepsScannedSkills).toBe(true)
+
+  const testSkill = skill({ name: 'ponytail', description: 'Lazy senior dev mode' })
+  const result = deriveComposerAutocomplete('/', 1, COMMANDS, [testSkill], profile)
+  expect(result.mode).toBe('slash')
+  if (result.mode === 'slash') {
+    const ponytailItem = result.items.find((i) => i.name === 'ponytail')
+    expect(ponytailItem).toBeDefined()
+    expect(ponytailItem?.kind).toBe('skill')
+  }
+})
