@@ -1,8 +1,19 @@
+const SKILL_SOURCE_PRIORITY: Record<SkillSourceKind, number> = {
+  repo: 0,
+  home: 1,
+  plugin: 2,
+  bundled: 3
+}
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store'
 import type { AgentType } from '../../../../shared/agent-status-types'
-import type { DiscoveredSkill, SkillDiscoveryResult } from '../../../../shared/skills'
+import type {
+  DiscoveredSkill,
+  SkillDiscoveryResult,
+  SkillSourceKind
+} from '../../../../shared/skills'
 import { getNativeChatAgentProfile } from '../../../../shared/native-chat/native-chat-agent-profiles'
 import { isNativeChatSkillForAgent } from '../../../../shared/native-chat-skill-visibility'
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
@@ -190,9 +201,20 @@ export function useNativeChatSkills(
       return []
     }
     const result = context ? paneDiscoveryCache.current.get(context.key) : undefined
-    return result
-      ? effectiveState.skills.filter((skill) => isNativeChatSkillForAgent(agent, skill, result))
-      : []
+    if (!result) {
+      return []
+    }
+    const matched = effectiveState.skills.filter((skill) =>
+      isNativeChatSkillForAgent(agent, skill, result)
+    )
+    return [...matched].sort((a, b) => {
+      const priorityDiff =
+        (SKILL_SOURCE_PRIORITY[a.sourceKind] ?? 4) - (SKILL_SOURCE_PRIORITY[b.sourceKind] ?? 4)
+      if (priorityDiff !== 0) {
+        return priorityDiff
+      }
+      return a.name.localeCompare(b.name)
+    })
   }, [agent, context, effectiveState, profile])
 
   const retry = useCallback(() => {

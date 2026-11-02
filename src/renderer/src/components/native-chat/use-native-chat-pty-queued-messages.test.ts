@@ -18,6 +18,7 @@ vi.mock('./native-chat-runtime-image-send', () => ({
 describe('useNativeChatPtyQueuedMessages', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    sessionStorage.clear()
   })
 
   it('allows direct send when idle and queue is empty', () => {
@@ -118,7 +119,7 @@ describe('useNativeChatPtyQueuedMessages', () => {
     expect(result.current.queuedController.cards).toHaveLength(0)
   })
 
-  it('allows manual removal and clearing of queued messages', () => {
+  it('supports reordering queued messages', async () => {
     const onOptimisticSend = vi.fn()
     const revealLatest = vi.fn()
 
@@ -140,21 +141,114 @@ describe('useNativeChatPtyQueuedMessages', () => {
     act(() => {
       result.current.onQueuePtySend('msg 1')
       result.current.onQueuePtySend('msg 2')
+      result.current.onQueuePtySend('msg 3')
     })
-    expect(result.current.queuedController.cards).toHaveLength(2)
 
-    // Remove first card
-    const firstId = result.current.queuedController.cards[0].messageId
-    act(() => {
-      void result.current.queuedController.remove(firstId)
+    const id1 = result.current.queuedController.cards[0].messageId
+    const id2 = result.current.queuedController.cards[1].messageId
+
+    // Move msg 1 after msg 2
+    await act(async () => {
+      await result.current.queuedController.reorder?.move(id1, { afterMessageId: id2 })
     })
-    expect(result.current.queuedController.cards).toHaveLength(1)
+
     expect(result.current.queuedController.cards[0].text).toBe('msg 2')
+    expect(result.current.queuedController.cards[1].text).toBe('msg 1')
+    expect(result.current.queuedController.cards[2].text).toBe('msg 3')
+  })
 
-    // Clear all
+  it('supports inline editing of queued messages', async () => {
+    const onOptimisticSend = vi.fn()
+    const revealLatest = vi.fn()
+
+    const { result } = renderHook(() =>
+      useNativeChatPtyQueuedMessages({
+        agent: 'antigravity',
+        targetPtyId: 'pty-1',
+        paneKey: 'pane-1',
+        sessionId: 'session-1',
+        isWorking: true,
+        turnActive: true,
+        canSend: true,
+        hasPromptCard: false,
+        onOptimisticSend,
+        revealLatest
+      })
+    )
+
     act(() => {
-      void result.current.queuedController.clear()
+      result.current.onQueuePtySend('original draft')
     })
+
+    const id = result.current.queuedController.cards[0].messageId
+
+    await act(async () => {
+      await result.current.queuedController.edit(id)
+    })
+
+    expect(result.current.queuedController.editor).toBeDefined()
+    expect(result.current.queuedController.editor?.text).toBe('original draft')
+
+    act(() => {
+      result.current.queuedController.editor?.change('updated prompt')
+    })
+
+    act(() => {
+      result.current.queuedController.editor?.save()
+    })
+
+    expect(result.current.queuedController.editor).toBeUndefined()
+    expect(result.current.queuedController.cards[0].text).toBe('updated prompt')
+  })
+
+  it('pauses queue on stop instead of discarding, allowing resume', async () => {
+    const onOptimisticSend = vi.fn()
+    const revealLatest = vi.fn()
+
+    const { result, rerender } = renderHook(
+      ({ isWorking, turnActive }) =>
+        useNativeChatPtyQueuedMessages({
+          agent: 'antigravity',
+          targetPtyId: 'pty-1',
+          paneKey: 'pane-1',
+          sessionId: 'session-1',
+          isWorking,
+          turnActive,
+          canSend: true,
+          hasPromptCard: false,
+          onOptimisticSend,
+          revealLatest
+        }),
+      { initialProps: { isWorking: true, turnActive: true } }
+    )
+
+    act(() => {
+      result.current.onQueuePtySend('held message')
+    })
+
+    // User stops agent
+    act(() => {
+      result.current.pauseQueue()
+    })
+
+    expect(result.current.queuedController.pause).toEqual({ reason: 'stopped' })
+    expect(result.current.queuedController.cards[0].hold).toBe('queue-paused')
+
+    // Turn completes, but queue should not drain because it is paused
+    act(() => {
+      rerender({ isWorking: false, turnActive: false })
+    })
+
+    expect(runtimeSend.sendNativeChatMessage).not.toHaveBeenCalled()
+    expect(result.current.queuedController.cards).toHaveLength(1)
+
+    // User resumes queue
+    await act(async () => {
+      await result.current.queuedController.resume()
+    })
+
+    expect(result.current.queuedController.pause).toBeNull()
+    expect(runtimeSend.sendNativeChatMessage).toHaveBeenCalledWith('pty-1', 'held message')
     expect(result.current.queuedController.cards).toHaveLength(0)
   })
 })

@@ -1,16 +1,22 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { AgentType } from '../../../../shared/agent-status-types'
-import type { QueuedMessageCard } from '../../../../shared/agent-session/view/structured-agent-session-queued-cards'
 import type { StructuredAgentSessionQueuedMessagesController } from './use-structured-agent-session-queued-messages'
+import type {
+  QueuedMessageMoveAnchor,
+  QueuedMessageReorder
+} from './use-structured-agent-session-queued-reorder'
+import type { QueuedMessageInlineEditor } from './native-chat-queued-edit-session'
 import { sendNativeChatMessage } from './native-chat-runtime-send'
 import { sendNativeChatMessageWithImageAttachments } from './native-chat-runtime-image-send'
 import { createBrowserUuid } from '@/lib/browser-uuid'
+import {
+  createPtyQueuedCards,
+  reorderQueuedItems,
+  usePtyQueuedAutoDrain,
+  type NativeChatPtyQueuedItem
+} from './native-chat-pty-queued-helpers'
 
-export type NativeChatPtyQueuedItem = {
-  id: string
-  text: string
-  imagePaths?: string[]
-}
+export type { NativeChatPtyQueuedItem } from './native-chat-pty-queued-helpers'
 
 export type UseNativeChatPtyQueuedMessagesArgs = {
   agent: AgentType
@@ -29,6 +35,7 @@ export type UseNativeChatPtyQueuedMessagesResult = {
   queuedController: StructuredAgentSessionQueuedMessagesController
   onQueuePtySend: (text: string, imagePaths?: string[]) => boolean
   clearQueue: () => void
+  pauseQueue: () => void
 }
 
 export function useNativeChatPtyQueuedMessages(
@@ -47,14 +54,45 @@ export function useNativeChatPtyQueuedMessages(
     revealLatest
   } = args
 
-  const [queuedMessages, setQueuedMessages] = useState<NativeChatPtyQueuedItem[]>([])
+  const sessionQueueKey = `orca:pty-queue:${paneKey}`
+  const [queuedMessages, setQueuedMessages] = useState<NativeChatPtyQueuedItem[]>(() => {
+    try {
+      const stored = sessionStorage.getItem(`orca:pty-queue:${paneKey}`)
+      return stored ? (JSON.parse(stored) as NativeChatPtyQueuedItem[]) : []
+    } catch {
+      return []
+    }
+  })
+
+  const [isPaused, setIsPaused] = useState(false)
   const [isDispatchingQueue, setIsDispatchingQueue] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingText, setEditingText] = useState('')
   const turnObservedRef = useRef(false)
 
   useEffect(() => {
-    setQueuedMessages([])
+    try {
+      if (queuedMessages.length > 0) {
+        sessionStorage.setItem(sessionQueueKey, JSON.stringify(queuedMessages))
+      } else {
+        sessionStorage.removeItem(sessionQueueKey)
+      }
+    } catch {
+      // Ignore quota errors
+    }
+  }, [queuedMessages, sessionQueueKey])
+
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem(`orca:pty-queue:${paneKey}`)
+      setQueuedMessages(stored ? (JSON.parse(stored) as NativeChatPtyQueuedItem[]) : [])
+    } catch {
+      setQueuedMessages([])
+    }
+    setIsPaused(false)
     setIsDispatchingQueue(false)
     turnObservedRef.current = false
+    setEditingId(null)
   }, [paneKey, sessionId])
 
   const onQueuePtySend = useCallback(
@@ -62,6 +100,7 @@ export function useNativeChatPtyQueuedMessages(
       if (isWorking || turnActive || queuedMessages.length > 0 || isDispatchingQueue) {
         const id = createBrowserUuid()
         setQueuedMessages((prev) => [...prev, { id, text, imagePaths }])
+        setIsPaused(false)
         return true
       }
       return false
@@ -78,51 +117,8 @@ export function useNativeChatPtyQueuedMessages(
     }
   }, [isWorking, turnActive])
 
-  useEffect(() => {
-    if (
-      isDispatchingQueue ||
-      isWorking ||
-      turnActive ||
-      hasPromptCard ||
-      !canSend ||
-      !targetPtyId ||
-      queuedMessages.length === 0
-    ) {
-      return
-    }
-
-    const nextMessage = queuedMessages[0]
-    if (!nextMessage) {
-      return
-    }
-
-    setIsDispatchingQueue(true)
-    setQueuedMessages((prev) => prev.slice(1))
-
-    onOptimisticSend(nextMessage.text, nextMessage.imagePaths)
-    revealLatest()
-
-    const imagePaths = nextMessage.imagePaths ?? []
-    if (imagePaths.length > 0) {
-      sendNativeChatMessageWithImageAttachments(agent, targetPtyId, nextMessage.text, imagePaths)
-    } else {
-      sendNativeChatMessage(targetPtyId, nextMessage.text)
-    }
-
-    const timeoutId = setTimeout(() => {
-      setIsDispatchingQueue((current) => {
-        if (current && !turnObservedRef.current) {
-          return false
-        }
-        return current
-      })
-    }, 4000)
-
-    return () => {
-      clearTimeout(timeoutId)
-    }
-  }, [
-    isDispatchingQueue,
+  usePtyQueuedAutoDrain({
+    isPaused,
     isWorking,
     turnActive,
     hasPromptCard,
@@ -131,95 +127,187 @@ export function useNativeChatPtyQueuedMessages(
     queuedMessages,
     agent,
     onOptimisticSend,
-    revealLatest
-  ])
+    revealLatest,
+    setQueuedMessages,
+    isDispatchingQueue,
+    setIsDispatchingQueue,
+    turnObservedRef
+  })
 
   const clearQueue = useCallback(() => {
     setQueuedMessages([])
+    setIsPaused(false)
+    setIsDispatchingQueue(false)
+    turnObservedRef.current = false
+    setEditingId(null)
+    try {
+      sessionStorage.removeItem(sessionQueueKey)
+    } catch {
+      // Ignore
+    }
+  }, [sessionQueueKey])
+
+  const pauseQueue = useCallback(() => {
+    setIsPaused(true)
     setIsDispatchingQueue(false)
     turnObservedRef.current = false
   }, [])
 
-  const queuedCards = useMemo<QueuedMessageCard[]>(() => {
-    return queuedMessages.map((item, index) => ({
-      messageId: item.id,
-      position: index,
-      text: item.text,
-      images: item.imagePaths?.map((path) => ({ type: 'image-ref' as const, path })),
-      state: 'waiting' as const,
-      hold: 'turn' as const
-    }))
-  }, [queuedMessages])
+  const move = useCallback(async (messageId: string, anchor: QueuedMessageMoveAnchor) => {
+    setQueuedMessages((prev) => reorderQueuedItems(prev, messageId, anchor))
+  }, [])
+
+  const reorder = useMemo<QueuedMessageReorder>(
+    () => ({ scope: paneKey, pending: false, move }),
+    [paneKey, move]
+  )
+
+  const editor = useMemo<QueuedMessageInlineEditor | undefined>(() => {
+    if (!editingId) {
+      return undefined
+    }
+    return {
+      messageId: editingId,
+      draftScopeKey: `pty-queued-edit:${editingId}`,
+      text: editingText,
+      change: (text: string) => setEditingText(text),
+      acquiring: false,
+      saving: false,
+      canSave: editingText.trim() !== '',
+      imagesCapable: false,
+      save: () => {
+        setQueuedMessages((prev) =>
+          prev.map((m) => (m.id === editingId ? { ...m, text: editingText } : m))
+        )
+        setEditingId(null)
+      },
+      cancel: () => setEditingId(null)
+    }
+  }, [editingId, editingText])
+
+  const queuedCards = useMemo(
+    () => createPtyQueuedCards(queuedMessages, isPaused),
+    [isPaused, queuedMessages]
+  )
+
+  const steer = useCallback(
+    async (messageId: string) => {
+      if (isWorking || turnActive) {
+        return
+      }
+      const targetMsg = queuedMessages.find((m) => m.id === messageId)
+      if (!targetMsg || !targetPtyId || !canSend) {
+        return
+      }
+      setQueuedMessages((prev) => prev.filter((m) => m.id !== messageId))
+      onOptimisticSend(targetMsg.text, targetMsg.imagePaths)
+      revealLatest()
+      const imagePaths = targetMsg.imagePaths ?? []
+      if (imagePaths.length > 0) {
+        sendNativeChatMessageWithImageAttachments(agent, targetPtyId, targetMsg.text, imagePaths)
+      } else {
+        sendNativeChatMessage(targetPtyId, targetMsg.text)
+      }
+    },
+    [
+      agent,
+      canSend,
+      isWorking,
+      onOptimisticSend,
+      queuedMessages,
+      revealLatest,
+      targetPtyId,
+      turnActive
+    ]
+  )
+
+  const steerHead = useCallback(() => {
+    if (isWorking || turnActive || queuedMessages.length === 0 || !targetPtyId || !canSend) {
+      return false
+    }
+    const head = queuedMessages[0]
+    if (!head) {
+      return false
+    }
+    setQueuedMessages((prev) => prev.slice(1))
+    onOptimisticSend(head.text, head.imagePaths)
+    revealLatest()
+    const imagePaths = head.imagePaths ?? []
+    if (imagePaths.length > 0) {
+      sendNativeChatMessageWithImageAttachments(agent, targetPtyId, head.text, imagePaths)
+    } else {
+      sendNativeChatMessage(targetPtyId, head.text)
+    }
+    return true
+  }, [
+    agent,
+    canSend,
+    isWorking,
+    onOptimisticSend,
+    queuedMessages,
+    revealLatest,
+    targetPtyId,
+    turnActive
+  ])
+
+  const edit = useCallback(
+    async (messageId: string) => {
+      const target = queuedMessages.find((m) => m.id === messageId)
+      if (target) {
+        setEditingId(messageId)
+        setEditingText(target.text)
+      }
+    },
+    [queuedMessages]
+  )
+
+  const remove = useCallback(async (messageId: string) => {
+    setQueuedMessages((prev) => prev.filter((m) => m.id !== messageId))
+  }, [])
+
+  const resume = useCallback(async () => {
+    setIsPaused(false)
+    return true
+  }, [])
+
+  const clear = useCallback(async () => {
+    clearQueue()
+    return true
+  }, [clearQueue])
 
   const queuedController = useMemo<StructuredAgentSessionQueuedMessagesController>(() => {
     return {
       cards: queuedCards,
+      reorder,
       queueCapable: true,
-      clearCapable: queuedMessages.length > 0,
-      pause: null,
-      resume: async () => true,
-      clear: async () => {
-        setQueuedMessages([])
-        return true
-      },
+      clearCapable: queuedCards.length > 0,
+      pause: isPaused && queuedCards.length > 0 ? { reason: 'stopped' } : null,
+      resume,
+      clear,
       queuePending: null,
       pending: () => null,
-      steer: async (messageId: string) => {
-        if (isWorking || turnActive) {
-          return
-        }
-        const targetMsg = queuedMessages.find((m) => m.id === messageId)
-        if (!targetMsg || !targetPtyId || !canSend) {
-          return
-        }
-        setQueuedMessages((prev) => prev.filter((m) => m.id !== messageId))
-        onOptimisticSend(targetMsg.text, targetMsg.imagePaths)
-        revealLatest()
-        const imagePaths = targetMsg.imagePaths ?? []
-        if (imagePaths.length > 0) {
-          sendNativeChatMessageWithImageAttachments(agent, targetPtyId, targetMsg.text, imagePaths)
-        } else {
-          sendNativeChatMessage(targetPtyId, targetMsg.text)
-        }
-      },
-      remove: async (messageId: string) => {
-        setQueuedMessages((prev) => prev.filter((m) => m.id !== messageId))
-      },
-      editCapable: false,
-      editor: undefined,
-      edit: async () => {},
-      steerHead: () => {
-        if (isWorking || turnActive || queuedMessages.length === 0 || !targetPtyId || !canSend) {
-          return false
-        }
-        const head = queuedMessages[0]
-        if (!head) {
-          return false
-        }
-        setQueuedMessages((prev) => prev.slice(1))
-        onOptimisticSend(head.text, head.imagePaths)
-        revealLatest()
-        const imagePaths = head.imagePaths ?? []
-        if (imagePaths.length > 0) {
-          sendNativeChatMessageWithImageAttachments(agent, targetPtyId, head.text, imagePaths)
-        } else {
-          sendNativeChatMessage(targetPtyId, head.text)
-        }
-        return true
-      },
+      steer,
+      remove,
+      editCapable: true,
+      editor,
+      edit,
+      steerHead,
       isWorking: isWorking || turnActive
     }
   }, [
-    queuedCards,
-    queuedMessages,
+    clear,
+    edit,
+    editor,
+    isPaused,
     isWorking,
-    turnActive,
-    targetPtyId,
-    canSend,
-    agent,
-    onOptimisticSend,
-    revealLatest
+    queuedCards,
+    remove,
+    reorder,
+    resume,
+    steer,
+    steerHead,
+    turnActive
   ])
 
-  return { queuedController, onQueuePtySend, clearQueue }
+  return { queuedController, onQueuePtySend, clearQueue, pauseQueue }
 }

@@ -238,7 +238,7 @@ export function NativeChatResolvedView({
     composerRef.current?.focus()
   }, [])
 
-  const { queuedController, onQueuePtySend, clearQueue } = useNativeChatPtyQueuedMessages({
+  const { queuedController, onQueuePtySend, pauseQueue } = useNativeChatPtyQueuedMessages({
     agent,
     targetPtyId,
     paneKey,
@@ -253,11 +253,11 @@ export function NativeChatResolvedView({
 
   const stopAgent = useCallback(() => {
     setWorkingInterrupted(true)
-    clearQueue()
+    pauseQueue()
     // Stop can outlive its delayed-write handle; clear cached echoes explicitly to prevent ghost prompts.
     clear()
     interactiveSend.cancel()
-  }, [interactiveSend, clear, clearQueue])
+  }, [interactiveSend, clear, pauseQueue])
   const { onLinkClick, linkActionRequest, closeLinkActions } = useNativeChatLinkActions(
     fileLinkContext,
     rootRef,
