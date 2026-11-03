@@ -135,12 +135,12 @@
 **Description:** Định nghĩa cấu hình, brand voice, persona và system prompt cho 4 Agent chuyên trách trong Orca.
 **Acceptance criteria:**
 
-- [ ] Instagram & Threads Agent: Tone giọng hấp dẫn, chú trọng visual storytelling, hashtags phù hợp.
-- [ ] Pinterest Agent: Chuyên gia Visual SEO, tối ưu keyword tìm kiếm, mô tả chuẩn evergreen, gắn link portfolio.
-- [ ] LinkedIn Agent: Chuyên gia thương hiệu cá nhân, tone giọng chuyên nghiệp, insightful, bài học kinh doanh/nhiếp ảnh.
-- [ ] Website Blog Agent: Chuyên gia Content & SEO, cấu trúc bài viết H1/H2/H3 rõ ràng cho Kevin Duong Photography.
+- [x] Instagram & Threads Agent: Tone giọng hấp dẫn, chú trọng visual storytelling, hashtags phù hợp.
+- [x] Pinterest Agent: Chuyên gia Visual SEO, tối ưu keyword tìm kiếm, mô tả chuẩn evergreen, gắn link portfolio.
+- [x] LinkedIn Agent: Chuyên gia thương hiệu cá nhân, tone giọng chuyên nghiệp, insightful, bài học kinh doanh/nhiếp ảnh.
+- [x] Website Blog Agent: Chuyên gia Content & SEO, cấu trúc bài viết H1/H2/H3 rõ ràng cho Kevin Duong Photography.
       **Verification:**
-- [ ] Kiểm tra output sinh nội dung của từng agent thể hiện rõ phong cách riêng biệt, không bị trùng lặp văn phong.
+- [x] Kiểm tra output sinh nội dung của từng agent thể hiện rõ phong cách riêng biệt, không bị trùng lặp văn phong.
       **Dependencies:** Task 5
       **Files likely touched:**
 - `src/main/marketing-agents/channel-agent-registry.ts`
@@ -176,13 +176,13 @@
 **Description:** Tích hợp 5 starter templates chuyên dụng cho marketing vào tab Templates của Orca Automations Center.
 **Acceptance criteria:**
 
-- [ ] Template 1: Weekly Content Planner (Thứ Hai 08:00 - Lên kế hoạch 7 ngày).
-- [ ] Template 2: Pinterest Evergreen Publisher (Hàng ngày 11:30 - Tự tạo 2-3 Pin từ thư viện).
-- [ ] Template 3: LinkedIn Weekly Thought Leadership (Thứ Năm 09:00 - Bài học nghề nghiệp & case study).
-- [ ] Template 4: Blog-to-Social Multi-Channel Sync (Kích hoạt khi có bài viết mới).
-- [ ] Template 5: Sunday Content Performance Review (Chủ nhật 18:00 - Tổng kết số liệu và đề xuất).
+- [x] Template 1: Weekly Content Planner (Thứ Hai 08:00 - Lên kế hoạch 7 ngày).
+- [x] Template 2: Pinterest Evergreen Publisher (Hàng ngày 11:30 - Tự tạo 2-3 Pin từ thư viện).
+- [x] Template 3: LinkedIn Weekly Thought Leadership (Thứ Năm 09:00 - Bài học nghề nghiệp & case study).
+- [x] Template 4: Blog-to-Social Multi-Channel Sync (Kích hoạt khi có bài viết mới).
+- [x] Template 5: Sunday Content Performance Review (Chủ nhật 18:00 - Tổng kết số liệu và đề xuất).
       **Verification:**
-- [ ] Mở tab Templates trong Automations thấy 5 template mới, bấm "Use Template" tự điền sẵn form chuẩn xác.
+- [x] Mở tab Templates trong Automations thấy 5 template mới, bấm "Use Template" tự điền sẵn form chuẩn xác.
       **Dependencies:** Task 6
       **Files likely touched:**
 - `src/renderer/src/components/automations/automation-templates.ts`

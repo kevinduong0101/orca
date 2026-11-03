@@ -18,6 +18,77 @@ export type AutomationTemplate = {
 }
 
 export const getAutomationTemplates = createLocalizedCatalog((): AutomationTemplate[] => [
+  // --- Marketing OS Campaign Templates ---
+  {
+    id: 'marketing-weekly-planner',
+    category: 'Marketing OS',
+    label: 'Monday Content Strategy & Planner',
+    description:
+      'Autonomous 7-day multi-channel content strategy, captions, hashtags, and schedule.',
+    name: 'Monday Content Planner (Marketing OS)',
+    prompt:
+      'Act as the Marketing Director Agent. Review current brand positioning, recent content performance, and upcoming campaign priorities. Plan a comprehensive 7-day content schedule across Instagram, Threads, Pinterest, LinkedIn, and Website Blog. For each post, prepare the draft title, body copy, hashtags, media format, and scheduled time in Marketing OS.',
+    preset: 'weekly',
+    dayOfWeek: '1',
+    time: '08:00',
+    missedRunGraceMinutes: '720'
+  },
+  {
+    id: 'marketing-pinterest-daily',
+    category: 'Marketing OS',
+    label: 'Pinterest Daily Evergreen Publisher',
+    description:
+      'Curate portfolio photo concepts and generate 3 SEO-optimized Evergreen Pin variations.',
+    name: 'Pinterest Daily Evergreen Publisher',
+    prompt:
+      'Act as the Pinterest Visual SEO Agent. Select high-quality portfolio images and project concepts. Generate 3 keyword-rich Evergreen Pin variations targeting high-volume searches. Provide board recommendations, searchable pin titles, keyword-dense descriptions, and outbound destination links.',
+    preset: 'daily',
+    time: '11:30',
+    missedRunGraceMinutes: '360'
+  },
+  {
+    id: 'marketing-linkedin-weekly',
+    category: 'Marketing OS',
+    label: 'Thursday LinkedIn Thought Leadership',
+    description:
+      'Craft authentic professional insights, studio case studies, and business lessons.',
+    name: 'Thursday LinkedIn Thought Leadership',
+    prompt:
+      'Act as the LinkedIn Professional Agent. Draft an authentic, insightful industry post about creative studio operations, client onboarding, or modern photography techniques. Use conversational hook formatting, storytelling structure, and clear takeaways without corporate jargon.',
+    preset: 'weekly',
+    dayOfWeek: '4',
+    time: '09:00',
+    missedRunGraceMinutes: '720'
+  },
+  {
+    id: 'marketing-blog-repurpose',
+    category: 'Marketing OS',
+    label: 'Blog-to-Social Multi-Channel Sync',
+    description:
+      'Repurpose latest published articles or photo galleries into an omnichannel social campaign.',
+    name: 'Blog-to-Social Omnichannel Repurposer',
+    prompt:
+      'Act as the Multi-Channel Repurposing Director. Take the latest published blog article or portfolio gallery and repurpose it into: (1) One 5-slide Instagram carousel concept with slide-by-slide copy, (2) Two conversational Threads posts, (3) Three high-intent Pinterest pins with outbound links, (4) One LinkedIn business case post. Send all drafts into Marketing OS Approvals.',
+    preset: 'weekdays',
+    time: '10:00',
+    missedRunGraceMinutes: '1440'
+  },
+  {
+    id: 'marketing-sunday-review',
+    category: 'Marketing OS',
+    label: 'Sunday Marketing Performance Review',
+    description:
+      'Analyze weekly content output, review engagement, and propose next week recommendations.',
+    name: 'Sunday Marketing Performance Review',
+    prompt:
+      'Act as the Marketing Analytics Agent. Summarize this week’s content output across all 5 channels. Identify which concepts drove the highest reach, review content gaps, and propose 3 proactive recommendations for next week’s campaign in Marketing OS.',
+    preset: 'weekly',
+    dayOfWeek: '0',
+    time: '18:00',
+    missedRunGraceMinutes: '720'
+  },
+
+  // --- Engineering & Codebase Templates ---
   {
     id: 'repo-health-weekday',
     category: translate(
