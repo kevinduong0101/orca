@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import {
+  Brain,
   Calendar,
   CheckCircle2,
   Layers,
@@ -17,6 +18,7 @@ import { ApprovalsCenter } from './approvals/ApprovalsCenter'
 import { ContentStudioModal } from './studio/ContentStudioModal'
 import { RepurposeModal } from './studio/RepurposeModal'
 import { MarketingSettingsTab } from './settings/MarketingSettingsTab'
+import { AgentBrainTab } from './brain/AgentBrainTab'
 import { publishPostViaOrcaBrowser } from './services/orca-browser-publisher'
 import type { MarketingPost, MarketingTab } from './types/marketing-types'
 
@@ -37,7 +39,12 @@ export default function MarketingWorkspace(): React.JSX.Element {
     approveAll,
     batchAddPosts,
     seedDemoCampaign,
-    clearAllPosts
+    clearAllPosts,
+    insights,
+    learnedRules,
+    learningNotice,
+    runMarketDiscovery,
+    runAudit
   } = useMarketingData()
 
   const pendingApprovalsCount = posts.filter((p) => p.status === 'needs_review').length
@@ -196,6 +203,23 @@ export default function MarketingWorkspace(): React.JSX.Element {
 
           <button
             type="button"
+            onClick={() => setActiveTab('brain')}
+            className={cn(
+              'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-2',
+              activeTab === 'brain'
+                ? 'bg-purple-900/40 text-purple-200 border border-purple-500/30 shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60'
+            )}
+          >
+            <Brain className="size-3.5 text-purple-400" />
+            Agent Brain
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              {learnedRules.filter((r) => r.status === 'active_playbook').length}
+            </span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab('settings')}
             className={cn(
               'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-2',
@@ -272,6 +296,17 @@ export default function MarketingWorkspace(): React.JSX.Element {
               }}
               onQuickRewrite={handleQuickRewrite}
               onPublishInBrowser={handlePublishInBrowser}
+            />
+          )}
+
+          {activeTab === 'brain' && (
+            <AgentBrainTab
+              insights={insights}
+              rules={learnedRules}
+              posts={posts}
+              onRunDiscovery={runMarketDiscovery}
+              onRunAudit={runAudit}
+              notice={learningNotice}
             />
           )}
 

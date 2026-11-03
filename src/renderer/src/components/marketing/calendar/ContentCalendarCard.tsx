@@ -64,29 +64,49 @@ export function ContentCalendarCard({
           {post.destinationUrl && <ExternalLink className="size-3 text-zinc-500 shrink-0" />}
         </div>
 
-        {/* Status Pill */}
-        <span
-          className={cn(
-            'inline-flex items-center gap-1 font-semibold capitalize px-2 py-0.5 rounded-full border shrink-0',
-            isReview
-              ? 'text-amber-300 bg-amber-500/15 border-amber-500/30'
-              : isPublished
-                ? 'text-emerald-300 bg-emerald-500/15 border-emerald-500/30'
-                : 'text-sky-300 bg-sky-500/15 border-sky-500/30'
-          )}
-        >
+        {/* Status or Audit Pill */}
+        {post.performanceAudit ? (
           <span
             className={cn(
-              'size-1.5 rounded-full',
-              isReview
-                ? 'bg-amber-400 animate-pulse'
-                : isPublished
-                  ? 'bg-emerald-400'
-                  : 'bg-sky-400'
+              'inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full border shrink-0',
+              post.performanceAudit.verdict === 'high_performing'
+                ? 'text-emerald-300 bg-emerald-500/15 border-emerald-500/30'
+                : post.performanceAudit.verdict === 'low_engagement'
+                  ? 'text-rose-300 bg-rose-500/15 border-rose-500/30'
+                  : 'text-amber-300 bg-amber-500/15 border-amber-500/30'
             )}
-          />
-          {(post.status || 'draft').replace('_', ' ')}
-        </span>
+          >
+            {post.performanceAudit.verdict === 'high_performing'
+              ? '🔥'
+              : post.performanceAudit.verdict === 'low_engagement'
+                ? '⚠️'
+                : '📊'}{' '}
+            {post.performanceAudit.engagementRate}
+          </span>
+        ) : (
+          <span
+            className={cn(
+              'inline-flex items-center gap-1 font-semibold capitalize px-2 py-0.5 rounded-full border shrink-0',
+              isReview
+                ? 'text-amber-300 bg-amber-500/15 border-amber-500/30'
+                : isPublished
+                  ? 'text-emerald-300 bg-emerald-500/15 border-emerald-500/30'
+                  : 'text-sky-300 bg-sky-500/15 border-sky-500/30'
+            )}
+          >
+            <span
+              className={cn(
+                'size-1.5 rounded-full',
+                isReview
+                  ? 'bg-amber-400 animate-pulse'
+                  : isPublished
+                    ? 'bg-emerald-400'
+                    : 'bg-sky-400'
+              )}
+            />
+            {(post.status || 'draft').replace('_', ' ')}
+          </span>
+        )}
       </div>
     </div>
   )

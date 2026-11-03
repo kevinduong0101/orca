@@ -1,40 +1,37 @@
-# Implementation Plan: Orca Native Browser Automation for Pinterest & LinkedIn Marketing
+# Implementation Plan: Orca Autonomous Continuous Self-Learning & Feedback Engine
 
 ## Overview
 
-Xây dựng và tích hợp hệ sinh thái tự động hóa đăng bài và tìm kiếm khách hàng tiềm năng cho Pinterest & LinkedIn chạy hoàn toàn bên trong trình duyệt nội bộ của Orca (Electron Webview với persistent profile `persist:orca-browser`). Điều này đảm bảo AI Agent có thể truy cập, tương tác, upload media và đăng bài mà không cần mở hoặc chiếm dụng trình duyệt ngoài (Chrome/Safari) của người dùng.
+Xây dựng và tích hợp hệ sinh thái AI Tự Học Hỏi & Vòng Lặp Phản Tư Thích Ứng Mỗi Ngày (Continuous Autonomous Self-Learning & Feedback Loop) vào Orca Marketing OS:
 
-## Architecture Decisions
-
-- **Trình duyệt nội bộ (Orca Browser Workspace):** Sử dụng trực tiếp `useAppStore.getState().createBrowserTab(worktreeId, url, { activate: true })` và `setActiveTabType("browser", worktreeId)`.
-- **Lưu phiên đăng nhập bền vững (Persistent Session):** Webview của Orca được gắn partition `persist:orca-browser`, lưu trữ cookie, localStorage và token đăng nhập của Pinterest & LinkedIn an toàn, không bao giờ bị logout khi tắt app.
-- **Tự động hóa Agent không can thiệp màn hình ngoài (Headless / Internal Automation):** Sử dụng bộ lệnh CLI `orca tab`, `orca snapshot`, `orca click`, `orca fill` để AI đọc accessibility tree và thao tác form trên tab nội bộ mà không di chuyển chuột máy tính của user.
-- **Skill Transparency & Visibility:** Orca Native Chat tự động phân tích và gắn nhãn Huy hiệu hoạt động `⚡ Skill Active: [tên skill]` ngay trên tin nhắn khi người dùng gọi bất kỳ slash command hoặc chọn skill từ menu.
+1. **Tự động khảo sát & học hỏi bài viral (Inbound Intelligence):** Quét các mẫu bài top-performing trên Pinterest & LinkedIn, trích xuất công thức (Visual Ratio 2:3, Emotional Hook, Pricing Transparency, Soft CTA).
+2. **Sáng tạo bài theo Giả thuyết (Hypothesis-Driven):** Gắn thẻ giả thuyết học hỏi vào từng bài đăng trong pipeline.
+3. **Vòng lặp kiểm tra 24h-48h & Tự phản tư (Post-Publish Audit & Reflection):** Đọc tương tác thực tế:
+   - Bài tương tác tốt (High performing): Tăng điểm tin cậy (+8%), lưu vào _Validated Playbook_.
+   - Bài kém tương tác (Low engagement): Kích hoạt _AI Reflection_, tự mổ xẻ nguyên nhân và xoay trục (_Actionable Pivot_) cho bài tiếp theo.
+4. **Trung tâm Điều Khiển Bộ Não AI (Agent Brain Tab):** Dashboard hiển thị Playbook quy tắc, kho tri thức bài viral, và sổ cái tự phản tư 48h.
 
 ## Task List
 
-### Phase 1: Skill Visibility & Native Chat Badge
+### Phase 1: Mở rộng Data Models & Memory Store
 
-- [x] Task 1: Thêm type definition `skills` và projection từ journal item vào `NativeChatMessage`.
-- [x] Task 2: Cập nhật `NativeChatUserMessageRow.tsx` để tự động phát hiện slash commands / skills và render Huy hiệu `⚡ Skill Active: {name}`.
-- [x] Task 3: Thêm vitest suite trong `NativeChatMessageRow.test.tsx` xác nhận hiển thị badge skill cho cả inline text và journal skills array.
+- [x] Task 1: Mở rộng `marketing-types.ts` (Thêm tab `brain`, `MarketInsight`, `AgentLearnedRule`, `PostPerformanceAudit`, `hypothesis`).
+- [x] Task 2: Xây dựng `agent-learning-engine.ts` quản lý bộ nhớ kinh nghiệm và điều chỉnh trọng số điểm tin cậy.
 
-### Checkpoint: Skill Visibility
+### Phase 2: Logic Tự Động Khảo Sát & Phản Tư
 
-- [x] Tất cả 21 bài test trong `NativeChatMessageRow.test.tsx` vượt qua 100%.
-- [x] Oxlint 0 warnings, 0 errors, file < 400 dòng.
+- [x] Task 3: Xây dựng `market-intelligence-service.ts` quét và hấp thu các mẫu bài viral mới nhất.
+- [x] Task 4: Xây dựng `performance-reflection-engine.ts` tự động chấm điểm, tạo reflection và actionable pivot sau 48h.
 
-### Phase 2: Orca Internal Browser Session Profiles
+### Phase 3: Giao Diện "Agent Brain" & Tích Hợp Hệ Thống
 
-- [x] Task 4: Chuyển đổi `handleOpenBrowserSession` trong `MarketingSettingsTab.tsx` từ `window.open` ngoại vi sang `createBrowserTab` nội bộ Orca.
-- [x] Task 5: Tách `MarketingBackupSettingsCard.tsx` để đảm bảo `MarketingSettingsTab.tsx` tuân thủ nghiêm ngặt giới hạn $\le$ 400 dòng của Orca ESLint.
+- [x] Task 5: Tạo giao diện `AgentBrainTab.tsx` & `AgentAuditLedgerCard.tsx`.
+- [x] Task 6: Tích hợp tab `🧠 Agent Brain` vào `MarketingWorkspace.tsx` và kết nối `useMarketingData`.
+- [x] Task 7: Hiển thị badge Giả thuyết học hỏi trong `ApprovalsCenter.tsx` và huy hiệu Audit tương tác trong `ContentCalendarCard.tsx`.
+- [x] Task 8: Tách `ContentCalendarMonthView.tsx` để giữ toàn bộ các file $\le$ 400 dòng chuẩn ESLint.
 
-### Phase 3: Browser Automation Action Controller
+### Phase 4: Kiểm Thử, Build & Triển Khai
 
-- [x] Task 6: Bổ sung hành động "Publish via Orca Browser" trong Content Studio và Approvals Center cho kênh Pinterest & LinkedIn.
-- [x] Task 7: Tạo kịch bản tự động hóa DOM bằng `orca snapshot` và form fill cho bài đăng Pinterest (Title, Board, 2:3 Pin, Link về kevinduong.com) và bài viết LinkedIn.
-
-### Checkpoint: Complete
-
-- [ ] End-to-end flow chạy trơn tru trong tab nội bộ Orca.
-- [ ] Trình duyệt ngoài macOS không bị ảnh hưởng.
+- [x] Toàn bộ 29 files trong Marketing OS đạt 0 warnings, 0 errors trên `oxlint`.
+- [ ] Build `build:electron-vite` và cập nhật vào `/Applications/Orca.app`.
+- [ ] Git commit lên nhánh `main`.

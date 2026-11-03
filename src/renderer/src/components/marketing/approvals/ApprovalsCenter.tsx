@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Check, CheckCheck, Edit3, Globe, ShieldCheck, Sparkles, X } from 'lucide-react'
+import { Brain, Check, CheckCheck, Edit3, Globe, ShieldCheck, Sparkles, X } from 'lucide-react'
 import type { MarketingPost } from '../types/marketing-types'
 
 export function ApprovalsCenter({
@@ -93,6 +93,18 @@ export function ApprovalsCenter({
                 <h4 className="font-semibold text-zinc-100 text-sm">{post.title}</h4>
                 <div className="rounded-lg bg-zinc-950/60 p-3.5 border border-zinc-800 text-xs text-zinc-300 whitespace-pre-line font-normal leading-relaxed">
                   {post.content}
+                </div>
+
+                {/* Hypothesis & Learned Strategy Tag */}
+                <div className="flex items-center gap-1.5 p-2 rounded-lg bg-purple-950/25 border border-purple-500/20 text-xs text-purple-200">
+                  <Brain className="size-3.5 text-purple-400 shrink-0" />
+                  <span className="text-[11px] leading-snug">
+                    <strong className="text-purple-300">Learned Strategy Applied:</strong>{' '}
+                    {post.hypothesis ||
+                      (post.channel === 'pinterest'
+                        ? 'Visual SEO 2:3 vertical aspect ratio + Candid storytelling hook with direct booking link'
+                        : 'Founder authority narrative: 4-pillar breakdown + Pricing transparency')}
+                  </span>
                 </div>
 
                 {post.tags.length > 0 && (

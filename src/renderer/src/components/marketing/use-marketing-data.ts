@@ -3,8 +3,18 @@ import type {
   MarketingPost,
   ChannelAgentStatus,
   OrcaRecommendation,
-  MarketingSettings
+  MarketingSettings,
+  MarketInsight,
+  AgentLearnedRule
 } from './types/marketing-types'
+import {
+  loadMarketInsights,
+  saveMarketInsights,
+  loadLearnedRules,
+  saveLearnedRules
+} from './services/agent-learning-engine'
+import { runAutonomousMarketDiscovery } from './services/market-intelligence-service'
+import { auditPublishedPosts } from './services/performance-reflection-engine'
 import {
   INITIAL_CHANNEL_AGENTS,
   INITIAL_POSTS,
@@ -59,6 +69,18 @@ export function useMarketingData() {
     }
     return DEFAULT_SETTINGS
   })
+
+  const [insights, setInsights] = useState<MarketInsight[]>(() => loadMarketInsights())
+  const [learnedRules, setLearnedRules] = useState<AgentLearnedRule[]>(() => loadLearnedRules())
+  const [learningNotice, setLearningNotice] = useState<string | null>(null)
+
+  useEffect(() => {
+    saveMarketInsights(insights)
+  }, [insights])
+
+  useEffect(() => {
+    saveLearnedRules(learnedRules)
+  }, [learnedRules])
 
   const [recommendations, setRecommendations] = useState<OrcaRecommendation[]>(() => {
     return posts.filter((p) => p.status === 'needs_review').length > 0
@@ -120,6 +142,24 @@ export function useMarketingData() {
     setRecommendations(SAMPLE_DEMO_RECOMMENDATIONS)
   }, [])
 
+  const runMarketDiscovery = useCallback(() => {
+    const result = runAutonomousMarketDiscovery(insights, learnedRules)
+    setInsights(result.newInsights)
+    setLearnedRules(result.newRules)
+    setLearningNotice(result.discoverySummary)
+    setTimeout(() => setLearningNotice(null), 6000)
+    return result.discoverySummary
+  }, [insights, learnedRules])
+
+  const runAudit = useCallback(() => {
+    const result = auditPublishedPosts(posts, learnedRules)
+    setPosts(result.updatedPosts)
+    setLearnedRules(result.updatedRules)
+    setLearningNotice(result.reflectionSummary)
+    setTimeout(() => setLearningNotice(null), 6000)
+    return result.reflectionSummary
+  }, [posts, learnedRules])
+
   const clearAllPosts = useCallback(() => {
     setPosts([])
     setRecommendations([])
@@ -159,6 +199,11 @@ export function useMarketingData() {
     approveAll,
     batchAddPosts,
     seedDemoCampaign,
-    clearAllPosts
+    clearAllPosts,
+    insights,
+    learnedRules,
+    learningNotice,
+    runMarketDiscovery,
+    runAudit
   }
 }
