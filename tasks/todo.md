@@ -16,5 +16,5 @@
   - Thêm badge chiến lược trong `ApprovalsCenter.tsx` và nhãn kết quả tương tác trong `ContentCalendarCard.tsx`.
 - [x] **Task 8: File Length & ESLint Gate**
   - Tách `ContentCalendarMonthView.tsx`, đảm bảo 100% files $\le$ 400 dòng và 0 lỗi oxlint.
-- [ ] **Task 9: Build & Deployment**
+- [x] **Task 9: Build & Deployment**
   - Chạy `build:electron-vite`, đóng gói `app.asar` và cập nhật vào `/Applications/Orca.app`.

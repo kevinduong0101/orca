@@ -33,5 +33,5 @@ Xây dựng và tích hợp hệ sinh thái AI Tự Học Hỏi & Vòng Lặp Ph
 ### Phase 4: Kiểm Thử, Build & Triển Khai
 
 - [x] Toàn bộ 29 files trong Marketing OS đạt 0 warnings, 0 errors trên `oxlint`.
-- [ ] Build `build:electron-vite` và cập nhật vào `/Applications/Orca.app`.
-- [ ] Git commit lên nhánh `main`.
+- [x] Build `build:electron-vite` và cập nhật vào `/Applications/Orca.app`.
+- [x] Git commit lên nhánh `main`.
