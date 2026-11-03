@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { translate } from '@/i18n/i18n'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { AutomationEditorDialog } from './AutomationEditorDialog'
@@ -13,6 +13,10 @@ import { AutomationRunsDashboardSurface } from './AutomationRunsDashboardSurface
 import { AutomationRunDetailsPage } from './AutomationRunDetailsPage'
 import { AutomationsPageDeleteDialogs } from './AutomationsPageDeleteDialogs'
 import { AutomationsPageListPanel } from './AutomationsPageListPanel'
+import { AutomationsHeaderAndAwake } from './AutomationsHeaderAndAwake'
+import { AutomationsNavigationTabs, type AutomationsMainTab } from './AutomationsNavigationTabs'
+import { AutomationTemplatesTab } from './AutomationTemplatesTab'
+
 export function AutomationsPageSurface({
   controller
 }: {
@@ -75,11 +79,24 @@ export function AutomationsPageSurface({
     setRunPageOrigin
   } = local
   const { hostCatalog, hasListItems, selected, selectedRow, selectedExternal } = list
+
+  const [activeTab, setActiveTab] = useState<AutomationsMainTab>(
+    pageView === 'runs' ? 'runs' : 'automations'
+  )
+
+  useEffect(() => {
+    if (pageView === 'runs' && activeTab !== 'runs') {
+      setActiveTab('runs')
+    } else if (pageView === 'automations' && activeTab === 'runs') {
+      setActiveTab('automations')
+    }
+  }, [pageView, activeTab])
+
   const selectedAutomationRunPage = setup.selectedAutomationRunPage
   const selectedRunWorktreeMap = new Map(
     setup.selectedRuns.flatMap((run) => {
       const worktree = list.runTargetFor(run).worktree
-      return worktree ? [[run.id, worktree] as const] : []
+      return worktree ? ([[run.id, worktree]] as const) : []
     })
   )
   const runSelectedRowAction = (action: (row: AutomationListRow) => void): void => {
@@ -123,6 +140,16 @@ export function AutomationsPageSurface({
     setIsDetailOpen(true)
     setActivePaneTab('runs')
   }
+
+  const handleTabChange = (tab: AutomationsMainTab): void => {
+    setActiveTab(tab)
+    if (tab === 'runs') {
+      showRunsDashboard()
+    } else {
+      showAutomationsList()
+    }
+  }
+
   return (
     <main className="relative flex h-full min-h-0 flex-col bg-background pt-5 text-foreground md:pt-6">
       <AutomationsPageTopBar
@@ -137,6 +164,26 @@ export function AutomationsPageSurface({
         showRunsDashboard={showRunsDashboard}
         showAutomationDetails={showAutomationDetails}
       />
+
+      {!isDetailOpen && pageView !== 'run' && (
+        <div className="px-3 pb-3 md:px-5">
+          <AutomationsHeaderAndAwake
+            onRefresh={() => {
+              hostCatalog.refreshHosts()
+              void pageRefresh.refresh()
+              setRunHistoryReloadToken((token) => token + 1)
+            }}
+            isRefreshing={isLoading}
+            onOpenCreate={() => editorActions.openCreateDialog()}
+            onCreateWithAI={() => {
+              setActiveTab('templates')
+            }}
+          />
+
+          <AutomationsNavigationTabs activeTab={activeTab} onTabChange={handleTabChange} />
+        </div>
+      )}
+
       <AutomationEditorDialog
         open={createOpen}
         isEditing={editingAutomationId !== null}
@@ -188,6 +235,7 @@ export function AutomationsPageSurface({
         onApplyTemplate={draftEffects.applyTemplateToDraft}
         onSave={() => void saveAutomation()}
       />
+
       <AutomationsPageDeleteDialogs
         deleteTarget={deleteTarget?.automation ?? null}
         dontAskDeleteAgain={dontAskDeleteAgain}
@@ -202,6 +250,7 @@ export function AutomationsPageSurface({
           void externalActions.confirmDeleteExternalAutomation()
         }
       />
+
       {pageView === 'runs' ? (
         <AutomationRunsDashboardSurface
           rows={list.visibleRows}
@@ -300,6 +349,10 @@ export function AutomationsPageSurface({
             setActivePaneTab('overview')
           }}
         />
+      ) : activeTab === 'templates' ? (
+        <div className="scrollbar-sleek min-h-0 flex-1 overflow-auto px-3 pb-4 md:px-5">
+          <AutomationTemplatesTab onApplyTemplate={(tpl) => editorActions.openCreateDialog(tpl)} />
+        </div>
       ) : (
         <AutomationsPageListPanel
           controller={controller}
