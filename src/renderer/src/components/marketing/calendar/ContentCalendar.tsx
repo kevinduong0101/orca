@@ -1,24 +1,25 @@
 import React, { useState } from 'react'
-import { Calendar as CalendarIcon } from 'lucide-react'
+import {
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Layers,
+  Plus
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { CHANNEL_CONFIG, DAYS_OF_WEEK } from './calendar-config'
+import { ContentCalendarCard } from './ContentCalendarCard'
 import type { MarketingChannel, MarketingPost } from '../types/marketing-types'
-
-const CHANNEL_COLORS: Record<MarketingChannel, { bg: string; text: string; border: string }> = {
-  instagram: { bg: 'bg-pink-950/40', text: 'text-pink-300', border: 'border-pink-500/30' },
-  threads: { bg: 'bg-zinc-800/60', text: 'text-zinc-200', border: 'border-zinc-700' },
-  pinterest: { bg: 'bg-rose-950/40', text: 'text-rose-300', border: 'border-rose-500/30' },
-  linkedin: { bg: 'bg-blue-950/40', text: 'text-blue-300', border: 'border-blue-500/30' },
-  website: { bg: 'bg-emerald-950/40', text: 'text-emerald-300', border: 'border-emerald-500/30' }
-}
-
-const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 export function ContentCalendar({
   posts,
-  onSelectPost
+  onSelectPost,
+  onCreatePost
 }: {
   posts: MarketingPost[]
   onSelectPost?: (post: MarketingPost) => void
+  onCreatePost?: (channel?: MarketingChannel, date?: string) => void
 }): React.JSX.Element {
   const [selectedChannel, setSelectedChannel] = useState<MarketingChannel | 'all'>('all')
   const [viewMode, setViewMode] = useState<'week' | 'month' | 'list'>('week')
@@ -29,137 +30,209 @@ export function ContentCalendar({
 
   return (
     <div className="space-y-4">
-      {/* Calendar Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border border-zinc-800 bg-zinc-900/60 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800 text-xs font-medium">
-            <button
-              type="button"
-              onClick={() => setViewMode('week')}
-              className={cn(
-                'px-3 py-1.5 rounded-md transition-colors',
-                viewMode === 'week'
-                  ? 'bg-zinc-800 text-zinc-100 shadow'
-                  : 'text-zinc-400 hover:text-zinc-200'
-              )}
-            >
-              Week View
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('month')}
-              className={cn(
-                'px-3 py-1.5 rounded-md transition-colors',
-                viewMode === 'month'
-                  ? 'bg-zinc-800 text-zinc-100 shadow'
-                  : 'text-zinc-400 hover:text-zinc-200'
-              )}
-            >
-              Month View
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('list')}
-              className={cn(
-                'px-3 py-1.5 rounded-md transition-colors',
-                viewMode === 'list'
-                  ? 'bg-zinc-800 text-zinc-100 shadow'
-                  : 'text-zinc-400 hover:text-zinc-200'
-              )}
-            >
-              List View
-            </button>
+      {/* Top Professional Control Bar */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/60 p-4 shadow-xl backdrop-blur-xl">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Navigation & Date Interval */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 rounded-xl bg-zinc-950/80 p-1 border border-zinc-800/80">
+              <button
+                type="button"
+                className="flex size-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
+                title="Previous Week"
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+              <button
+                type="button"
+                className="px-2.5 py-1 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 rounded-lg transition-colors"
+              >
+                Today
+              </button>
+              <button
+                type="button"
+                className="flex size-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
+                title="Next Week"
+              >
+                <ChevronRight className="size-4" />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 pl-1">
+              <CalendarIcon className="size-4 text-amber-400" />
+              <span className="text-sm font-semibold text-zinc-100 tracking-tight">
+                November 2 – November 8, 2026
+              </span>
+              <span className="rounded-full bg-zinc-800/80 px-2 py-0.5 text-[10px] font-medium text-zinc-400 border border-zinc-700/50">
+                Week 45
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-zinc-300 font-semibold pl-2">
-            <CalendarIcon className="size-4 text-purple-400" />
-            <span>Nov 2 – Nov 8, 2026</span>
+          {/* View Modes & Quick Action */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center rounded-xl bg-zinc-950/80 p-1 border border-zinc-800/80 text-xs">
+              {(['week', 'month', 'list'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setViewMode(mode)}
+                  className={cn(
+                    'px-3 py-1 rounded-lg font-medium capitalize transition-all duration-150',
+                    viewMode === mode
+                      ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/60'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  )}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onCreatePost?.()}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg shadow-rose-950/40 hover:from-amber-400 hover:to-rose-500 transition-all"
+            >
+              <Plus className="size-3.5 stroke-[2.5]" />
+              New Post
+            </button>
           </div>
         </div>
 
-        {/* Channel Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto text-xs">
-          {(['all', 'instagram', 'threads', 'pinterest', 'linkedin', 'website'] as const).map(
-            (channel) => (
+        {/* Channels Filter Pills */}
+        <div className="flex items-center gap-2 border-t border-zinc-800/60 pt-3 overflow-x-auto scrollbar-none">
+          <span className="text-[11px] font-medium text-zinc-400 shrink-0 flex items-center gap-1 pr-1">
+            <Filter className="size-3 text-zinc-500" />
+            Filter:
+          </span>
+
+          <button
+            type="button"
+            onClick={() => setSelectedChannel('all')}
+            className={cn(
+              'px-3 py-1 rounded-lg text-xs font-medium transition-all shrink-0 border flex items-center gap-1.5',
+              selectedChannel === 'all'
+                ? 'bg-zinc-800 text-zinc-100 border-zinc-600 shadow-sm'
+                : 'bg-zinc-950/60 text-zinc-400 border-zinc-800/80 hover:border-zinc-700 hover:text-zinc-200'
+            )}
+          >
+            <span>All Channels</span>
+            <span className="rounded-full bg-zinc-900 px-1.5 py-0.2 text-[10px] text-zinc-400">
+              {posts.length}
+            </span>
+          </button>
+
+          {(['instagram', 'threads', 'pinterest', 'linkedin', 'website'] as const).map((ch) => {
+            const conf = CHANNEL_CONFIG[ch]
+            const isSelected = selectedChannel === ch
+            const count = posts.filter((p) => p.channel === ch).length
+
+            return (
               <button
-                key={channel}
+                key={ch}
                 type="button"
-                onClick={() => setSelectedChannel(channel)}
+                onClick={() => setSelectedChannel(ch)}
                 className={cn(
-                  'px-2.5 py-1 rounded-lg capitalize font-medium transition-colors border',
-                  selectedChannel === channel
-                    ? 'bg-zinc-100 text-zinc-950 border-zinc-100'
-                    : 'bg-zinc-950/60 text-zinc-400 border-zinc-800 hover:text-zinc-200 hover:border-zinc-700'
+                  'px-3 py-1 rounded-lg text-xs font-medium transition-all shrink-0 border flex items-center gap-1.5',
+                  isSelected
+                    ? `${conf.badgeBg} ${conf.text} ${conf.border} shadow-sm font-semibold`
+                    : 'bg-zinc-950/60 text-zinc-400 border-zinc-800/80 hover:border-zinc-700 hover:text-zinc-200'
                 )}
               >
-                {channel === 'all' ? 'All Channels' : channel}
+                <span>{conf.icon}</span>
+                <span>{conf.label}</span>
+                {count > 0 && (
+                  <span className="rounded-full bg-zinc-900/80 px-1.5 py-0.2 text-[10px] text-zinc-400">
+                    {count}
+                  </span>
+                )}
               </button>
             )
-          )}
+          })}
         </div>
       </div>
 
-      {/* Week Grid */}
+      {/* Week Grid Layout */}
       {viewMode === 'week' && (
-        <div className="grid grid-cols-7 gap-3">
-          {DAYS_OF_WEEK.map((day, idx) => {
-            const dayNum = 2 + idx
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
+          {DAYS_OF_WEEK.map((day) => {
             const dayPosts = filteredPosts.filter((p) => {
               const postDay = Number.parseInt(
                 p.scheduledFor.split('-')[2]?.split(' ')[0] || '0',
                 10
               )
-              return postDay === dayNum
+              return postDay === day.dayNum
             })
 
             return (
               <div
-                key={day}
-                className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-3 min-h-[360px] flex flex-col"
+                key={day.short}
+                className={cn(
+                  'group/col flex flex-col rounded-2xl border transition-all duration-200 min-h-[460px] p-3',
+                  day.isToday
+                    ? 'border-amber-500/40 bg-zinc-900/80 shadow-lg shadow-amber-950/10'
+                    : 'border-zinc-800/80 bg-zinc-900/40 hover:border-zinc-700/80 hover:bg-zinc-900/60'
+                )}
               >
-                <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800/60 text-xs">
-                  <span className="font-semibold text-zinc-400">{day}</span>
-                  <span className="text-[11px] font-bold text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded">
-                    Nov {dayNum}
-                  </span>
+                {/* Column Day Header */}
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-zinc-800/60">
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={cn(
+                        'text-xs font-bold uppercase tracking-wider',
+                        day.isToday ? 'text-amber-400' : 'text-zinc-400'
+                      )}
+                    >
+                      {day.short}
+                    </span>
+                    <span
+                      className={cn(
+                        'flex size-5 items-center justify-center rounded-md text-xs font-bold',
+                        day.isToday
+                          ? 'bg-amber-500 text-zinc-950 shadow-sm'
+                          : 'bg-zinc-800/90 text-zinc-300'
+                      )}
+                    >
+                      {day.dayNum}
+                    </span>
+                  </div>
+
+                  {day.isToday ? (
+                    <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300 border border-amber-500/30">
+                      Today
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => onCreatePost?.(undefined, `2026-11-0${day.dayNum}`)}
+                      className="opacity-0 group-hover/col:opacity-100 size-5 flex items-center justify-center rounded text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-opacity"
+                      title="Add post to this day"
+                    >
+                      <Plus className="size-3.5" />
+                    </button>
+                  )}
                 </div>
 
-                <div className="space-y-2 flex-1">
-                  {dayPosts.map((post) => {
-                    const color = CHANNEL_COLORS[post.channel]
-                    return (
-                      <div
-                        key={post.id}
-                        onClick={() => onSelectPost?.(post)}
-                        className={cn(
-                          'p-2.5 rounded-lg border text-xs cursor-pointer transition-all hover:scale-[1.02] shadow-sm',
-                          color.bg,
-                          color.border
-                        )}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span
-                            className={cn(
-                              'text-[10px] font-bold uppercase tracking-wider',
-                              color.text
-                            )}
-                          >
-                            {post.channel}
-                          </span>
-                          <span className="text-[10px] text-zinc-400">
-                            {post.scheduledFor.split(' ')[1] || ''}
-                          </span>
-                        </div>
-                        <p className="font-medium text-zinc-100 text-[11px] line-clamp-2 leading-snug">
-                          {post.title}
-                        </p>
-                      </div>
-                    )
-                  })}
+                {/* Posts in Day */}
+                <div className="space-y-2.5 flex-1">
+                  {dayPosts.map((post) => (
+                    <ContentCalendarCard
+                      key={post.id}
+                      post={post}
+                      onClick={() => onSelectPost?.(post)}
+                    />
+                  ))}
 
                   {dayPosts.length === 0 && (
-                    <div className="h-full flex items-center justify-center text-[11px] text-zinc-600 italic py-6">
-                      No posts
+                    <div
+                      onClick={() => onCreatePost?.(undefined, `2026-11-0${day.dayNum}`)}
+                      className="group/empty flex h-32 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800/80 hover:border-zinc-700 bg-zinc-950/20 hover:bg-zinc-950/50 cursor-pointer transition-all duration-150 text-center p-3"
+                    >
+                      <Plus className="size-4 text-zinc-600 group-hover/empty:text-zinc-400 transition-colors mb-1" />
+                      <span className="text-[11px] font-medium text-zinc-500 group-hover/empty:text-zinc-300 transition-colors">
+                        Add Post
+                      </span>
                     </div>
                   )}
                 </div>
@@ -169,50 +242,75 @@ export function ContentCalendar({
         </div>
       )}
 
-      {/* List Grid fallback */}
-      {viewMode !== 'week' && (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 divide-y divide-zinc-800">
-          {filteredPosts.map((post) => (
-            <div
-              key={post.id}
-              onClick={() => onSelectPost?.(post)}
-              className="p-4 flex items-center justify-between hover:bg-zinc-800/40 cursor-pointer transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-xl">
-                  {post.channel === 'instagram'
-                    ? '📸'
-                    : post.channel === 'threads'
-                      ? '🧵'
-                      : post.channel === 'pinterest'
-                        ? '📌'
-                        : post.channel === 'linkedin'
-                          ? '💼'
-                          : '🌐'}
-                </span>
-                <div>
-                  <h4 className="text-xs font-semibold text-zinc-100">{post.title}</h4>
-                  <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-1">{post.content}</p>
+      {/* List Mode View */}
+      {viewMode === 'list' && (
+        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/50 divide-y divide-zinc-800/80 overflow-hidden shadow-xl backdrop-blur-md">
+          {filteredPosts.map((post) => {
+            const conf = CHANNEL_CONFIG[post.channel]
+            const isReview = post.status === 'needs_review'
+            const isPublished = post.status === 'published'
+
+            return (
+              <div
+                key={post.id}
+                onClick={() => onSelectPost?.(post)}
+                className="group p-4 flex items-center justify-between hover:bg-zinc-800/40 cursor-pointer transition-all duration-150"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className={cn(
+                      'size-10 rounded-xl flex items-center justify-center text-lg border shadow-sm',
+                      conf.badgeBg,
+                      conf.border
+                    )}
+                  >
+                    {conf.icon}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className={cn('text-xs font-bold', conf.text)}>{conf.label}</span>
+                      <span className="text-zinc-600">•</span>
+                      <span className="text-xs text-zinc-400 font-mono">{post.scheduledFor}</span>
+                    </div>
+                    <h4 className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors">
+                      {post.title}
+                    </h4>
+                    <p className="text-xs text-zinc-400 line-clamp-1 mt-0.5 max-w-xl">
+                      {post.content}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-zinc-400 hidden sm:inline">{post.authorAgent}</span>
+                  <span
+                    className={cn(
+                      'px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border',
+                      isReview
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                        : isPublished
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                          : 'bg-sky-500/20 text-sky-300 border-sky-500/30'
+                    )}
+                  >
+                    {post.status.replace('_', ' ')}
+                  </span>
                 </div>
               </div>
+            )
+          })}
+        </div>
+      )}
 
-              <div className="flex items-center gap-4 text-xs">
-                <span className="text-zinc-400">{post.scheduledFor}</span>
-                <span
-                  className={cn(
-                    'px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase',
-                    post.status === 'needs_review'
-                      ? 'bg-amber-500/20 text-amber-300'
-                      : post.status === 'scheduled'
-                        ? 'bg-sky-500/20 text-sky-300'
-                        : 'bg-emerald-500/20 text-emerald-300'
-                  )}
-                >
-                  {post.status.replace('_', ' ')}
-                </span>
-              </div>
-            </div>
-          ))}
+      {/* Month Mode Simple View */}
+      {viewMode === 'month' && (
+        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/50 p-6 text-center backdrop-blur-md">
+          <Layers className="size-8 text-purple-400 mx-auto mb-2 opacity-80" />
+          <h4 className="text-sm font-semibold text-zinc-200">Month Calendar View</h4>
+          <p className="text-xs text-zinc-400 mt-1 max-w-md mx-auto">
+            Showing full 30-day editorial schedule across all channels. Switch to Week View for
+            daily time-slot management.
+          </p>
         </div>
       )}
     </div>
