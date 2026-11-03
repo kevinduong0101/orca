@@ -6,7 +6,9 @@ import { NativeChatPacedMarkdown } from './NativeChatPacedMarkdown'
 import { NATIVE_CHAT_QUOTE_SOURCE_PROPS } from './native-chat-quote-selection'
 import { NativeChatToolRun } from './NativeChatToolRun'
 import { NativeChatCodeBlock, NativeChatPlainCodeBlock } from './NativeChatCodeBlock'
-import { NativeChatAgentControls, NativeChatImageAttachments } from './NativeChatTranscriptChrome'
+import { NativeChatImageAttachments } from './NativeChatTranscriptChrome'
+import { NativeChatDeliverableCards } from './NativeChatDeliverableCards'
+import { NativeChatAssistantActionBar } from './NativeChatAssistantActionBar'
 import type { useNativeChatWorkRun } from './use-native-chat-work-run'
 
 function messageIsStreaming(
@@ -86,17 +88,25 @@ export function NativeChatAssistantMessageRow({
           streaming={messageIsStreaming(message, activeTurnIsWorking, trailingRun)}
         />
       ) : null}
+
+      {/* Deliverable / Artifact File Cards */}
+      {words ? <NativeChatDeliverableCards markdown={words} onLinkClick={onLinkClick} /> : null}
+
       {toolRun ? <NativeChatToolRun {...toolRun} /> : null}
+
       {showControls ? (
-        <NativeChatAgentControls
+        <NativeChatAssistantActionBar
+          messageId={message.id}
           markdown={words}
           timestamp={message.timestamp}
           onScrollToTop={scrollToTop}
-          className={cn(
-            'mt-1 w-fit select-none transition-opacity can-hover:pointer-events-none can-hover:opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 [.group:has(:focus-visible)_&]:pointer-events-auto [.group:has(:focus-visible)_&]:opacity-100',
-            // They hang into the gap below; a section keeps them inside its border instead.
-            !inSubagentSection && '-mb-5'
-          )}
+          onRetry={() => {
+            const proseMirror = document.querySelector<HTMLElement>(
+              '.ProseMirror[contenteditable="true"]'
+            )
+            proseMirror?.focus()
+          }}
+          className={cn('transition-opacity', inSubagentSection ? 'mb-0' : 'mb-1')}
         />
       ) : null}
     </div>
