@@ -33,6 +33,49 @@ export function ContentStudioModal({
   const [channel, setChannel] = useState<MarketingChannel>(activePost.channel)
   const [scheduledFor, setScheduledFor] = useState(activePost.scheduledFor || '2026-11-03 12:00')
   const [tagsInput, setTagsInput] = useState((activePost.tags || []).join(' '))
+  const [isPolishing, setIsPolishing] = useState(false)
+
+  const handleAiPolish = () => {
+    setIsPolishing(true)
+    setTimeout(() => {
+      setIsPolishing(false)
+      if (channel === 'instagram') {
+        if (!content.includes('ISO')) {
+          setContent(
+            (prev) =>
+              `${prev.trim()}\n\nShot on Leica M11 + 50mm Summilux f/1.4. ISO 64, 1/1000s.\nWhich slide has your favorite mood: 1, 2, or 3?`
+          )
+        }
+        if (tagsInput.length < 5) {
+          setTagsInput('#saigonphotographer #editorialportrait #filmtones #studiolighting')
+        }
+      } else if (channel === 'threads') {
+        if (!content.endsWith('?')) {
+          setContent((prev) => `${prev.trim()}\n\nWhat’s your experience with this?`)
+        }
+      } else if (channel === 'pinterest') {
+        if (!content.includes('destination URL') && !content.includes('journal')) {
+          setContent(
+            (prev) => `${prev.trim()}\n\nExplore full lighting diagram & breakdown on our journal.`
+          )
+        }
+      } else if (channel === 'linkedin') {
+        if (!content.includes('•')) {
+          setContent(
+            (prev) =>
+              `${prev.trim()}\n\nKey Strategic Takeaways:\n• Speed is a feature of creative discipline\n• Zero egress edge storage keeps latency under 100ms\n• Human-in-the-loop approvals safeguard brand integrity`
+          )
+        }
+      } else if (channel === 'website') {
+        if (!content.startsWith('#')) {
+          setContent(
+            (prev) =>
+              `# ${title || 'Editorial Case Study'}\n\n${prev.trim()}\n\n## Technical Architecture\nDelivering full-frame high-resolution assets with instant edge rendering.`
+          )
+        }
+      }
+    }, 400)
+  }
 
   const parsedTags = tagsInput
     .split(' ')
@@ -134,10 +177,12 @@ export function ContentStudioModal({
         <div className="flex items-center justify-between pt-2">
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-200 font-medium transition-colors"
+            onClick={handleAiPolish}
+            disabled={isPolishing}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-200 font-medium transition-colors disabled:opacity-50"
           >
             <Sparkles className="size-3.5 text-purple-400" />
-            AI Polish & Enhance
+            {isPolishing ? 'Channel Agent Polishing...' : 'AI Polish & Enhance'}
           </button>
 
           <button

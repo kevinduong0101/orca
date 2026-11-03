@@ -1,44 +1,70 @@
 import React, { useState } from 'react'
-import { Calendar, CheckCircle2, Layers, Plus, Share2, Sparkles, Wand2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import {
-  INITIAL_CHANNEL_AGENTS,
-  INITIAL_POSTS,
-  INITIAL_RECOMMENDATIONS
-} from './marketing-mock-data'
+  Calendar,
+  CheckCircle2,
+  Layers,
+  Plus,
+  Settings,
+  Share2,
+  Sparkles,
+  Wand2
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useMarketingData } from './use-marketing-data'
 import { MarketingOverview } from './MarketingOverview'
 import { ContentCalendar } from './calendar/ContentCalendar'
 import { ApprovalsCenter } from './approvals/ApprovalsCenter'
 import { ContentStudioModal } from './studio/ContentStudioModal'
+import { RepurposeModal } from './studio/RepurposeModal'
+import { MarketingSettingsTab } from './settings/MarketingSettingsTab'
 import type { MarketingPost, MarketingTab } from './types/marketing-types'
 
 export default function MarketingWorkspace(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<MarketingTab>('overview')
-  const [posts, setPosts] = useState<MarketingPost[]>(INITIAL_POSTS)
-  const [agents] = useState(INITIAL_CHANNEL_AGENTS)
-  const [recommendations] = useState(INITIAL_RECOMMENDATIONS)
   const [selectedPostForStudio, setSelectedPostForStudio] = useState<MarketingPost | null>(null)
+  const [isRepurposeOpen, setIsRepurposeOpen] = useState(false)
+
+  const {
+    posts,
+    agents,
+    recommendations,
+    settings,
+    setSettings,
+    savePost,
+    deletePost,
+    approvePost,
+    approveAll,
+    batchAddPosts,
+    seedDemoCampaign,
+    clearAllPosts
+  } = useMarketingData()
 
   const pendingApprovalsCount = posts.filter((p) => p.status === 'needs_review').length
 
-  const handleApprove = (id: string) => {
-    setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'scheduled' as const } : p)))
-  }
-
-  const handleReject = (id: string) => {
-    setPosts((prev) => prev.filter((p) => p.id !== id))
-  }
-
   const handleSavePost = (updated: MarketingPost) => {
-    setPosts((prev) => {
-      const idx = prev.findIndex((p) => p.id === updated.id)
-      if (idx !== -1) {
-        return prev.map((p) => (p.id === updated.id ? updated : p))
-      }
-      return [updated, ...prev]
-    })
+    savePost(updated)
     setSelectedPostForStudio(null)
     setActiveTab('calendar')
+  }
+
+  const handleQuickRewrite = (id: string, style: string) => {
+    const post = posts.find((p) => p.id === id)
+    if (!post) {
+      return
+    }
+
+    let rewritten = post.content
+    if (style.includes('Punchier')) {
+      rewritten = `${post.content.split('\n\n')[0]}\n\nLess is always more.`
+    } else if (style.includes('Professional')) {
+      rewritten = `Strategic Industry Insight:\n${post.content}\n\nExecution is how strategy becomes reality.`
+    } else if (style.includes('Hook')) {
+      rewritten = `The single most important rule:\n${post.content}`
+    } else {
+      rewritten = `${post.content}\n\nWhat is your perspective on this?`
+    }
+
+    savePost({ ...post, content: rewritten })
   }
 
   return (
@@ -66,13 +92,7 @@ export default function MarketingWorkspace(): React.JSX.Element {
         <div className="flex items-center gap-2.5">
           <button
             type="button"
-            onClick={() => {
-              const sampleBlog = posts.find((p) => p.channel === 'website')
-              if (sampleBlog) {
-                setSelectedPostForStudio(sampleBlog)
-                setActiveTab('studio')
-              }
-            }}
+            onClick={() => setIsRepurposeOpen(true)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-200 font-medium transition-colors border border-zinc-800 shadow-sm"
           >
             <Share2 className="size-3.5 text-purple-400" />
@@ -92,7 +112,7 @@ export default function MarketingWorkspace(): React.JSX.Element {
                 tags: [],
                 authorAgent: 'Manual Creator'
               }
-              setPosts((prev) => [newPost, ...prev])
+              savePost(newPost)
               setSelectedPostForStudio(newPost)
               setActiveTab('studio')
             }}
@@ -167,6 +187,20 @@ export default function MarketingWorkspace(): React.JSX.Element {
               </span>
             )}
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('settings')}
+            className={cn(
+              'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-2',
+              activeTab === 'settings'
+                ? 'bg-zinc-800 text-zinc-100 shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60'
+            )}
+          >
+            <Settings className="size-3.5" />
+            Settings & Webhooks
+          </button>
         </div>
 
         <div className="text-[11px] text-zinc-500 flex items-center gap-2">
@@ -194,7 +228,7 @@ export default function MarketingWorkspace(): React.JSX.Element {
                 setActiveTab('studio')
               }}
               onCreatePost={(channel, scheduledDate) => {
-                setSelectedPostForStudio({
+                const newPost: MarketingPost = {
                   id: `post-${Date.now()}`,
                   title: '',
                   channel: channel || 'instagram',
@@ -204,7 +238,9 @@ export default function MarketingWorkspace(): React.JSX.Element {
                   mediaType: 'image',
                   tags: [],
                   authorAgent: 'Social Media Agent'
-                })
+                }
+                savePost(newPost)
+                setSelectedPostForStudio(newPost)
                 setActiveTab('studio')
               }}
             />
@@ -215,10 +251,47 @@ export default function MarketingWorkspace(): React.JSX.Element {
           )}
 
           {activeTab === 'approvals' && (
-            <ApprovalsCenter posts={posts} onApprove={handleApprove} onReject={handleReject} />
+            <ApprovalsCenter
+              posts={posts}
+              onApprove={approvePost}
+              onApproveAll={approveAll}
+              onReject={deletePost}
+              onEditInStudio={(post) => {
+                setSelectedPostForStudio(post)
+                setActiveTab('studio')
+              }}
+              onQuickRewrite={handleQuickRewrite}
+            />
+          )}
+
+          {activeTab === 'settings' && (
+            <MarketingSettingsTab
+              settings={settings}
+              onUpdateSettings={setSettings}
+              posts={posts}
+              onImportPosts={(imported) => {
+                imported.forEach((p) => savePost(p))
+                setActiveTab('calendar')
+              }}
+              onSeedDemo={() => {
+                seedDemoCampaign()
+                setActiveTab('calendar')
+              }}
+              onClearAll={clearAllPosts}
+            />
           )}
         </div>
       </div>
+
+      {/* Repurpose Modal */}
+      <RepurposeModal
+        isOpen={isRepurposeOpen}
+        onClose={() => setIsRepurposeOpen(false)}
+        onSaveBatch={(batch) => {
+          batchAddPosts(batch)
+          setActiveTab('approvals')
+        }}
+      />
     </div>
   )
 }

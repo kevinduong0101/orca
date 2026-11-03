@@ -1,17 +1,24 @@
-import React from 'react'
-import { Check, ShieldCheck, X } from 'lucide-react'
+import React, { useState } from 'react'
+import { Check, CheckCheck, Edit3, ShieldCheck, Sparkles, X } from 'lucide-react'
 import type { MarketingPost } from '../types/marketing-types'
 
 export function ApprovalsCenter({
   posts,
   onApprove,
-  onReject
+  onApproveAll,
+  onReject,
+  onEditInStudio,
+  onQuickRewrite
 }: {
   posts: MarketingPost[]
   onApprove: (id: string) => void
+  onApproveAll?: () => void
   onReject: (id: string) => void
+  onEditInStudio?: (post: MarketingPost) => void
+  onQuickRewrite?: (id: string, style: string) => void
 }): React.JSX.Element {
   const pendingPosts = posts.filter((p) => p.status === 'needs_review')
+  const [activeRewriteId, setActiveRewriteId] = useState<string | null>(null)
 
   if (pendingPosts.length === 0) {
     return (
@@ -38,9 +45,21 @@ export function ApprovalsCenter({
             published
           </p>
         </div>
-        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-          {pendingPosts.length} Pending Approval
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            {pendingPosts.length} Pending Approval
+          </span>
+          {pendingPosts.length > 1 && onApproveAll && (
+            <button
+              type="button"
+              onClick={onApproveAll}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-md shadow-emerald-950 transition-colors"
+            >
+              <CheckCheck className="size-3.5" />
+              Approve All ({pendingPosts.length})
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
@@ -89,25 +108,75 @@ export function ApprovalsCenter({
                     ))}
                   </div>
                 )}
+
+                {/* Quick Rewrite Options */}
+                {activeRewriteId === post.id && (
+                  <div className="flex items-center gap-2 pt-2 border-t border-zinc-800/80">
+                    <span className="text-[11px] text-zinc-400 flex items-center gap-1 font-medium">
+                      <Sparkles className="size-3 text-purple-400" />
+                      Rewrite tone:
+                    </span>
+                    {(
+                      [
+                        'Punchier & Shorter',
+                        'More Professional',
+                        'Add Stronger Hook',
+                        'Add Question CTA'
+                      ] as const
+                    ).map((style) => (
+                      <button
+                        key={style}
+                        type="button"
+                        onClick={() => {
+                          onQuickRewrite?.(post.id, style)
+                          setActiveRewriteId(null)
+                        }}
+                        className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[10px] font-medium transition-colors"
+                      >
+                        {style}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => onApprove(post.id)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs shadow-lg shadow-emerald-950 transition-colors"
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs shadow-lg shadow-emerald-950 transition-colors"
                 >
                   <Check className="size-3.5" />
                   Approve & Schedule
                 </button>
 
+                {onEditInStudio && (
+                  <button
+                    type="button"
+                    onClick={() => onEditInStudio(post)}
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs transition-colors border border-zinc-700/50"
+                  >
+                    <Edit3 className="size-3.5 text-sky-400" />
+                    Edit in Studio
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setActiveRewriteId(activeRewriteId === post.id ? null : post.id)}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-purple-300 font-medium text-xs transition-colors border border-purple-500/20"
+                >
+                  <Sparkles className="size-3.5" />
+                  AI Rewrite
+                </button>
+
                 <button
                   type="button"
                   onClick={() => onReject(post.id)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-rose-950/40 hover:text-rose-300 text-zinc-400 font-medium text-xs transition-colors border border-zinc-700/50"
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-rose-950/40 hover:text-rose-300 text-zinc-400 font-medium text-xs transition-colors border border-zinc-700/50"
                 >
                   <X className="size-3.5" />
-                  Reject / Rewrite
+                  Reject
                 </button>
               </div>
             </div>

@@ -1,6 +1,6 @@
 export type MarketingChannel = 'instagram' | 'threads' | 'pinterest' | 'linkedin' | 'website'
 
-export type MarketingTab = 'overview' | 'calendar' | 'studio' | 'approvals'
+export type MarketingTab = 'overview' | 'calendar' | 'studio' | 'approvals' | 'settings'
 
 export type PostStatus = 'draft' | 'needs_review' | 'scheduled' | 'published'
 
@@ -38,4 +38,11 @@ export type OrcaRecommendation = {
   urgency: 'high' | 'medium' | 'info'
   channel: MarketingChannel | 'general'
   actionLabel: string
+}
+
+export type MarketingSettings = {
+  webhookUrl: string
+  autoPublishChannels: Record<MarketingChannel, boolean>
+  notifyOnFailure: boolean
+  lastWebhookPingStatus?: string
 }
