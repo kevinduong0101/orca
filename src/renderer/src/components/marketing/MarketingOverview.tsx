@@ -32,7 +32,11 @@ export function MarketingOverview({
             <span className="text-2xl font-bold text-zinc-100">
               {publishedCount + scheduledCount}
             </span>
-            <span className="text-[11px] font-semibold text-emerald-400">+28% vs prev</span>
+            {publishedCount + scheduledCount > 0 ? (
+              <span className="text-[11px] font-semibold text-emerald-400">+28% vs prev</span>
+            ) : (
+              <span className="text-[11px] text-zinc-500">No activity yet</span>
+            )}
           </div>
           <p className="text-[11px] text-zinc-500 mt-1">
             {publishedCount} published, {scheduledCount} queued
@@ -75,8 +79,12 @@ export function MarketingOverview({
             <Zap className="size-4 text-emerald-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-zinc-100">5</span>
-            <span className="text-[11px] font-medium text-emerald-400">All Healthy</span>
+            <span className="text-2xl font-bold text-zinc-100">
+              {agents.filter((a) => a.status === 'active').length}
+            </span>
+            <span className="text-[11px] font-medium text-zinc-400">
+              {agents.filter((a) => a.status === 'active').length > 0 ? 'All Healthy' : 'Standby'}
+            </span>
           </div>
           <p className="text-[11px] text-zinc-500 mt-1">Connected with Antigravity AI</p>
         </div>
@@ -104,7 +112,8 @@ export function MarketingOverview({
             </p>
           </div>
           <span className="text-xs text-zinc-400 flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-emerald-400" />5 Agents Synchronized
+            <span className="size-2 rounded-full bg-zinc-400" />
+            {agents.length} Channel Agents Ready
           </span>
         </div>
 
@@ -132,50 +141,58 @@ export function MarketingOverview({
         </div>
 
         <div className="space-y-2.5">
-          {posts.slice(0, 4).map((post) => (
-            <div
-              key={post.id}
-              className="flex items-center justify-between p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/60 hover:border-zinc-700/80 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-base">
-                  {post.channel === 'instagram'
-                    ? '📸'
-                    : post.channel === 'threads'
-                      ? '🧵'
-                      : post.channel === 'pinterest'
-                        ? '📌'
-                        : post.channel === 'linkedin'
-                          ? '💼'
-                          : '🌐'}
-                </span>
-                <div>
-                  <h4 className="text-xs font-semibold text-zinc-200 line-clamp-1">{post.title}</h4>
-                  <div className="flex items-center gap-2 mt-0.5 text-[11px] text-zinc-400">
-                    <span className="capitalize text-zinc-300">{post.channel}</span>
-                    <span>•</span>
-                    <span>{post.scheduledFor}</span>
-                    <span>•</span>
-                    <span className="text-zinc-500">{post.authorAgent}</span>
+          {posts.length === 0 ? (
+            <div className="py-8 text-center text-zinc-500 text-xs">
+              No posts scheduled yet. Go to Content Calendar to create your first post.
+            </div>
+          ) : (
+            posts.slice(0, 4).map((post) => (
+              <div
+                key={post.id}
+                className="flex items-center justify-between p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/60 hover:border-zinc-700/80 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-base">
+                    {post.channel === 'instagram'
+                      ? '📸'
+                      : post.channel === 'threads'
+                        ? '🧵'
+                        : post.channel === 'pinterest'
+                          ? '📌'
+                          : post.channel === 'linkedin'
+                            ? '💼'
+                            : '🌐'}
+                  </span>
+                  <div>
+                    <h4 className="text-xs font-semibold text-zinc-200 line-clamp-1">
+                      {post.title}
+                    </h4>
+                    <div className="flex items-center gap-2 mt-0.5 text-[11px] text-zinc-400">
+                      <span className="capitalize text-zinc-300">{post.channel}</span>
+                      <span>•</span>
+                      <span>{post.scheduledFor}</span>
+                      <span>•</span>
+                      <span className="text-zinc-500">{post.authorAgent}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <span
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${
-                    post.status === 'needs_review'
-                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                      : post.status === 'scheduled'
-                        ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
-                        : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                  }`}
-                >
-                  {post.status.replace('_', ' ')}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${
+                      post.status === 'needs_review'
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                        : post.status === 'scheduled'
+                          ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+                          : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                    }`}
+                  >
+                    {post.status.replace('_', ' ')}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

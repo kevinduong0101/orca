@@ -30,8 +30,15 @@ export default function MarketingWorkspace(): React.JSX.Element {
   }
 
   const handleSavePost = (updated: MarketingPost) => {
-    setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))
+    setPosts((prev) => {
+      const idx = prev.findIndex((p) => p.id === updated.id)
+      if (idx !== -1) {
+        return prev.map((p) => (p.id === updated.id ? updated : p))
+      }
+      return [updated, ...prev]
+    })
     setSelectedPostForStudio(null)
+    setActiveTab('calendar')
   }
 
   return (
@@ -186,11 +193,25 @@ export default function MarketingWorkspace(): React.JSX.Element {
                 setSelectedPostForStudio(post)
                 setActiveTab('studio')
               }}
+              onCreatePost={(channel, scheduledDate) => {
+                setSelectedPostForStudio({
+                  id: `post-${Date.now()}`,
+                  title: '',
+                  channel: channel || 'instagram',
+                  status: 'needs_review',
+                  scheduledFor: scheduledDate ? `${scheduledDate} 12:00` : '2026-11-03 12:00',
+                  content: '',
+                  mediaType: 'image',
+                  tags: [],
+                  authorAgent: 'Social Media Agent'
+                })
+                setActiveTab('studio')
+              }}
             />
           )}
 
           {activeTab === 'studio' && (
-            <ContentStudioModal post={selectedPostForStudio || posts[0]} onSave={handleSavePost} />
+            <ContentStudioModal post={selectedPostForStudio} onSave={handleSavePost} />
           )}
 
           {activeTab === 'approvals' && (

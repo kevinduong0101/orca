@@ -243,64 +243,73 @@ export function ContentCalendar({
       )}
 
       {/* List Mode View */}
-      {viewMode === 'list' && (
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/50 divide-y divide-zinc-800/80 overflow-hidden shadow-xl backdrop-blur-md">
-          {filteredPosts.map((post) => {
-            const conf = CHANNEL_CONFIG[post.channel]
-            const isReview = post.status === 'needs_review'
-            const isPublished = post.status === 'published'
+      {viewMode === 'list' &&
+        (filteredPosts.length === 0 ? (
+          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/50 p-12 text-center backdrop-blur-md">
+            <CalendarIcon className="size-8 text-zinc-600 mx-auto mb-2" />
+            <h4 className="text-sm font-semibold text-zinc-300">No scheduled posts found</h4>
+            <p className="text-xs text-zinc-500 mt-1">
+              There are no posts for this filter. Click New Post to get started.
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/50 divide-y divide-zinc-800/80 overflow-hidden shadow-xl backdrop-blur-md">
+            {filteredPosts.map((post) => {
+              const conf = CHANNEL_CONFIG[post.channel]
+              const isReview = post.status === 'needs_review'
+              const isPublished = post.status === 'published'
 
-            return (
-              <div
-                key={post.id}
-                onClick={() => onSelectPost?.(post)}
-                className="group p-4 flex items-center justify-between hover:bg-zinc-800/40 cursor-pointer transition-all duration-150"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div
-                    className={cn(
-                      'size-10 rounded-xl flex items-center justify-center text-lg border shadow-sm',
-                      conf.badgeBg,
-                      conf.border
-                    )}
-                  >
-                    {conf.icon}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className={cn('text-xs font-bold', conf.text)}>{conf.label}</span>
-                      <span className="text-zinc-600">•</span>
-                      <span className="text-xs text-zinc-400 font-mono">{post.scheduledFor}</span>
+              return (
+                <div
+                  key={post.id}
+                  onClick={() => onSelectPost?.(post)}
+                  className="group p-4 flex items-center justify-between hover:bg-zinc-800/40 cursor-pointer transition-all duration-150"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div
+                      className={cn(
+                        'size-10 rounded-xl flex items-center justify-center text-lg border shadow-sm',
+                        conf.badgeBg,
+                        conf.border
+                      )}
+                    >
+                      {conf.icon}
                     </div>
-                    <h4 className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors">
-                      {post.title}
-                    </h4>
-                    <p className="text-xs text-zinc-400 line-clamp-1 mt-0.5 max-w-xl">
-                      {post.content}
-                    </p>
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className={cn('text-xs font-bold', conf.text)}>{conf.label}</span>
+                        <span className="text-zinc-600">•</span>
+                        <span className="text-xs text-zinc-400 font-mono">{post.scheduledFor}</span>
+                      </div>
+                      <h4 className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors">
+                        {post.title}
+                      </h4>
+                      <p className="text-xs text-zinc-400 line-clamp-1 mt-0.5 max-w-xl">
+                        {post.content}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-xs">
+                    <span className="text-zinc-400 hidden sm:inline">{post.authorAgent}</span>
+                    <span
+                      className={cn(
+                        'px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border',
+                        isReview
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                          : isPublished
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                            : 'bg-sky-500/20 text-sky-300 border-sky-500/30'
+                      )}
+                    >
+                      {post.status.replace('_', ' ')}
+                    </span>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-4 text-xs">
-                  <span className="text-zinc-400 hidden sm:inline">{post.authorAgent}</span>
-                  <span
-                    className={cn(
-                      'px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border',
-                      isReview
-                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                        : isPublished
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                          : 'bg-sky-500/20 text-sky-300 border-sky-500/30'
-                    )}
-                  >
-                    {post.status.replace('_', ' ')}
-                  </span>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
+              )
+            })}
+          </div>
+        ))}
 
       {/* Month Mode Simple View */}
       {viewMode === 'month' && (

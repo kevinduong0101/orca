@@ -9,7 +9,10 @@ export function OrcaRecommendationsWidget({
 }: {
   recommendations: OrcaRecommendation[]
   onAction?: (rec: OrcaRecommendation) => void
-}): React.JSX.Element {
+}): React.JSX.Element | null {
+  if (!recommendations || recommendations.length === 0) {
+    return null
+  }
   return (
     <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/20 via-zinc-900/60 to-purple-950/20 p-5 shadow-2xl backdrop-blur-xl">
       <div className="flex items-center justify-between mb-4">

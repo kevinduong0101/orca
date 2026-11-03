@@ -59,11 +59,11 @@
 
 - [ ] Switcher 3 chế độ xem: `Week View` (mặc định), `Month View`, và `List View`.
 - [ ] Filter theo kênh: `All Channels`, `Instagram`, `Threads`, `Pinterest`, `LinkedIn`, `Website`.
-- [ ] Màu sắc và badge nhận diện riêng cho từng nền tảng (Instagram: gradient tím hồng, Pinterest: đỏ, LinkedIn: xanh dương, Website: emerald).
-- [ ] Click vào bài viết mở cửa sổ xem chi tiết và chỉnh sửa.
+- [x] Màu sắc và badge nhận diện riêng cho từng nền tảng (Instagram: gradient tím hồng, Pinterest: đỏ, LinkedIn: xanh dương, Website: emerald).
+- [x] Click vào bài viết mở cửa sổ xem chi tiết và chỉnh sửa.
       **Verification:**
-- [ ] Test chuyển đổi giữa tuần/tháng/danh sách với dữ liệu mẫu bài đăng.
-- [ ] Filter hoạt động tức thì, ẩn hiện bài viết chính xác.
+- [x] Test chuyển đổi giữa tuần/tháng/danh sách với dữ liệu mẫu bài đăng.
+- [x] Filter hoạt động tức thì, ẩn hiện bài viết chính xác.
       **Dependencies:** Task 1
       **Files likely touched:**
 - `src/renderer/src/components/marketing/calendar/ContentCalendar.tsx`
@@ -79,15 +79,16 @@
 **Description:** Xây dựng Content Studio cho phép soạn thảo hoặc chỉnh sửa bài viết do AI tạo ra, với live preview sát với giao diện thực tế của từng mạng xã hội.
 **Acceptance criteria:**
 
-- [ ] Trình xem trước chân thực (Live Preview Frame) cho:
+- [x] Trình xem trước chân thực (Live Preview Frame) cho:
   - Instagram Post / Carousel (khung ảnh vuông/dọc + caption + hashtags).
   - Threads Post (avatar, bubble chat, character counter).
   - Pinterest Pin (ảnh dọc 2:3, board selector, destination link).
   - LinkedIn Post (avatar chuyên nghiệp, formatting, "see more" preview).
-- [ ] Trình soạn thảo cho phép tinh chỉnh nhanh caption, hashtag, và ảnh đính kèm.
+  - Website Blog (browser frame, metadata, clean reading view).
+- [x] Trình soạn thảo cho phép tinh chỉnh nhanh caption, hashtag, và ảnh đính kèm.
       **Verification:**
-- [ ] Preview hiển thị chuẩn xác tỉ lệ khung hình và font chữ tương ứng từng nền tảng.
-- [ ] Sửa caption bên trái, live preview bên phải cập nhật theo thời gian thực.
+- [x] Preview hiển thị chuẩn xác tỉ lệ khung hình và font chữ tương ứng từng nền tảng.
+- [x] Sửa caption bên trái, live preview bên phải cập nhật theo thời gian thực.
       **Dependencies:** Task 3
       **Files likely touched:**
 - `src/renderer/src/components/marketing/studio/ContentStudioModal.tsx`
