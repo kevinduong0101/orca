@@ -247,6 +247,47 @@ describe('MessageRow send mode', () => {
   it('leaves an ordinary user message unmarked', () => {
     renderUser()
     expect(screen.queryByText('Sent as goal')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('native-chat-active-skills')).toBeNull()
+  })
+
+  it('marks a user message with active skill badge when slash command is in text', () => {
+    render(
+      <MessageRow
+        message={{
+          id: 'message-skill',
+          role: 'user',
+          timestamp: 0,
+          source: 'transcript',
+          blocks: [
+            {
+              type: 'text',
+              text: 'Please plan the browser automation /planning-and-task-breakdown'
+            }
+          ]
+        }}
+        expandSignal={false}
+        onScrollMessageToTop={vi.fn()}
+      />
+    )
+    expect(screen.getByText('Skill Active: planning-and-task-breakdown')).toBeInTheDocument()
+  })
+
+  it('marks a user message with active skill badge when skills array is present', () => {
+    render(
+      <MessageRow
+        message={{
+          id: 'message-skill-array',
+          role: 'user',
+          timestamp: 0,
+          source: 'transcript',
+          blocks: [{ type: 'text', text: 'Do the work' }],
+          skills: [{ name: 'planning-and-task-breakdown', path: '/some/path' }]
+        }}
+        expandSignal={false}
+        onScrollMessageToTop={vi.fn()}
+      />
+    )
+    expect(screen.getByText('Skill Active: planning-and-task-breakdown')).toBeInTheDocument()
   })
 })
 

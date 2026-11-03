@@ -14,6 +14,7 @@ import type {
   AgentJournalMessageState,
   AgentJournalPosition,
   AgentJournalProducerLinkage,
+  AgentJournalSkillRef,
   AgentJournalToolCallEnding,
   AgentJournalToolCallState
 } from '../agent-session/journal/agent-session-journal-types'
@@ -229,6 +230,8 @@ export type NativeChatMessage = AgentJournalProducerLinkage & {
   completedAt?: number
   /** On a conversation command the user sent, such as `/compact`: the command it names. */
   command?: { name: string }
+  /** The skills selected or associated with this message. */
+  skills?: AgentJournalSkillRef[]
   /** On a user-role message another agent sent through Orca: who, as the journal recorded it. */
   from?: AgentMessageSource
   /** Projected creation fact, never a user turn or provider input. */

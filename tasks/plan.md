@@ -1,78 +1,40 @@
-# Implementation Plan: ORCA 2.0 — Personal Marketing & Content Operating System
+# Implementation Plan: Orca Native Browser Automation for Pinterest & LinkedIn Marketing
 
 ## Overview
 
-Dựa trên báo cáo nghiên cứu kiến trúc chuyên sâu (`ChatGPT_Nghiên-cứu-kiến-trúc-Orca_20261103-1248.md`) và yêu cầu cụ thể của Kevin Duong, Orca được nâng cấp từ một Local Agent Chat & Automation thành **ORCA 2.0 — Personal Marketing & Content Operating System**.
-Hệ thống này đóng vai trò như một **Marketing Director & Autonomous Content Hub**, cho phép điều hành đa kênh (Instagram & Threads, Pinterest, LinkedIn, Website / Blog Photography) trên một giao diện trung tâm duy nhất, có lịch biên tập trực quan, luồng duyệt nội dung (Human-in-the-loop), và các automation thông minh.
-
----
+Xây dựng và tích hợp hệ sinh thái tự động hóa đăng bài và tìm kiếm khách hàng tiềm năng cho Pinterest & LinkedIn chạy hoàn toàn bên trong trình duyệt nội bộ của Orca (Electron Webview với persistent profile `persist:orca-browser`). Điều này đảm bảo AI Agent có thể truy cập, tương tác, upload media và đăng bài mà không cần mở hoặc chiếm dụng trình duyệt ngoài (Chrome/Safari) của người dùng.
 
 ## Architecture Decisions
 
-1. **Orca Control Center (Giao diện trung tâm):**
-   - Tích hợp thêm section điều hành chuyên biệt vào Orca Sidebar (`Marketing / Content OS`).
-   - Cung cấp 5 phân hệ cốt lõi: **Overview Dashboard**, **Content Calendar**, **Content Studio**, **Approvals**, và **Automations**.
-
-2. **Channel Agent Architecture (4 Agent chuyên trách):**
-   - **Social Agent (Instagram & Threads):** Lập kế hoạch tuần, viết caption, visual storytelling, reels/carousel/stories prompts.
-   - **Pinterest Growth Agent:** Visual SEO, tạo Pin variants từ kho ảnh & bài blog, quản lý Boards, gắn backlink về website.
-   - **LinkedIn Professional Agent:** Bài viết chuyên sâu, chia sẻ kiến thức, bài học thực tế, xây dựng personal brand uy tín.
-   - **Website & Blog Agent:** Nghiên cứu từ khoá, viết bài blog chuẩn SEO cho Kevin Duong Photography / linear thinking, internal linking, tối ưu hình ảnh.
-
-3. **Multi-Channel Repurposing Engine (1 Ý tưởng → Đa kênh):**
-   - 1 bài viết blog hoặc 1 concept ảnh có thể tự động phái sinh ra: 1 Instagram Carousel + 2 Threads Posts + 3 Pinterest Pins + 1 LinkedIn Post.
-   - Mỗi kênh có phiên bản ngôn ngữ và định dạng riêng biệt, không copy nguyên văn.
-
-4. **Human-in-the-loop Approval & Publishing Bridge:**
-   - Trạng thái rõ ràng: `Draft` → `Needs Review` → `Approved / Scheduled` → `Published`.
-   - Adapter kiến trúc mở: Tương thích với Metricool API / headless social posting hoặc Webhook/Local scheduler.
-
-5. **Task Orchestration & Memory Enhancement:**
-   - Nâng cấp cơ chế `Steer`: Tự động lưu checkpoint ngữ cảnh trước khi bẻ lái thay vì làm mất toàn bộ tiến trình.
-   - Cơ chế `Queue`: Tự động kết nối chuỗi bài viết trong hàng đợi.
-
----
+- **Trình duyệt nội bộ (Orca Browser Workspace):** Sử dụng trực tiếp `useAppStore.getState().createBrowserTab(worktreeId, url, { activate: true })` và `setActiveTabType("browser", worktreeId)`.
+- **Lưu phiên đăng nhập bền vững (Persistent Session):** Webview của Orca được gắn partition `persist:orca-browser`, lưu trữ cookie, localStorage và token đăng nhập của Pinterest & LinkedIn an toàn, không bao giờ bị logout khi tắt app.
+- **Tự động hóa Agent không can thiệp màn hình ngoài (Headless / Internal Automation):** Sử dụng bộ lệnh CLI `orca tab`, `orca snapshot`, `orca click`, `orca fill` để AI đọc accessibility tree và thao tác form trên tab nội bộ mà không di chuyển chuột máy tính của user.
+- **Skill Transparency & Visibility:** Orca Native Chat tự động phân tích và gắn nhãn Huy hiệu hoạt động `⚡ Skill Active: [tên skill]` ngay trên tin nhắn khi người dùng gọi bất kỳ slash command hoặc chọn skill từ menu.
 
 ## Task List
 
-### Phase 1: Foundation — Marketing Navigation & Overview Dashboard
+### Phase 1: Skill Visibility & Native Chat Badge
 
-- [ ] **Task 1: Marketing Workspace Navigation & View State Router**
-- [ ] **Task 2: Marketing Overview Dashboard (KPIs, Channel Health, Recommendations)**
-- [ ] **Checkpoint 1: Foundation & Overview Display Verified**
+- [x] Task 1: Thêm type definition `skills` và projection từ journal item vào `NativeChatMessage`.
+- [x] Task 2: Cập nhật `NativeChatUserMessageRow.tsx` để tự động phát hiện slash commands / skills và render Huy hiệu `⚡ Skill Active: {name}`.
+- [x] Task 3: Thêm vitest suite trong `NativeChatMessageRow.test.tsx` xác nhận hiển thị badge skill cho cả inline text và journal skills array.
 
-### Phase 2: Content Calendar & Content Studio (Trọng tâm)
+### Checkpoint: Skill Visibility
 
-- [ ] **Task 3: Unified Content Calendar (Month / Week / List view & Channel Filter)**
-- [ ] **Task 4: Content Studio & Platform Post Preview (IG, Threads, Pinterest, LinkedIn)**
-- [ ] **Task 5: Human-in-the-loop Approvals & Publishing State Machine**
-- [ ] **Checkpoint 2: Content Creation, Preview & Approval Flow Verified**
+- [x] Tất cả 21 bài test trong `NativeChatMessageRow.test.tsx` vượt qua 100%.
+- [x] Oxlint 0 warnings, 0 errors, file < 400 dòng.
 
-### Phase 3: Specialized Channel Agents & Repurposing Pipeline
+### Phase 2: Orca Internal Browser Session Profiles
 
-- [ ] **Task 6: 4 Channel Agent Personas & Prompt Generators**
-- [ ] **Task 7: Blog-to-Social Multi-Channel Repurposing Generator**
-- [ ] **Checkpoint 3: Agent Output & Multi-Channel Generation Verified**
+- [x] Task 4: Chuyển đổi `handleOpenBrowserSession` trong `MarketingSettingsTab.tsx` từ `window.open` ngoại vi sang `createBrowserTab` nội bộ Orca.
+- [x] Task 5: Tách `MarketingBackupSettingsCard.tsx` để đảm bảo `MarketingSettingsTab.tsx` tuân thủ nghiêm ngặt giới hạn $\le$ 400 dòng của Orca ESLint.
 
-### Phase 4: Smart Marketing Automations & Task Checkpoint
+### Phase 3: Browser Automation Action Controller
 
-- [ ] **Task 8: 5 Marketing Automation Templates in Orca Automations**
-- [ ] **Task 9: Checkpointed Steer & Context Persistence in Native Chat**
-- [ ] **Checkpoint 4: End-to-end Marketing & Automation Loop Verified**
+- [ ] Task 6: Bổ sung hành động "Publish via Orca Browser" trong Content Studio và Approvals Center cho kênh Pinterest & LinkedIn.
+- [ ] Task 7: Tạo kịch bản tự động hóa DOM bằng `orca snapshot` và form fill cho bài đăng Pinterest (Title, Board, 2:3 Pin, Link về kevinduong.com) và bài viết LinkedIn.
 
----
+### Checkpoint: Complete
 
-## Risks and Mitigations
-
-| Risk                                                                                                            | Impact | Mitigation                                                                                                                                                                                |
-| :-------------------------------------------------------------------------------------------------------------- | :----- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **API Limit & Social Token Expiry:** Các mạng xã hội (Meta, Pinterest) có token hạn ngắn và kiểm duyệt khắt khe | High   | Thiết kế kiến trúc Approval & Adapter: Orca chuẩn bị sẵn nội dung + preview hoàn hảo, hỗ trợ xuất sang Metricool hoặc Webhook, không phụ thuộc vào việc login account trực tiếp trong app |
-| **Quá tải giao diện (UI Clutter):** Quá nhiều kênh và bảng biểu làm app bị rối                                  | Medium | Áp dụng thiết kế Minimalist Dark/Light Marketing Workspace: Thẻ kênh gọn gàng, thanh lọc linh hoạt, chỉ hiện thông tin quan trọng nhất                                                    |
-| **Chi phí Token khi chạy đa kênh:** Agent phân tích đồng thời nhiều kênh tiêu tốn token                         | Medium | Deterministic Pre-filtering: Sử dụng quy tắc deterministic và rule-based template trước, chỉ gọi model Antigravity cho khâu sáng tạo nội dung                                             |
-
----
-
-## Open Questions
-
-1. Bạn muốn ưu tiên triển khai ngay giao diện **Content Calendar & Overview Dashboard** trực tiếp trong Orca trước, hay tạo các **Template Automation** chuyên trách từng kênh vào Automations Center trước?
-2. Trong 4 kênh (Instagram/Threads, Pinterest, LinkedIn, Website Blog), kênh nào bạn cần tạo nội dung và lên lịch thường xuyên nhất mỗi ngày?
+- [ ] End-to-end flow chạy trơn tru trong tab nội bộ Orca.
+- [ ] Trình duyệt ngoài macOS không bị ảnh hưởng.

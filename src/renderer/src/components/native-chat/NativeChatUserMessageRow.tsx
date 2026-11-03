@@ -1,7 +1,8 @@
-import { Goal } from 'lucide-react'
+import { Goal, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
+import { useMemo } from 'react'
 import type { CommentMarkdownLinkClickHandler } from '@/components/sidebar/CommentMarkdown'
 import type { RuntimeFileOperationArgs } from '@/runtime/runtime-file-client-types'
 import type { NativeChatMessage } from '../../../../shared/native-chat/native-chat-types'
@@ -19,6 +20,21 @@ import {
   NativeChatImageAttachments
 } from './NativeChatTranscriptChrome'
 import type { deriveNativeChatRowContent } from '../../../../shared/native-chat/transcript/native-chat-row-content'
+
+function extractSlashCommands(text: string): string[] {
+  if (!text) {
+    return []
+  }
+  const matches = text.matchAll(/(?:^|\s)\/([a-zA-Z0-9_-]{2,})/g)
+  const set = new Set<string>()
+  for (const m of matches) {
+    const name = m[1]
+    if (name) {
+      set.add(name)
+    }
+  }
+  return Array.from(set)
+}
 
 const USER_META_REVEAL =
   'transition-opacity can-hover:pointer-events-none can-hover:opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 [.group:has(:focus-visible)_&]:pointer-events-auto [.group:has(:focus-visible)_&]:opacity-100'
@@ -87,6 +103,27 @@ export function NativeChatUserMessageRow({
   // Agent-authored input belongs to the turn but uses a left-aligned sender row instead of the person’s bubble.
   const from = message.from
   const sending = deliveryNotice?.sending === true
+
+  const detectedSkills = useMemo(() => {
+    const list: string[] = []
+    if (message.command?.name) {
+      list.push(message.command.name)
+    }
+    if (message.skills && Array.isArray(message.skills)) {
+      for (const s of message.skills) {
+        if (s.name && !list.includes(s.name)) {
+          list.push(s.name)
+        }
+      }
+    }
+    const fromText = extractSlashCommands(markdown)
+    for (const name of fromText) {
+      if (!list.includes(name)) {
+        list.push(name)
+      }
+    }
+    return list
+  }, [message.command, message.skills, markdown])
   return (
     <div
       ref={rowRef}
@@ -142,6 +179,22 @@ export function NativeChatUserMessageRow({
         <div className="flex items-center gap-1 text-xs text-chat-foreground-faint">
           <Goal className="size-3" aria-hidden />
           <span>{translate('components.native-chat.goal.sentAsGoal', 'Sent as goal')}</span>
+        </div>
+      ) : null}
+      {detectedSkills.length > 0 ? (
+        <div
+          className="flex flex-wrap items-center gap-1.5"
+          data-testid="native-chat-active-skills"
+        >
+          {detectedSkills.map((name) => (
+            <div
+              key={name}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs font-medium bg-primary/10 text-primary border border-primary/20 shadow-xs"
+            >
+              <Sparkles className="size-3 animate-pulse" aria-hidden />
+              <span>Skill Active: {name}</span>
+            </div>
+          ))}
         </div>
       ) : null}
       {!from ? (

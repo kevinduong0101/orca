@@ -178,6 +178,7 @@ export function projectStructuredItemToNativeChat(
   const sentAs = item.body.kind === 'message' ? item.body.sentAs : undefined
   const lifecycle = item.body.kind === 'message' ? messageLifecycle(item.body) : {}
   const command = item.body.kind === 'message' ? item.body.command : undefined
+  const skills = item.body.kind === 'message' ? item.body.skills : undefined
   // Validate wire-origin sender fields from any host version.
   const from = item.body.kind === 'message' ? readAgentMessageSource(item.body.from) : undefined
   const message: NativeChatMessage | null = projected
@@ -190,6 +191,7 @@ export function projectStructuredItemToNativeChat(
         ...(sentAs !== undefined && isAgentJournalMessageSendMode(sentAs) ? { sentAs } : {}),
         ...lifecycle,
         ...(command ? { command } : {}),
+        ...(skills && skills.length > 0 ? { skills } : {}),
         ...(from && projected.role === 'user' ? { from } : {}),
         ...(item.shortened && item.body.kind === 'message' ? { shortened: true } : {})
       }
