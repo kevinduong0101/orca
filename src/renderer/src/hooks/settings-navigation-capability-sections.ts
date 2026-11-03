@@ -25,7 +25,7 @@ import type { SettingsNavigationBuildOptions } from './settings-navigation-build
 
 export function buildCapabilitySettingsSections({
   isLocalWindowsHost,
-  _isWebClient,
+  isWebClient,
   isLinearConnected
 }: SettingsNavigationBuildOptions): SettingsNavSection[] {
   const showDesktopOnlySettings = !isWebClient
@@ -122,8 +122,9 @@ export function buildCapabilitySettingsSections({
 
 export function buildSetupSettingsSections({
   isLocalWindowsHost,
-  _isWebClient
+  isWebClient
 }: SettingsNavigationBuildOptions): SettingsNavSection[] {
+  const showDesktopOnlySettings = !isWebClient
   return [
     {
       id: 'general',

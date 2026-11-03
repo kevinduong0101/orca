@@ -21,7 +21,7 @@ export function SidebarSettingsHelpMenu(): React.JSX.Element {
   const [isRestartingOrca, setIsRestartingOrca] = useState(false)
   const openSettingsPage = useAppStore((s) => s.openSettingsPage)
   const openSettingsTarget = useAppStore((s) => s.openSettingsTarget)
-  const settingsShortcut = useShortcutKeyDetails('settings.open')
+  const settingsShortcut = useShortcutKeyDetails('app.settings')
   const mountedRef = useMountedRef()
 
   const handleMenuOpenChange = (open: boolean): void => {
@@ -33,7 +33,7 @@ export function SidebarSettingsHelpMenu(): React.JSX.Element {
       return
     }
     setIsRestartingOrca(true)
-    void window.api.relaunchApp().catch(() => {
+    void window.api.app.restart().catch(() => {
       if (mountedRef.current) {
         setIsRestartingOrca(false)
       }
