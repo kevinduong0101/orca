@@ -129,7 +129,7 @@ export function ContentCalendar({
             )}
           >
             <span>All Channels</span>
-            <span className="rounded-full bg-zinc-900 px-1.5 py-0.2 text-[10px] text-zinc-400">
+            <span className="rounded-full bg-zinc-900 px-1.5 py-0.5 text-[10px] text-zinc-400">
               {posts.length}
             </span>
           </button>
@@ -154,7 +154,7 @@ export function ContentCalendar({
                 <span>{conf.icon}</span>
                 <span>{conf.label}</span>
                 {count > 0 && (
-                  <span className="rounded-full bg-zinc-900/80 px-1.5 py-0.2 text-[10px] text-zinc-400">
+                  <span className="rounded-full bg-zinc-900/80 px-1.5 py-0.5 text-[10px] text-zinc-400">
                     {count}
                   </span>
                 )}

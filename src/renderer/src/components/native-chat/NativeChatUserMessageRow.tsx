@@ -1,8 +1,10 @@
-import { Goal, Sparkles } from 'lucide-react'
+import { Goal, Sparkles, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
-import { useMemo } from 'react'
+import { useState, useCallback, useMemo } from 'react'
+import { toast } from 'sonner'
 import type { CommentMarkdownLinkClickHandler } from '@/components/sidebar/CommentMarkdown'
 import type { RuntimeFileOperationArgs } from '@/runtime/runtime-file-client-types'
 import type { NativeChatMessage } from '../../../../shared/native-chat/native-chat-types'
@@ -15,6 +17,11 @@ import { NativeChatCodeBlock } from './NativeChatCodeBlock'
 import { NativeChatCopyButton } from './NativeChatCopyButton'
 import { NativeChatMessageTimestamp } from './NativeChatMessageTimestamp'
 import { NativeChatAgentMessageCard } from './NativeChatAgentMessageCard'
+import {
+  NativeChatInlinePromptEditor,
+  putTextIntoComposer,
+  triggerComposerSend
+} from './NativeChatInlinePromptEditor'
 import {
   NativeChatDetailsDisclosure,
   NativeChatImageAttachments
@@ -44,12 +51,14 @@ function UserMessageMeta({
   markdown,
   timestamp,
   sending,
-  rewind
+  rewind,
+  onEdit
 }: {
   markdown: string
   timestamp: number | null
   sending: boolean
   rewind?: { itemId: string; surface: NativeChatRewindSurface }
+  onEdit?: () => void
 }): React.JSX.Element | null {
   if (!markdown && timestamp === null && !sending && !rewind) {
     return null
@@ -62,6 +71,24 @@ function UserMessageMeta({
     >
       {markdown ? (
         <NativeChatCopyButton text={markdown} className={sending ? USER_META_REVEAL : undefined} />
+      ) : null}
+      {markdown && !sending && onEdit ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              data-testid="native-chat-edit-prompt-button"
+              className="flex size-6 shrink-0 items-center justify-center rounded-md text-chat-foreground-faint transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label={translate('components.native-chat.editMessage.action', 'Edit prompt')}
+              onClick={onEdit}
+            >
+              <Pencil className="size-3.5" aria-hidden />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="top" sideOffset={4}>
+            {translate('components.native-chat.editMessage.action', 'Edit prompt & return')}
+          </TooltipContent>
+        </Tooltip>
       ) : null}
       {sending ? (
         <span className="text-xs whitespace-nowrap text-chat-foreground-faint">
@@ -103,6 +130,21 @@ export function NativeChatUserMessageRow({
   // Agent-authored input belongs to the turn but uses a left-aligned sender row instead of the person’s bubble.
   const from = message.from
   const sending = deliveryNotice?.sending === true
+  const [isEditing, setIsEditing] = useState(false)
+
+  const handleSendToComposer = useCallback((text: string) => {
+    putTextIntoComposer(text)
+    setIsEditing(false)
+    toast.success(
+      translate('components.native-chat.editMessage.sentToComposer', 'Returned to composer')
+    )
+  }, [])
+
+  const handleReturnCommand = useCallback((text: string) => {
+    putTextIntoComposer(text)
+    setIsEditing(false)
+    triggerComposerSend()
+  }, [])
 
   const detectedSkills = useMemo(() => {
     const list: string[] = []
@@ -124,6 +166,7 @@ export function NativeChatUserMessageRow({
     }
     return list
   }, [message.command, message.skills, markdown])
+
   return (
     <div
       ref={rowRef}
@@ -140,6 +183,13 @@ export function NativeChatUserMessageRow({
           onLinkClick={onLinkClick}
           allowFileUriLinks={allowFileUriLinks}
           onRefolded={onRefolded}
+        />
+      ) : isEditing ? (
+        <NativeChatInlinePromptEditor
+          initialText={markdown}
+          onCancel={() => setIsEditing(false)}
+          onSendToComposer={handleSendToComposer}
+          onReturnCommand={handleReturnCommand}
         />
       ) : (
         <div className="max-w-[80%] rounded-xl border border-chat-user-border bg-chat-user-surface px-3.5 py-2.5 text-sm text-chat-foreground-strong">
@@ -202,6 +252,7 @@ export function NativeChatUserMessageRow({
           markdown={markdown}
           timestamp={message.timestamp}
           sending={sending}
+          onEdit={() => setIsEditing(true)}
           {...(rewind ? { rewind: { itemId: message.id, surface: rewind } } : {})}
         />
       ) : null}

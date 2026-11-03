@@ -195,7 +195,7 @@ export default function MarketingWorkspace(): React.JSX.Element {
             <CheckCircle2 className="size-3.5" />
             Approvals
             {pendingApprovalsCount > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
                 {pendingApprovalsCount}
               </span>
             )}
@@ -213,7 +213,7 @@ export default function MarketingWorkspace(): React.JSX.Element {
           >
             <Brain className="size-3.5 text-purple-400" />
             Agent Brain
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
               {learnedRules.filter((r) => r.status === 'active_playbook').length}
             </span>
           </button>

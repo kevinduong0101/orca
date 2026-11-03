@@ -59,7 +59,7 @@ export function ContentCalendarMonthView({
                   {dayNum}
                 </span>
                 {dayPosts.length > 0 && (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-zinc-800 text-zinc-300">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300">
                     {dayPosts.length}
                   </span>
                 )}
