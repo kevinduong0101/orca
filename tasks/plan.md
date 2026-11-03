@@ -31,8 +31,8 @@ Xây dựng và tích hợp hệ sinh thái tự động hóa đăng bài và t�
 
 ### Phase 3: Browser Automation Action Controller
 
-- [ ] Task 6: Bổ sung hành động "Publish via Orca Browser" trong Content Studio và Approvals Center cho kênh Pinterest & LinkedIn.
-- [ ] Task 7: Tạo kịch bản tự động hóa DOM bằng `orca snapshot` và form fill cho bài đăng Pinterest (Title, Board, 2:3 Pin, Link về kevinduong.com) và bài viết LinkedIn.
+- [x] Task 6: Bổ sung hành động "Publish via Orca Browser" trong Content Studio và Approvals Center cho kênh Pinterest & LinkedIn.
+- [x] Task 7: Tạo kịch bản tự động hóa DOM bằng `orca snapshot` và form fill cho bài đăng Pinterest (Title, Board, 2:3 Pin, Link về kevinduong.com) và bài viết LinkedIn.
 
 ### Checkpoint: Complete
 

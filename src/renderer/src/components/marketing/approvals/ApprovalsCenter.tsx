@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Check, CheckCheck, Edit3, ShieldCheck, Sparkles, X } from 'lucide-react'
+import { Check, CheckCheck, Edit3, Globe, ShieldCheck, Sparkles, X } from 'lucide-react'
 import type { MarketingPost } from '../types/marketing-types'
 
 export function ApprovalsCenter({
@@ -8,14 +8,17 @@ export function ApprovalsCenter({
   onApproveAll,
   onReject,
   onEditInStudio,
-  onQuickRewrite
+  onQuickRewrite,
+  onPublishInBrowser
 }: {
+  onPublishInBrowser?: (post: MarketingPost) => void
   posts: MarketingPost[]
   onApprove: (id: string) => void
   onApproveAll?: () => void
   onReject: (id: string) => void
   onEditInStudio?: (post: MarketingPost) => void
   onQuickRewrite?: (id: string, style: string) => void
+  onPublishInBrowser?: (post: MarketingPost) => void
 }): React.JSX.Element {
   const pendingPosts = posts.filter((p) => p.status === 'needs_review')
   const [activeRewriteId, setActiveRewriteId] = useState<string | null>(null)
@@ -137,6 +140,18 @@ export function ApprovalsCenter({
               </div>
 
               <div className="flex flex-col gap-2 shrink-0">
+                {(post.channel === 'pinterest' || post.channel === 'linkedin') &&
+                  onPublishInBrowser && (
+                    <button
+                      type="button"
+                      onClick={() => onPublishInBrowser(post)}
+                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-xs shadow-lg shadow-purple-950 transition-colors"
+                    >
+                      <Globe className="size-3.5" />
+                      Publish in Orca Browser
+                    </button>
+                  )}
+
                 <button
                   type="button"
                   onClick={() => onApprove(post.id)}

@@ -17,6 +17,7 @@ import { ApprovalsCenter } from './approvals/ApprovalsCenter'
 import { ContentStudioModal } from './studio/ContentStudioModal'
 import { RepurposeModal } from './studio/RepurposeModal'
 import { MarketingSettingsTab } from './settings/MarketingSettingsTab'
+import { publishPostViaOrcaBrowser } from './services/orca-browser-publisher'
 import type { MarketingPost, MarketingTab } from './types/marketing-types'
 
 export default function MarketingWorkspace(): React.JSX.Element {
@@ -45,6 +46,11 @@ export default function MarketingWorkspace(): React.JSX.Element {
     savePost(updated)
     setSelectedPostForStudio(null)
     setActiveTab('calendar')
+  }
+
+  const handlePublishInBrowser = async (post: MarketingPost) => {
+    savePost({ ...post, status: 'published' })
+    await publishPostViaOrcaBrowser(post)
   }
 
   const handleQuickRewrite = (id: string, style: string) => {
@@ -247,7 +253,11 @@ export default function MarketingWorkspace(): React.JSX.Element {
           )}
 
           {activeTab === 'studio' && (
-            <ContentStudioModal post={selectedPostForStudio} onSave={handleSavePost} />
+            <ContentStudioModal
+              post={selectedPostForStudio}
+              onSave={handleSavePost}
+              onPublishInBrowser={handlePublishInBrowser}
+            />
           )}
 
           {activeTab === 'approvals' && (
@@ -261,6 +271,7 @@ export default function MarketingWorkspace(): React.JSX.Element {
                 setActiveTab('studio')
               }}
               onQuickRewrite={handleQuickRewrite}
+              onPublishInBrowser={handlePublishInBrowser}
             />
           )}
 

@@ -32,11 +32,11 @@
 
 ## Phase 3: Automated Publishing in Orca Browser Tab
 
-- [ ] **Task 6: Publish via Orca Browser Action**
+- [x] **Task 6: Publish via Orca Browser Action**
   - **Description:** Tích hợp nút kích hoạt AI đăng bài tự động trên tab Orca nội bộ trong Approvals Center và Content Studio.
   - **Acceptance criteria:** Trạng thái bài đăng chuyển sang `published` sau khi AI tương tác thành công với webview.
   - **Verification:** Kiểm tra luồng phê duyệt và ghi nhận lịch sử.
-- [ ] **Task 7: DOM Action Script for Pinterest & LinkedIn**
+- [x] **Task 7: DOM Action Script for Pinterest & LinkedIn**
   - **Description:** Định nghĩa cấu hình selector và fallback tự động cho Pinterest Pin Builder & LinkedIn Post Modal.
   - **Acceptance criteria:** Script điền đúng title, description, link và file đính kèm.
   - **Verification:** Chạy thử nghiệm tự động hóa với tab Pinterest test.

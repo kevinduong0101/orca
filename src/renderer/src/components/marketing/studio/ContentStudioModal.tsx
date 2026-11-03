@@ -23,10 +23,12 @@ const DEFAULT_EMPTY_POST: MarketingPost = {
 
 export function ContentStudioModal({
   post,
-  onSave
+  onSave,
+  onPublishInBrowser
 }: {
   post?: MarketingPost | null
   onSave?: (updated: MarketingPost) => void
+  onPublishInBrowser?: (post: MarketingPost) => void
 }): React.JSX.Element {
   const activePost = post || DEFAULT_EMPTY_POST
   const [content, setContent] = useState(activePost.content)
@@ -90,6 +92,22 @@ export function ContentStudioModal({
       }
     }, 400)
   }
+
+  const getCurrentPost = (): MarketingPost => ({
+    ...activePost,
+    id: activePost.id === 'draft-new' ? `post-${Date.now()}` : activePost.id,
+    title,
+    content,
+    channel,
+    scheduledFor,
+    tags: parsedTags,
+    destinationUrl,
+    boardName: channel === 'pinterest' ? boardName : undefined,
+    targetClient,
+    seoKeyword: channel === 'website' ? seoKeyword : undefined,
+    bookingHeadline: channel === 'website' ? bookingHeadline : undefined,
+    bookingQuote: channel === 'website' ? bookingQuote : undefined
+  })
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 rounded-2xl border border-zinc-800 bg-zinc-900/90 backdrop-blur-xl">
@@ -315,30 +333,26 @@ export function ContentStudioModal({
             {isPolishing ? 'Agent Polishing...' : 'AI Client CTA & Hook'}
           </button>
 
-          <button
-            type="button"
-            onClick={() =>
-              onSave?.({
-                ...activePost,
-                id: activePost.id === 'draft-new' ? `post-${Date.now()}` : activePost.id,
-                title,
-                content,
-                channel,
-                scheduledFor,
-                tags: parsedTags,
-                destinationUrl,
-                boardName: channel === 'pinterest' ? boardName : undefined,
-                targetClient,
-                seoKeyword: channel === 'website' ? seoKeyword : undefined,
-                bookingHeadline: channel === 'website' ? bookingHeadline : undefined,
-                bookingQuote: channel === 'website' ? bookingQuote : undefined
-              })
-            }
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs text-white font-semibold transition-colors shadow-lg shadow-purple-950"
-          >
-            <Check className="size-3.5" />
-            Save to Pipeline
-          </button>
+          <div className="flex items-center gap-2">
+            {(channel === 'pinterest' || channel === 'linkedin') && onPublishInBrowser && (
+              <button
+                type="button"
+                onClick={() => onPublishInBrowser(getCurrentPost())}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs text-white font-semibold transition-colors shadow-md shadow-indigo-950"
+              >
+                <Globe className="size-3.5" />
+                Publish in Orca
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => onSave?.(getCurrentPost())}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs text-white font-semibold transition-colors shadow-lg shadow-purple-950"
+            >
+              <Check className="size-3.5" />
+              Save to Pipeline
+            </button>
+          </div>
         </div>
       </div>
 
