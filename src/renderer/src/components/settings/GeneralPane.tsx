@@ -4,7 +4,7 @@ import { useAppStore } from '../../store'
 import { CliSection } from './CliSection'
 import { GeneralEditorSettingsSection } from './GeneralEditorSettingsSection'
 import { GeneralSupportSection } from './GeneralSupportSection'
-import { GeneralUpdateSettingsSection } from './GeneralUpdateSettingsSection'
+
 import { GeneralWorkspaceSettingsSection } from './GeneralWorkspaceSettingsSection'
 import {
   getGeneralCliSearchEntries,
@@ -12,7 +12,6 @@ import {
   getGeneralNavigationSearchEntries,
   getGeneralPaneSearchEntries,
   getGeneralSupportSearchEntries,
-  getGeneralUpdateSearchEntries,
   getGeneralWorkspaceSearchEntries
 } from './general-search'
 import { getGeneralProjectRuntimeSearchEntries } from './general-project-runtime-search'
@@ -268,9 +267,7 @@ export function GeneralPane({
         wslCapabilitiesLoading={wslCapabilitiesLoading}
       />
     ) : null,
-    matchesSettingsSearch(searchQuery, getGeneralUpdateSearchEntries()) ? (
-      <GeneralUpdateSettingsSection key="updates" />
-    ) : null
+    null
     // Render Support separately so its placeholder/divider can collapse without leaving a dangling separator.
   ]
 

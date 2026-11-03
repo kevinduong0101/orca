@@ -1,11 +1,7 @@
 import { app } from 'electron'
 import { isMacInstallRequested } from '../updater-mac-install'
 import { withUpdaterSpan } from '../observability/instrumentation'
-import {
-  AUTO_UPDATE_CHECK_INTERVAL_MS,
-  AUTO_UPDATE_RETRY_INTERVAL_MS,
-  MAX_AUTO_UPDATE_RETRY_INTERVAL_MS
-} from './updater-state'
+import { AUTO_UPDATE_RETRY_INTERVAL_MS } from './updater-state'
 import { UpdaterCheckFailure } from './updater-check-failure'
 
 export abstract class UpdaterScheduling extends UpdaterCheckFailure {
@@ -13,26 +9,8 @@ export abstract class UpdaterScheduling extends UpdaterCheckFailure {
     return AUTO_UPDATE_RETRY_INTERVAL_MS
   }
 
-  protected scheduleAutomaticUpdateCheck(delayMs: number): void {
-    let effectiveDelayMs = delayMs
-    // The retry constant identifies all retry-cadence callers, keeping backoff centralized.
-    if (delayMs === AUTO_UPDATE_RETRY_INTERVAL_MS) {
-      effectiveDelayMs = Math.min(
-        AUTO_UPDATE_RETRY_INTERVAL_MS * 2 ** this.consecutiveAutomaticRetrySchedules,
-        MAX_AUTO_UPDATE_RETRY_INTERVAL_MS
-      )
-      this.consecutiveAutomaticRetrySchedules += 1
-    }
-    if (this.autoUpdateCheckTimer) {
-      clearTimeout(this.autoUpdateCheckTimer)
-    }
-    this.autoUpdateCheckTimer = setTimeout(() => {
-      // Long-running apps need main-process timers independent of renderer/relaunch lifetime.
-      if (!this.runBackgroundUpdateCheck()) {
-        // Deferred checks have no outcome handler; re-arm here or automatic checks stop forever.
-        this.scheduleAutomaticUpdateCheck(AUTO_UPDATE_CHECK_INTERVAL_MS)
-      }
-    }, effectiveDelayMs)
+  protected scheduleAutomaticUpdateCheck(_delayMs: number): void {
+    // Disabled for Kevin Studio standalone
   }
 
   protected recordCompletedUpdateCheck(): void {
