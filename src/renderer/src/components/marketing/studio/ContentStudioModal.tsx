@@ -1,22 +1,11 @@
 import React, { useState } from 'react'
-import {
-  Calendar,
-  Check,
-  Hash,
-  Sparkles,
-  Wand2,
-  Globe,
-  Compass,
-  Briefcase,
-  AlertCircle,
-  CheckCircle2,
-  ShieldAlert
-} from 'lucide-react'
+import { Calendar, Check, Hash, Sparkles, Wand2, Globe, Compass, Briefcase } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { MarketingChannel, MarketingPost } from '../types/marketing-types'
 import { PinterestPreview } from './previews/PinterestPreview'
 import { LinkedInPreview } from './previews/LinkedInPreview'
 import { WebsitePreview } from './previews/WebsitePreview'
+import { WebsiteSeoAssistant } from './WebsiteSeoAssistant'
 
 const DEFAULT_EMPTY_POST: MarketingPost = {
   id: 'draft-new',
@@ -72,12 +61,6 @@ export function ContentStudioModal({
     .split(' ')
     .map((t) => t.trim())
     .filter((t) => t.length > 0)
-
-  // SEO Quality Checks for Website Blog
-  const isTitleLengthOk = title.length > 0 && title.length <= 56
-  const isContentLongEnough = content.length >= 600
-  const hasBookingCard = bookingHeadline.length > 0 && bookingQuote.length > 0
-  const hasValidDestination = destinationUrl.startsWith('https://www.bykevinduong.com')
 
   const handleAiPolish = () => {
     setIsPolishing(true)
@@ -269,83 +252,17 @@ export function ContentStudioModal({
 
         {/* Website Blog SEO Quality Assistant */}
         {channel === 'website' && (
-          <div className="p-3 rounded-xl bg-zinc-950/60 border border-emerald-500/30 space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-emerald-400 flex items-center gap-1.5">
-                <CheckCircle2 className="size-3.5" />
-                SEO On-Page Quality Checklist (bykevinduong.com)
-              </span>
-              <span className="text-[10px] text-zinc-400">Weekly Cadence Active</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
-              <div className="flex items-center gap-1.5">
-                {isTitleLengthOk ? (
-                  <CheckCircle2 className="size-3 text-emerald-400 shrink-0" />
-                ) : (
-                  <AlertCircle className="size-3 text-amber-400 shrink-0" />
-                )}
-                <span className={isTitleLengthOk ? 'text-zinc-300' : 'text-amber-300'}>
-                  Title ≤ 56 chars ({title.length})
-                </span>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                {isContentLongEnough ? (
-                  <CheckCircle2 className="size-3 text-emerald-400 shrink-0" />
-                ) : (
-                  <AlertCircle className="size-3 text-zinc-500 shrink-0" />
-                )}
-                <span className={isContentLongEnough ? 'text-zinc-300' : 'text-zinc-500'}>
-                  Body length ≥ 600 words ({content.split(' ').filter(Boolean).length} words)
-                </span>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                {hasBookingCard ? (
-                  <CheckCircle2 className="size-3 text-emerald-400 shrink-0" />
-                ) : (
-                  <AlertCircle className="size-3 text-amber-400 shrink-0" />
-                )}
-                <span className={hasBookingCard ? 'text-zinc-300' : 'text-amber-300'}>
-                  Viewfinder Booking Card Attached
-                </span>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                {hasValidDestination ? (
-                  <CheckCircle2 className="size-3 text-emerald-400 shrink-0" />
-                ) : (
-                  <ShieldAlert className="size-3 text-rose-400 shrink-0" />
-                )}
-                <span className="text-zinc-300 truncate">Domain: bykevinduong.com</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 pt-1 border-t border-zinc-800">
-              <input
-                type="text"
-                value={seoKeyword}
-                placeholder="Target SEO Keyword..."
-                onChange={(e) => setSeoKeyword(e.target.value)}
-                className="px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-200"
-              />
-              <input
-                type="text"
-                value={bookingHeadline}
-                placeholder="Booking Card Headline..."
-                onChange={(e) => setBookingHeadline(e.target.value)}
-                className="px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-200"
-              />
-              <input
-                type="text"
-                value={bookingQuote}
-                placeholder="Emotional handwritten quote..."
-                onChange={(e) => setBookingQuote(e.target.value)}
-                className="px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-200 font-serif italic"
-              />
-            </div>
-          </div>
+          <WebsiteSeoAssistant
+            title={title}
+            content={content}
+            destinationUrl={destinationUrl}
+            seoKeyword={seoKeyword}
+            bookingHeadline={bookingHeadline}
+            bookingQuote={bookingQuote}
+            onSeoKeywordChange={setSeoKeyword}
+            onBookingHeadlineChange={setBookingHeadline}
+            onBookingQuoteChange={setBookingQuote}
+          />
         )}
 
         {/* Body Copy */}

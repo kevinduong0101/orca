@@ -1,7 +1,7 @@
 import React from 'react'
 import { Clock, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { CHANNEL_CONFIG } from './calendar-config'
+import { getChannelConfig } from './calendar-config'
 import type { MarketingPost } from '../types/marketing-types'
 
 export function ContentCalendarCard({
@@ -11,8 +11,8 @@ export function ContentCalendarCard({
   post: MarketingPost
   onClick?: () => void
 }): React.JSX.Element {
-  const conf = CHANNEL_CONFIG[post.channel]
-  const time = post.scheduledFor.split(' ')[1] || '12:00'
+  const conf = getChannelConfig(post.channel)
+  const time = (post.scheduledFor || '').split(' ')[1] || '12:00'
   const isReview = post.status === 'needs_review'
   const isPublished = post.status === 'published'
 
@@ -50,7 +50,7 @@ export function ContentCalendarCard({
       {/* 2. Body: Title */}
       <div className="space-y-1 mb-2.5">
         <h4 className="text-xs font-semibold text-zinc-100 leading-snug line-clamp-2 group-hover/card:text-white transition-colors">
-          {post.title}
+          {post.title || 'Untitled Post'}
         </h4>
       </div>
 
@@ -85,7 +85,7 @@ export function ContentCalendarCard({
                   : 'bg-sky-400'
             )}
           />
-          {post.status.replace('_', ' ')}
+          {(post.status || 'draft').replace('_', ' ')}
         </span>
       </div>
     </div>

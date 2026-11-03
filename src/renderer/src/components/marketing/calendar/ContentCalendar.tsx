@@ -1,14 +1,7 @@
 import React, { useState } from 'react'
-import {
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
-  Layers,
-  Plus
-} from 'lucide-react'
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Filter, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { CHANNEL_CONFIG, DAYS_OF_WEEK } from './calendar-config'
+import { getChannelConfig, getWeekDays } from './calendar-config'
 import { ContentCalendarCard } from './ContentCalendarCard'
 import type { MarketingChannel, MarketingPost } from '../types/marketing-types'
 
@@ -23,10 +16,17 @@ export function ContentCalendar({
 }): React.JSX.Element {
   const [selectedChannel, setSelectedChannel] = useState<MarketingChannel | 'all'>('all')
   const [viewMode, setViewMode] = useState<'week' | 'month' | 'list'>('week')
+  const [weekOffset, setWeekOffset] = useState(0)
+  const weekDays = getWeekDays(weekOffset)
 
   const filteredPosts = posts.filter(
     (post) => selectedChannel === 'all' || post.channel === selectedChannel
   )
+
+  const weekLabel =
+    weekDays.length > 0
+      ? `November ${weekDays[0].dayNum} – November ${weekDays[6].dayNum}, 2026`
+      : 'November 2 – November 8, 2026'
 
   return (
     <div className="space-y-4">
@@ -38,6 +38,7 @@ export function ContentCalendar({
             <div className="flex items-center gap-1 rounded-xl bg-zinc-950/80 p-1 border border-zinc-800/80">
               <button
                 type="button"
+                onClick={() => setWeekOffset((p) => p - 1)}
                 className="flex size-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
                 title="Previous Week"
               >
@@ -45,12 +46,19 @@ export function ContentCalendar({
               </button>
               <button
                 type="button"
-                className="px-2.5 py-1 text-xs font-semibold text-zinc-200 hover:bg-zinc-800 rounded-lg transition-colors"
+                onClick={() => setWeekOffset(0)}
+                className={cn(
+                  'px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors',
+                  weekOffset === 0
+                    ? 'bg-zinc-800 text-amber-400 font-bold'
+                    : 'text-zinc-300 hover:bg-zinc-800'
+                )}
               >
                 Today
               </button>
               <button
                 type="button"
+                onClick={() => setWeekOffset((p) => p + 1)}
                 className="flex size-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
                 title="Next Week"
               >
@@ -61,10 +69,10 @@ export function ContentCalendar({
             <div className="flex items-center gap-2 pl-1">
               <CalendarIcon className="size-4 text-amber-400" />
               <span className="text-sm font-semibold text-zinc-100 tracking-tight">
-                November 2 – November 8, 2026
+                {weekLabel}
               </span>
               <span className="rounded-full bg-zinc-800/80 px-2 py-0.5 text-[10px] font-medium text-zinc-400 border border-zinc-700/50">
-                Week 45
+                Week {45 + weekOffset}
               </span>
             </div>
           </div>
@@ -91,7 +99,9 @@ export function ContentCalendar({
 
             <button
               type="button"
-              onClick={() => onCreatePost?.()}
+              onClick={() =>
+                onCreatePost?.(selectedChannel === 'all' ? undefined : selectedChannel)
+              }
               className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg shadow-rose-950/40 hover:from-amber-400 hover:to-rose-500 transition-all"
             >
               <Plus className="size-3.5 stroke-[2.5]" />
@@ -124,7 +134,7 @@ export function ContentCalendar({
           </button>
 
           {(['pinterest', 'linkedin', 'website'] as const).map((ch) => {
-            const conf = CHANNEL_CONFIG[ch]
+            const conf = getChannelConfig(ch)
             const isSelected = selectedChannel === ch
             const count = posts.filter((p) => p.channel === ch).length
 
@@ -156,18 +166,14 @@ export function ContentCalendar({
       {/* Week Grid Layout */}
       {viewMode === 'week' && (
         <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
-          {DAYS_OF_WEEK.map((day) => {
-            const dayPosts = filteredPosts.filter((p) => {
-              const postDay = Number.parseInt(
-                p.scheduledFor.split('-')[2]?.split(' ')[0] || '0',
-                10
-              )
-              return postDay === day.dayNum
-            })
+          {weekDays.map((day) => {
+            const dayPosts = filteredPosts.filter(
+              (p) => Boolean(p.scheduledFor) && p.scheduledFor.startsWith(day.fullDate)
+            )
 
             return (
               <div
-                key={day.short}
+                key={day.fullDate}
                 className={cn(
                   'group/col flex flex-col rounded-2xl border transition-all duration-200 min-h-[340px] p-3',
                   day.isToday
@@ -205,7 +211,12 @@ export function ContentCalendar({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => onCreatePost?.(undefined, `2026-11-0${day.dayNum}`)}
+                      onClick={() =>
+                        onCreatePost?.(
+                          selectedChannel === 'all' ? undefined : selectedChannel,
+                          day.fullDate
+                        )
+                      }
                       className="opacity-0 group-hover/col:opacity-100 size-5 flex items-center justify-center rounded text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-opacity"
                       title="Add post to this day"
                     >
@@ -226,7 +237,12 @@ export function ContentCalendar({
 
                   {dayPosts.length === 0 && (
                     <div
-                      onClick={() => onCreatePost?.(undefined, `2026-11-0${day.dayNum}`)}
+                      onClick={() =>
+                        onCreatePost?.(
+                          selectedChannel === 'all' ? undefined : selectedChannel,
+                          day.fullDate
+                        )
+                      }
                       className="group/empty flex h-24 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800/80 hover:border-zinc-700 bg-zinc-950/20 hover:bg-zinc-950/50 cursor-pointer transition-all duration-150 text-center p-3"
                     >
                       <Plus className="size-4 text-zinc-600 group-hover/empty:text-zinc-400 transition-colors mb-1" />
@@ -239,6 +255,93 @@ export function ContentCalendar({
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Month Mode View */}
+      {viewMode === 'month' && (
+        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/50 p-4 shadow-xl backdrop-blur-md space-y-3">
+          <div className="grid grid-cols-7 gap-2 pb-2 border-b border-zinc-800/80 text-center text-xs font-semibold text-zinc-400 uppercase">
+            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+              <div key={day}>{day}</div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 gap-2">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div
+                key={`empty-${idx}`}
+                className="h-24 rounded-xl border border-zinc-900/40 bg-zinc-950/10 opacity-30"
+              />
+            ))}
+
+            {Array.from({ length: 30 }).map((_, idx) => {
+              const dayNum = idx + 1
+              const dateStr = `2026-11-${String(dayNum).padStart(2, '0')}`
+              const isToday = dateStr === '2026-11-03'
+              const dayPosts = filteredPosts.filter(
+                (p) => p.scheduledFor && p.scheduledFor.startsWith(dateStr)
+              )
+
+              return (
+                <div
+                  key={dateStr}
+                  onClick={() =>
+                    onCreatePost?.(selectedChannel === 'all' ? undefined : selectedChannel, dateStr)
+                  }
+                  className={cn(
+                    'h-24 rounded-xl border p-2 flex flex-col justify-between cursor-pointer transition-all hover:border-zinc-700 bg-zinc-950/30 hover:bg-zinc-950/60',
+                    isToday ? 'border-amber-500/50 bg-amber-950/10' : 'border-zinc-800/60'
+                  )}
+                >
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={cn(
+                        'size-5 flex items-center justify-center rounded text-xs font-bold',
+                        isToday ? 'bg-amber-500 text-zinc-950' : 'text-zinc-400'
+                      )}
+                    >
+                      {dayNum}
+                    </span>
+                    {dayPosts.length > 0 && (
+                      <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-zinc-800 text-zinc-300">
+                        {dayPosts.length}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-1 overflow-hidden">
+                    {dayPosts.slice(0, 2).map((post) => {
+                      const conf = getChannelConfig(post.channel)
+                      return (
+                        <div
+                          key={post.id}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onSelectPost?.(post)
+                          }}
+                          className={cn(
+                            'text-[10px] px-1.5 py-0.5 rounded truncate font-medium flex items-center gap-1 border',
+                            conf.badgeBg,
+                            conf.text,
+                            conf.border
+                          )}
+                        >
+                          <span>{conf.icon}</span>
+                          <span className="truncate">{post.title}</span>
+                        </div>
+                      )
+                    })}
+                    {dayPosts.length > 2 && (
+                      <span className="text-[9px] text-zinc-500 block truncate">
+                        +{dayPosts.length - 2} more
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
@@ -255,7 +358,7 @@ export function ContentCalendar({
         ) : (
           <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/50 divide-y divide-zinc-800/80 overflow-hidden shadow-xl backdrop-blur-md">
             {filteredPosts.map((post) => {
-              const conf = CHANNEL_CONFIG[post.channel]
+              const conf = getChannelConfig(post.channel)
               const isReview = post.status === 'needs_review'
               const isPublished = post.status === 'published'
 
@@ -282,7 +385,7 @@ export function ContentCalendar({
                         <span className="text-xs text-zinc-400 font-mono">{post.scheduledFor}</span>
                       </div>
                       <h4 className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors">
-                        {post.title}
+                        {post.title || 'Untitled Post'}
                       </h4>
                       <p className="text-xs text-zinc-400 line-clamp-1 mt-0.5 max-w-xl">
                         {post.content}
@@ -302,7 +405,7 @@ export function ContentCalendar({
                             : 'bg-sky-500/20 text-sky-300 border-sky-500/30'
                       )}
                     >
-                      {post.status.replace('_', ' ')}
+                      {(post.status || 'draft').replace('_', ' ')}
                     </span>
                   </div>
                 </div>
@@ -310,18 +413,6 @@ export function ContentCalendar({
             })}
           </div>
         ))}
-
-      {/* Month Mode Simple View */}
-      {viewMode === 'month' && (
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/50 p-6 text-center backdrop-blur-md">
-          <Layers className="size-8 text-purple-400 mx-auto mb-2 opacity-80" />
-          <h4 className="text-sm font-semibold text-zinc-200">Month Calendar View</h4>
-          <p className="text-xs text-zinc-400 mt-1 max-w-md mx-auto">
-            Showing full 30-day editorial schedule across all channels. Switch to Week View for
-            daily time-slot management.
-          </p>
-        </div>
-      )}
     </div>
   )
 }

@@ -15,6 +15,7 @@ import {
 
 const STORAGE_KEY_POSTS = 'orca_marketing_posts_v1'
 const STORAGE_KEY_SETTINGS = 'orca_marketing_settings_v1'
+const VALID_CHANNELS = new Set<string>(['pinterest', 'linkedin', 'website'])
 
 const DEFAULT_SETTINGS: MarketingSettings = {
   webhookUrl: '',
@@ -36,7 +37,10 @@ export function useMarketingData() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_POSTS)
       if (saved) {
-        return JSON.parse(saved)
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed)) {
+          return parsed.filter((p) => VALID_CHANNELS.has(p.channel))
+        }
       }
     } catch {
       // ignore
@@ -79,12 +83,16 @@ export function useMarketingData() {
   }, [settings])
 
   const savePost = useCallback((post: MarketingPost) => {
+    const cleanPost: MarketingPost = {
+      ...post,
+      channel: VALID_CHANNELS.has(post.channel) ? post.channel : 'pinterest'
+    }
     setPosts((prev) => {
-      const idx = prev.findIndex((p) => p.id === post.id)
+      const idx = prev.findIndex((p) => p.id === cleanPost.id)
       if (idx !== -1) {
-        return prev.map((p) => (p.id === post.id ? post : p))
+        return prev.map((p) => (p.id === cleanPost.id ? cleanPost : p))
       }
-      return [post, ...prev]
+      return [cleanPost, ...prev]
     })
   }, [])
 
@@ -103,7 +111,8 @@ export function useMarketingData() {
   }, [])
 
   const batchAddPosts = useCallback((newPosts: MarketingPost[]) => {
-    setPosts((prev) => [...newPosts, ...prev])
+    const valid = newPosts.filter((p) => VALID_CHANNELS.has(p.channel))
+    setPosts((prev) => [...valid, ...prev])
   }, [])
 
   const seedDemoCampaign = useCallback(() => {
