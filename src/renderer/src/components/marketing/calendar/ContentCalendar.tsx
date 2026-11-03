@@ -169,9 +169,9 @@ export function ContentCalendar({
               <div
                 key={day.short}
                 className={cn(
-                  'group/col flex flex-col rounded-2xl border transition-all duration-200 min-h-[460px] p-3',
+                  'group/col flex flex-col rounded-2xl border transition-all duration-200 min-h-[480px] p-3',
                   day.isToday
-                    ? 'border-amber-500/40 bg-zinc-900/80 shadow-lg shadow-amber-950/10'
+                    ? 'border-amber-500/40 bg-zinc-900/80 shadow-lg shadow-amber-950/10 ring-1 ring-amber-500/20'
                     : 'border-zinc-800/80 bg-zinc-900/40 hover:border-zinc-700/80 hover:bg-zinc-900/60'
                 )}
               >
