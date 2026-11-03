@@ -1,7 +1,7 @@
 import { useMemo, type JSX } from 'react'
 import { MoreHorizontal, Copy, ExternalLink, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { basename, joinPath, getRelativePathInsideRoot } from '@/lib/path'
+import { basename } from '@/lib/path'
 import { detectLanguage } from '@/lib/language-detect'
 import { toast } from 'sonner'
 import {
@@ -15,6 +15,7 @@ import { createNativeChatFileHref } from '../../../../shared/native-chat/native-
 import { useAppStore } from '@/store'
 import { resolveWorkspaceDirectory } from '@/lib/workspace-directory'
 import { openDetectedFilePath } from '@/components/terminal-pane/terminal-file-open-routing'
+import { resolveDeliverableFilePath } from './native-chat-deliverable-resolver'
 
 export type DeliverableFile = {
   path: string
@@ -63,12 +64,10 @@ export function extractDeliverablesFromMarkdown(markdown: string): DeliverableFi
     }
 
     const name = basename(cleanPath)
-    // Avoid non-file noise
     if (name.length < 3 || name.startsWith('.')) {
       return
     }
 
-    // If an entry with this name exists, prefer the one with directory path
     let existingKey: string | null = null
     for (const [key, val] of found.entries()) {
       if (val.name.toLowerCase() === name.toLowerCase() || key === cleanPath) {
@@ -203,85 +202,6 @@ function getBadgeStyle(ext: string): { bg: string; icon: JSX.Element; label: str
   }
 }
 
-async function resolveDeliverableFilePath(
-  rawPath: string,
-  fileName: string
-): Promise<{ absolutePath: string; relativePath: string }> {
-  const state = useAppStore.getState()
-  const worktreeId = state.activeWorktreeId || ''
-  const rootPath = resolveWorkspaceDirectory(state, worktreeId) || ''
-
-  // 1. If already an absolute path that exists
-  if (rawPath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(rawPath)) {
-    try {
-      if (await window.api.fs.pathExists({ filePath: rawPath })) {
-        const rel = rootPath ? (getRelativePathInsideRoot(rawPath, rootPath) ?? rawPath) : rawPath
-        return { absolutePath: rawPath, relativePath: rel }
-      }
-    } catch {}
-  }
-
-  // 2. If relative to rootPath and exists on disk
-  if (rootPath) {
-    const candidate = joinPath(rootPath, rawPath)
-    try {
-      if (await window.api.fs.pathExists({ filePath: candidate })) {
-        const rel = getRelativePathInsideRoot(candidate, rootPath) ?? rawPath
-        return { absolutePath: candidate, relativePath: rel }
-      }
-    } catch {}
-  }
-
-  // 3. Check open files in store
-  const openFile = state.openFiles.find(
-    (f) =>
-      f.filePath === rawPath ||
-      f.relativePath === rawPath ||
-      f.relativePath.endsWith(`/${rawPath}`) ||
-      basename(f.filePath).toLowerCase() === fileName.toLowerCase()
-  )
-  if (openFile) {
-    return { absolutePath: openFile.filePath, relativePath: openFile.relativePath }
-  }
-
-  // 4. Search in rootPath via listFiles
-  if (rootPath) {
-    try {
-      const matches = await window.api.fs.listFiles({
-        rootPath,
-        nameFilter: fileName,
-        maxResults: 10
-      })
-      if (matches && matches.length > 0) {
-        const match =
-          matches.find(
-            (m) =>
-              m === rawPath ||
-              m.endsWith(`/${rawPath}`) ||
-              basename(m).toLowerCase() === fileName.toLowerCase()
-          ) || matches[0]
-        if (match) {
-          const abs = joinPath(rootPath, match)
-          const rel = getRelativePathInsideRoot(abs, rootPath) ?? match
-          return { absolutePath: abs, relativePath: rel }
-        }
-      }
-    } catch {}
-  }
-
-  // 5. Default fallback
-  const fallbackAbs =
-    rawPath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(rawPath)
-      ? rawPath
-      : rootPath
-        ? joinPath(rootPath, rawPath)
-        : rawPath
-  const fallbackRel = rootPath
-    ? (getRelativePathInsideRoot(fallbackAbs, rootPath) ?? rawPath)
-    : rawPath
-  return { absolutePath: fallbackAbs, relativePath: fallbackRel }
-}
-
 export function NativeChatDeliverableCards({
   markdown,
   onLinkClick
@@ -299,7 +219,15 @@ export function NativeChatDeliverableCards({
     e.preventDefault()
     e.stopPropagation()
 
-    const { absolutePath, relativePath } = await resolveDeliverableFilePath(item.path, item.name)
+    const { absolutePath, relativePath, exists } = await resolveDeliverableFilePath(
+      item.path,
+      item.name
+    )
+
+    if (!exists) {
+      toast.error(`File not found: ${item.name}`)
+      return
+    }
 
     const isMac = window.api.platform?.get().platform === 'darwin'
     const syntheticEvent = {
