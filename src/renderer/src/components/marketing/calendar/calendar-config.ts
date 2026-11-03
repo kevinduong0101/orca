@@ -12,24 +12,6 @@ export const CHANNEL_CONFIG: Record<
     glow: string
   }
 > = {
-  instagram: {
-    label: 'Instagram',
-    icon: '📸',
-    badgeBg: 'bg-pink-500/15',
-    text: 'text-pink-300',
-    accentColor: '#ec4899',
-    border: 'border-pink-500/30 hover:border-pink-500/60',
-    glow: 'hover:shadow-pink-950/30'
-  },
-  threads: {
-    label: 'Threads',
-    icon: '🧵',
-    badgeBg: 'bg-zinc-800',
-    text: 'text-zinc-200',
-    accentColor: '#a1a1aa',
-    border: 'border-zinc-700 hover:border-zinc-500',
-    glow: 'hover:shadow-zinc-900/40'
-  },
   pinterest: {
     label: 'Pinterest',
     icon: '📌',
@@ -49,7 +31,7 @@ export const CHANNEL_CONFIG: Record<
     glow: 'hover:shadow-blue-950/30'
   },
   website: {
-    label: 'Website',
+    label: 'Website Blog',
     icon: '🌐',
     badgeBg: 'bg-emerald-500/15',
     text: 'text-emerald-300',

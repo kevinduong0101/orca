@@ -2,29 +2,9 @@ import type { ChannelAgentStatus, MarketingPost, OrcaRecommendation } from './ty
 
 export const INITIAL_CHANNEL_AGENTS: ChannelAgentStatus[] = [
   {
-    channel: 'instagram',
-    name: 'Social Media Agent',
-    role: 'Visual Storytelling & Reels Strategy',
-    status: 'idle',
-    nextRun: 'Standby',
-    queuedPosts: 0,
-    successRate: '—',
-    avatarColor: 'from-pink-500 via-purple-500 to-indigo-500'
-  },
-  {
-    channel: 'threads',
-    name: 'Conversation Agent',
-    role: 'Real-time Dialog & Creative Insights',
-    status: 'idle',
-    nextRun: 'Standby',
-    queuedPosts: 0,
-    successRate: '—',
-    avatarColor: 'from-zinc-700 to-zinc-900'
-  },
-  {
     channel: 'pinterest',
-    name: 'Visual SEO Agent',
-    role: 'Evergreen Discovery & Board Curator',
+    name: 'Visual SEO & Inbound Pin Agent',
+    role: 'Visual Search, 2:3 Vertical Pins & Destination Traffic',
     status: 'idle',
     nextRun: 'Standby',
     queuedPosts: 0,
@@ -33,8 +13,8 @@ export const INITIAL_CHANNEL_AGENTS: ChannelAgentStatus[] = [
   },
   {
     channel: 'linkedin',
-    name: 'Professional Agent',
-    role: 'Industry Thought Leadership & Cases',
+    name: 'B2B Authority & Commercial Agent',
+    role: 'Editorial Direction Pillars, Creative Cases & Direct Inbound',
     status: 'idle',
     nextRun: 'Standby',
     queuedPosts: 0,
@@ -43,8 +23,8 @@ export const INITIAL_CHANNEL_AGENTS: ChannelAgentStatus[] = [
   },
   {
     channel: 'website',
-    name: 'SEO & Journal Agent',
-    role: 'Deep Articles, Alt-Text & R2 Pipeline',
+    name: 'SEO Pillar & Booking Journal Agent',
+    role: 'Weekly High-Ranking Articles & Viewfinder Booking Card',
     status: 'idle',
     nextRun: 'Standby',
     queuedPosts: 0,
@@ -60,85 +40,95 @@ export const INITIAL_RECOMMENDATIONS: OrcaRecommendation[] = []
 export const SAMPLE_DEMO_CAMPAIGN: MarketingPost[] = [
   {
     id: 'demo-post-1',
-    title: 'Saigon Golden Hour Editorial — 3-Frame Story',
-    channel: 'instagram',
+    title: 'Saigon Couple Editorial — 1000x1500 Lighting Diagram & Moodboard',
+    channel: 'pinterest',
     status: 'needs_review',
-    scheduledFor: '2026-11-06 18:00',
-    content:
-      'The secret to golden hour isn’t the sun — it’s how you flag the bounce.\n\nShot on Leica M11 + 50mm Summilux f/1.4. ISO 64, 1/1000s.\nNotice how the warm rim light carves the subject while keeping the skin tones velvety and natural.\n\nWhich slide has your favorite mood: 1, 2, or 3?',
-    tags: ['#saigonphotographer', '#editorialportrait', '#goldenhour', '#filmtones'],
-    authorAgent: 'Social Media Agent',
-    mediaType: 'carousel'
+    scheduledFor: '2026-11-04 09:00',
+    content: `A cinematic 2:3 editorial pin for couples looking for authentic Saigon portraiture without stiff posing.
+
+• Focus: Golden hour natural rim light + negative fill in District 1 alleyways.
+• Destination: Direct link to Saigon Couples & Weddings package with full gallery.`,
+    destinationUrl:
+      'https://www.bykevinduong.com/chup-anh-couple?utm_source=pinterest&utm_medium=visual_seo&utm_campaign=saigon_couples',
+    boardName: 'Saigon Couples & Weddings',
+    tags: ['#saigonphotographer', '#editorialportrait', '#saigoncouples', '#vietnamwedding'],
+    authorAgent: 'Visual SEO & Inbound Pin Agent',
+    mediaType: 'image',
+    targetClient: 'couples'
   },
   {
     id: 'demo-post-2',
-    title: '3 Things Boutique Studios Overlook in Client Onboarding',
-    channel: 'threads',
-    status: 'needs_review',
-    scheduledFor: '2026-11-03 14:30',
-    content:
-      'Most photographers over-deliver 200 raw photos when the client only wanted 12 unforgettable ones.\n\n1. Moodboard alignment before contracts.\n2. Wardrobe texture guide (not just color palette).\n3. A 48h preview gallery to maintain momentum.\n\nWhat’s your golden rule for creative clients?',
-    tags: ['#photographybusiness', '#creativestudio'],
-    authorAgent: 'Conversation Agent',
-    mediaType: 'article'
-  },
-  {
-    id: 'demo-post-3',
-    title: 'Minimalist Studio Lighting Moodboard & Gear Blueprint',
-    channel: 'pinterest',
-    status: 'scheduled',
-    scheduledFor: '2026-11-04 09:00',
-    content:
-      'A clean 1-light setup guide for dramatic, natural-looking portraiture. Includes exact diffusion angles, flag positioning, and aperture settings for editorial studio shoots.',
-    destinationUrl: 'https://kevinduongphotography.com/journal/minimalist-lighting',
-    boardName: 'Studio Lighting & Techniques',
-    tags: ['#studiolighting', '#minimalistportrait', '#lightingdiagram'],
-    authorAgent: 'Visual SEO Agent',
-    mediaType: 'image'
-  },
-  {
-    id: 'demo-post-4',
-    title: 'Why We Transitioned to an AI-Native Media Pipeline',
+    title: 'The Director’s Rule: Why We Never Ask Couples to "Look Here and Smile"',
     channel: 'linkedin',
     status: 'needs_review',
     scheduledFor: '2026-11-05 09:30',
-    content:
-      'We cut our client proofing delivery time by 75% without compromising image fidelity.\n\nBy coupling Cloudflare R2 edge storage with local autonomous agents in Orca:\n• Instant metadata indexing & alt-text extraction\n• Zero cloud egress fees on multi-gigabyte raw catalogs\n• Seamless human-in-the-loop approvals before client publishing\n\nCreative excellence isn’t just aesthetic — it’s architectural.',
-    tags: ['#creativetech', '#artificialintelligence', '#digitalassetmanagement'],
-    authorAgent: 'Professional Agent',
-    mediaType: 'article'
+    content: `A family of 18 people. Three generations. One Saigon park.
+
+Conventional photography says: line them up, force a smile, snap.
+What we do instead: we move the grandparents into the soft shade under the tamarind tree, let the kids run around their knees, and step back 3 meters.
+
+When you direct natural movement instead of rigid poses:
+1. People stop feeling self-conscious in front of the lens.
+2. The frames capture real human memory, not a department store catalog.
+3. Turnaround takes 3–4 days with zero upfront deposit.
+
+Whether for editorial brand campaigns or intimate family archives, authentic presence is built on trust, not performance.
+
+Planning an editorial campaign or family session in Saigon? Drop me a message or explore our recent work at bykevinduong.com.`,
+    tags: ['#visualstorytelling', '#creativedirection', '#saigoneditorial', '#photographybusiness'],
+    authorAgent: 'B2B Authority & Commercial Agent',
+    mediaType: 'article',
+    targetClient: 'b2b_commercial'
   },
   {
-    id: 'demo-post-5',
-    title: 'Next.js 15 & Cloudflare R2: Delivering 50MB Full-Frame Portfolios Under 100ms',
+    id: 'demo-post-3',
+    title: 'Chụp Ảnh Couple Sài Gòn: Hướng Dẫn Địa Điểm & Ánh Sáng Tự Nhiên (Weekly SEO Pillar)',
     channel: 'website',
-    status: 'published',
-    scheduledFor: '2026-11-02 10:00',
-    content:
-      '# Next.js 15 & Cloudflare R2 for High-Res Photography\n\nBuilding a high-end photography portfolio requires handling massive 50MB+ lossless RAW derivatives while maintaining sub-second Time to First Byte (TTFB).\n\n## The Architecture\n1. **Cloudflare R2** for S3-compatible, zero-egress asset storage.\n2. **Next.js 15 Partial Prerendering (PPR)** for instantaneous shell delivery.\n3. **WebP/AVIF On-the-fly Transformation** via edge workers.\n\nThe result: crystal-clear zoomable galleries that load instantaneously anywhere in the world.',
-    destinationUrl: 'https://kevinduongphotography.com/journal/nextjs-cloudflare-r2',
-    tags: ['#nextjs15', '#cloudflarer2', '#webperf', '#architecture'],
-    authorAgent: 'SEO & Journal Agent',
-    mediaType: 'article'
+    status: 'scheduled',
+    scheduledFor: '2026-11-05 10:00',
+    content: `# Chụp Ảnh Couple Sài Gòn: Ánh Sáng Tự Nhiên & Phong Cách Điện Ảnh
+
+Sài Gòn có một thứ ánh sáng rất riêng vào khoảng 5:30 chiều — khi mặt trời lọt qua những tán me cổ thụ trên các con đường Quận 1 và Quận 3, tạo nên những dải viền sáng ấm áp tuyệt đẹp.
+
+## 1. Không gò ép dáng chụp — Đạo diễn khoảnh khắc thật
+Thay vì yêu cầu cặp đôi tạo những tư thế cứng nhắc, buổi chụp bắt đầu bằng việc đi dạo, trò chuyện và để các bạn hoàn toàn thoải mái.
+
+## 2. Lựa chọn khung giờ và địa điểm
+• Bến tàu Bạch Đằng lúc hoàng hôn
+• Những con hẻm cổ kính khu Chợ Lớn
+• Không gian studio tối giản với ánh sáng tự nhiên
+
+## Đặt lịch buổi chụp cùng Kevin Duong
+Tất cả các buổi chụp đều giao ảnh trong 3–4 ngày làm việc, không yêu cầu đặt cọc trước.`,
+    destinationUrl: 'https://www.bykevinduong.com/chup-anh-cuoi-sai-gon',
+    tags: ['#chupanhecouple', '#chupanhecuoisai-gon', '#photography', '#bykevinduong'],
+    authorAgent: 'SEO Pillar & Booking Journal Agent',
+    mediaType: 'article',
+    targetClient: 'couples',
+    seoKeyword: 'chụp ảnh couple sài gòn',
+    seoMetaTitle: 'Chụp Ảnh Couple Sài Gòn — Tự Nhiên, Điện Ảnh | Kevin Duong',
+    seoMetaDescription:
+      'Dịch vụ chụp ảnh couple phong cách điện ảnh tại Sài Gòn. Hướng dẫn ánh sáng tự nhiên, không gò ép pose, trả ảnh 3-4 ngày không cần cọc.',
+    bookingHeadline: 'Lưu Giữ Khoảnh Khắc Tình Yêu Tự Nhiên Tại Sài Gòn',
+    bookingQuote: 'Ánh sáng chân thật nhất là ánh sáng khi bạn quên đi sự hiện diện của máy ảnh.'
   }
 ]
 
 export const SAMPLE_DEMO_RECOMMENDATIONS: OrcaRecommendation[] = [
   {
     id: 'rec-1',
-    title: '3 Drafts Require Your Editorial Sign-off',
-    description: 'Instagram, Threads, and LinkedIn drafts are ready in the Approval Queue.',
-    urgency: 'high',
-    channel: 'general',
-    actionLabel: 'Review Queue'
+    title: 'Weekly SEO Blog Scheduled for Thursday',
+    description: 'Weekly SEO Anchor "Chụp Ảnh Couple Sài Gòn" is ready for Google indexation.',
+    urgency: 'info',
+    channel: 'website',
+    actionLabel: 'View Calendar'
   },
   {
     id: 'rec-2',
-    title: 'Optimal Weekend Window for Pinterest',
-    description:
-      'Pinterest search volume for "Editorial Wedding Inspiration" spikes on Thursday evening.',
-    urgency: 'medium',
-    channel: 'pinterest',
-    actionLabel: 'Schedule Pin'
+    title: '2 Client-Acquisition Drafts Awaiting Approval',
+    description: 'Pinterest Visual Pin & LinkedIn Authority Story ready in Approval Queue.',
+    urgency: 'high',
+    channel: 'general',
+    actionLabel: 'Review Queue'
   }
 ]

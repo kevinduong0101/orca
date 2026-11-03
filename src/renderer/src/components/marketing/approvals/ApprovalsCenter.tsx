@@ -72,15 +72,11 @@ export function ApprovalsCenter({
               <div className="space-y-2 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm">
-                    {post.channel === 'instagram'
-                      ? '📸'
-                      : post.channel === 'threads'
-                        ? '🧵'
-                        : post.channel === 'pinterest'
-                          ? '📌'
-                          : post.channel === 'linkedin'
-                            ? '💼'
-                            : '🌐'}
+                    {post.channel === 'pinterest'
+                      ? '📌'
+                      : post.channel === 'linkedin'
+                        ? '💼'
+                        : '🌐'}
                   </span>
                   <span className="font-semibold text-zinc-100 text-sm capitalize">
                     {post.channel}

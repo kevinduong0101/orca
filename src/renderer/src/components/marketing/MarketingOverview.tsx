@@ -153,15 +153,11 @@ export function MarketingOverview({
               >
                 <div className="flex items-center gap-3">
                   <span className="text-base">
-                    {post.channel === 'instagram'
-                      ? '📸'
-                      : post.channel === 'threads'
-                        ? '🧵'
-                        : post.channel === 'pinterest'
-                          ? '📌'
-                          : post.channel === 'linkedin'
-                            ? '💼'
-                            : '🌐'}
+                    {post.channel === 'pinterest'
+                      ? '📌'
+                      : post.channel === 'linkedin'
+                        ? '💼'
+                        : '🌐'}
                   </span>
                   <div>
                     <h4 className="text-xs font-semibold text-zinc-200 line-clamp-1">

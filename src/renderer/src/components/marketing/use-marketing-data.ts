@@ -19,13 +19,16 @@ const STORAGE_KEY_SETTINGS = 'orca_marketing_settings_v1'
 const DEFAULT_SETTINGS: MarketingSettings = {
   webhookUrl: '',
   autoPublishChannels: {
-    instagram: false,
-    threads: false,
     pinterest: false,
     linkedin: false,
     website: false
   },
-  notifyOnFailure: true
+  notifyOnFailure: true,
+  autonomousBrowserMode: true,
+  browserAccounts: {
+    pinterest: { connected: true, username: 'kevinduongphotography' },
+    linkedin: { connected: true, username: 'kevin-duong-studio' }
+  }
 }
 
 export function useMarketingData() {

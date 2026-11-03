@@ -4,8 +4,6 @@ import { cn } from '@/lib/utils'
 import type { ChannelAgentStatus } from './types/marketing-types'
 
 const CHANNEL_ICONS: Record<string, string> = {
-  instagram: '📸',
-  threads: '🧵',
   pinterest: '📌',
   linkedin: '💼',
   website: '🌐'

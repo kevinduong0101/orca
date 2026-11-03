@@ -123,7 +123,7 @@ export function ContentCalendar({
             </span>
           </button>
 
-          {(['instagram', 'threads', 'pinterest', 'linkedin', 'website'] as const).map((ch) => {
+          {(['pinterest', 'linkedin', 'website'] as const).map((ch) => {
             const conf = CHANNEL_CONFIG[ch]
             const isSelected = selectedChannel === ch
             const count = posts.filter((p) => p.channel === ch).length

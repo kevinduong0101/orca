@@ -1,4 +1,4 @@
-export type MarketingChannel = 'instagram' | 'threads' | 'pinterest' | 'linkedin' | 'website'
+export type MarketingChannel = 'pinterest' | 'linkedin' | 'website'
 
 export type MarketingTab = 'overview' | 'calendar' | 'studio' | 'approvals' | 'settings'
 
@@ -18,6 +18,12 @@ export type MarketingPost = {
   destinationUrl?: string
   boardName?: string
   repurposedFrom?: string
+  targetClient?: 'couples' | 'families' | 'travel_expat' | 'b2b_commercial'
+  seoKeyword?: string
+  seoMetaTitle?: string
+  seoMetaDescription?: string
+  bookingHeadline?: string
+  bookingQuote?: string
 }
 
 export type ChannelAgentStatus = {
@@ -45,4 +51,9 @@ export type MarketingSettings = {
   autoPublishChannels: Record<MarketingChannel, boolean>
   notifyOnFailure: boolean
   lastWebhookPingStatus?: string
+  browserAccounts?: {
+    pinterest: { connected: boolean; username: string }
+    linkedin: { connected: boolean; username: string }
+  }
+  autonomousBrowserMode?: boolean
 }

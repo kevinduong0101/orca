@@ -1,5 +1,15 @@
 import React, { useState } from 'react'
-import { Sparkles, X, CheckCheck, Send, Wand2, Layers } from 'lucide-react'
+import {
+  Sparkles,
+  X,
+  CheckCheck,
+  Send,
+  Wand2,
+  Layers,
+  Compass,
+  Briefcase,
+  Globe
+} from 'lucide-react'
 import type { MarketingPost, MarketingChannel } from '../types/marketing-types'
 
 type RepurposedVariant = {
@@ -9,7 +19,10 @@ type RepurposedVariant = {
   tags: string[]
   scheduledOffsetDays: number
   scheduledTime: string
-  mediaType: 'carousel' | 'image' | 'article'
+  mediaType: 'image' | 'article'
+  destinationUrl: string
+  boardName?: string
+  targetClient?: 'couples' | 'families' | 'travel_expat' | 'b2b_commercial'
 }
 
 export function RepurposeModal({
@@ -22,50 +35,54 @@ export function RepurposeModal({
   onSaveBatch: (posts: MarketingPost[]) => void
 }): React.JSX.Element | null {
   const [sourceConcept, setSourceConcept] = useState(
-    'Saigon Golden Hour: Natural Light Portraiture with Flagged Bounce Technique'
+    'Saigon Golden Hour: Natural Rim Light & Authentic Movement for Couples in District 1'
   )
   const [isGenerating, setIsGenerating] = useState(false)
 
   const [variants, setVariants] = useState<RepurposedVariant[]>([
     {
-      channel: 'instagram',
-      title: 'Saigon Golden Hour Editorial — 3-Frame Carousel',
-      content:
-        'The secret to golden hour isn’t the sun — it’s how you flag the bounce.\n\nSlide 1: The Raw Directional Light\nSlide 2: Flagging the Ambient Spill\nSlide 3: The Final Grade (Leica M11 + 50mm Summilux)\n\nWhich frame resonates most with your aesthetic: 1, 2, or 3?',
-      tags: ['#saigonphotographer', '#editorialportrait', '#goldenhour', '#filmtones'],
-      scheduledOffsetDays: 1,
-      scheduledTime: '18:00',
-      mediaType: 'carousel'
-    },
-    {
-      channel: 'threads',
-      title: 'The Truth About Golden Hour Lighting',
-      content:
-        'Most photographers wait all day for golden hour, only to let ambient flare wash out all their contrast.\n\nGolden hour only works if you create shadow opposite the sun.\n\nAre you flagging your natural light or shooting wide open into the glare?',
-      tags: ['#photographybusiness', '#portraiture'],
-      scheduledOffsetDays: 1,
-      scheduledTime: '14:30',
-      mediaType: 'article'
-    },
-    {
       channel: 'pinterest',
-      title: 'Minimalist 1-Light & Natural Bounce Portrait Diagram',
+      title: 'Saigon Couple Editorial — Natural Golden Hour Lighting Diagram (2:3 Pin)',
       content:
-        'Step-by-step lighting diagram and camera settings for cinematic Saigon natural light editorial portraiture. Ideal for boutique studios and portrait moodboards.',
-      tags: ['#lightingdiagram', '#studioportrait', '#editorialinspiration'],
-      scheduledOffsetDays: 2,
+        'A cinematic 2:3 vertical moodboard for couples seeking authentic, candid memories in Saigon. Explains natural light bounce flags, golden hour timing, and genuine chemistry without stiff posing.',
+      tags: ['#saigonphotographer', '#chupanhecouple', '#editorialinspiration', '#saigonwedding'],
+      scheduledOffsetDays: 1,
       scheduledTime: '09:00',
-      mediaType: 'image'
+      mediaType: 'image',
+      destinationUrl:
+        'https://www.bykevinduong.com/chup-anh-couple?utm_source=pinterest&utm_medium=pin_repurpose',
+      boardName: 'Saigon Couples & Weddings',
+      targetClient: 'couples'
     },
     {
       channel: 'linkedin',
-      title: 'Why Creative Direction Requires Systems Architecture',
+      title: 'The Director’s Rule: Why We Never Tell Creative Clients to "Just Smile"',
       content:
-        'Mastering natural light isn’t an accident — it’s a repeatable protocol.\n\nIn our recent Saigon editorial series:\n• 100% natural light with negative fill\n• Rapid client review with edge storage\n• Zero cloud egress fees on RAW asset batches\n\nTrue creative freedom comes from rock-solid operational discipline.',
-      tags: ['#creativestrategy', '#architecture', '#leadership'],
-      scheduledOffsetDays: 3,
+        'A family of 18 people. Three generations. One Saigon park.\n\nConventional photography says: line them up, force a smile, snap.\nWhat we do instead: we move the grandparents into soft open shade under the tamarind tree, let the kids play, and step back 3 meters.\n\nWhen you direct natural movement instead of rigid poses:\n1. People stop feeling self-conscious in front of the lens.\n2. The frames capture real human memory, not a department store catalog.\n3. Turnaround takes 3–4 days with zero upfront deposit.\n\nPlanning an editorial commercial shoot or family archive in Saigon? Drop me a message or explore our portfolio at bykevinduong.com.',
+      tags: [
+        '#visualstorytelling',
+        '#creativedirection',
+        '#saigoneditorial',
+        '#photographybusiness'
+      ],
+      scheduledOffsetDays: 2,
       scheduledTime: '09:30',
-      mediaType: 'article'
+      mediaType: 'article',
+      destinationUrl: 'https://www.bykevinduong.com/services',
+      targetClient: 'b2b_commercial'
+    },
+    {
+      channel: 'website',
+      title:
+        'Chụp Ảnh Couple Sài Gòn: Hướng Dẫn Ánh Sáng & Không Gian Tự Nhiên (Weekly SEO Article)',
+      content:
+        '# Chụp Ảnh Couple Sài Gòn: Hướng Dẫn Ánh Sáng & Không Gian Tự Nhiên\n\nSài Gòn có một thứ ánh sáng rất riêng vào khoảng 5:30 chiều — khi mặt trời lọt qua những tán me cổ thụ trên các con đường Quận 1 và Quận 3, tạo nên những dải viền sáng ấm áp tuyệt đẹp.\n\n## 1. Không gò ép dáng chụp — Đạo diễn khoảnh khắc thật\nThay vì yêu cầu cặp đôi tạo những tư thế cứng nhắc, buổi chụp bắt đầu bằng việc đi dạo, trò chuyện và để các bạn hoàn toàn thoải mái.\n\n## 2. Lựa chọn khung giờ và địa điểm\n• Bến tàu Bạch Đằng lúc hoàng hôn\n• Những con hẻm cổ kính khu Chợ Lớn\n• Không gian studio tối giản với ánh sáng tự nhiên\n\n## Đặt lịch buổi chụp cùng Kevin Duong\nTất cả các buổi chụp đều giao ảnh trong 3–4 ngày làm việc, không yêu cầu đặt cọc trước.',
+      tags: ['#chupanhecouple', '#chupanhecuoisai-gon', '#bykevinduong', '#photography'],
+      scheduledOffsetDays: 3,
+      scheduledTime: '10:00',
+      mediaType: 'article',
+      destinationUrl: 'https://www.bykevinduong.com/chup-anh-cuoi-sai-gon',
+      targetClient: 'couples'
     }
   ])
 
@@ -97,7 +114,13 @@ export function RepurposeModal({
         tags: v.tags,
         authorAgent: 'Marketing Director Agent',
         mediaType: v.mediaType,
-        repurposedFrom: sourceConcept
+        destinationUrl: v.destinationUrl,
+        boardName: v.boardName,
+        targetClient: v.targetClient,
+        repurposedFrom: sourceConcept,
+        bookingHeadline: 'Lưu Giữ Khoảnh Khắc Tự Nhiên Tại Sài Gòn',
+        bookingQuote:
+          'Ánh sáng chân thật nhất là ánh sáng khi bạn quên đi sự hiện diện của máy ảnh.'
       }
     })
 
@@ -116,10 +139,11 @@ export function RepurposeModal({
             </div>
             <div>
               <h3 className="text-base font-bold text-zinc-100 flex items-center gap-2">
-                Omnichannel Content Repurposing Engine
+                Client Acquisition Repurposing Engine
               </h3>
               <p className="text-xs text-zinc-400">
-                Transform 1 core article, photoshoot, or project into 4 tailored platform variants
+                Transform 1 photoshoot or journal story into 3 high-converting assets (Pinterest 2:3
+                Pin, LinkedIn B2B Story, Website SEO Post)
               </p>
             </div>
           </div>
@@ -135,14 +159,14 @@ export function RepurposeModal({
         {/* Source Concept Input */}
         <div className="p-6 border-b border-zinc-800/80 bg-zinc-900/20 space-y-2">
           <label className="text-xs font-semibold text-zinc-300 block">
-            Source Story / Core Topic / Blog Link
+            Photoshoot Story / Journal Subject / Client Case
           </label>
           <div className="flex gap-2">
             <input
               type="text"
               value={sourceConcept}
               onChange={(e) => setSourceConcept(e.target.value)}
-              placeholder="e.g. Next.js 15 & Cloudflare R2 architecture case study..."
+              placeholder="e.g. Saigon golden hour natural portrait shoot in District 1..."
               className="flex-1 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-700/80 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-purple-500"
             />
             <button
@@ -157,8 +181,8 @@ export function RepurposeModal({
           </div>
         </div>
 
-        {/* 4 Multi-Channel Cards Grid */}
-        <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-4 scrollbar-sleek">
+        {/* 3 Multi-Channel Cards Grid */}
+        <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-4 scrollbar-sleek">
           {variants.map((v, i) => (
             <div
               key={v.channel}
@@ -167,22 +191,22 @@ export function RepurposeModal({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">
-                      {v.channel === 'instagram'
-                        ? '📸'
-                        : v.channel === 'threads'
-                          ? '🧵'
-                          : v.channel === 'pinterest'
-                            ? '📌'
-                            : '💼'}
-                    </span>
-                    <span className="text-xs font-bold text-zinc-200 capitalize">{v.channel}</span>
-                    <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
-                      {v.mediaType}
+                    {v.channel === 'pinterest' && <Compass className="size-4 text-rose-400" />}
+                    {v.channel === 'linkedin' && <Briefcase className="size-4 text-blue-400" />}
+                    {v.channel === 'website' && <Globe className="size-4 text-emerald-400" />}
+                    <span className="text-xs font-bold text-zinc-200 capitalize">
+                      {v.channel === 'website' ? 'Website Blog' : v.channel}
                     </span>
                   </div>
-                  <span className="text-[11px] text-zinc-500 font-mono">
+                  <span className="text-[10px] text-zinc-500 font-mono">
                     +{v.scheduledOffsetDays}d at {v.scheduledTime}
+                  </span>
+                </div>
+
+                <div className="text-[10px] uppercase font-semibold text-zinc-400 flex items-center gap-1">
+                  <span>Target Client:</span>
+                  <span className="text-zinc-200 capitalize">
+                    {v.targetClient?.replace('_', ' ')}
                   </span>
                 </div>
 
@@ -199,7 +223,7 @@ export function RepurposeModal({
                 />
 
                 <textarea
-                  rows={4}
+                  rows={6}
                   value={v.content}
                   onChange={(e) => {
                     const val = e.target.value
@@ -210,15 +234,8 @@ export function RepurposeModal({
                   className="w-full px-2.5 py-2 rounded-lg bg-zinc-950/80 border border-zinc-800 text-xs text-zinc-300 font-mono leading-relaxed focus:outline-none focus:border-purple-500 resize-none"
                 />
 
-                <div className="flex flex-wrap gap-1">
-                  {v.tags.map((t) => (
-                    <span
-                      key={t}
-                      className="text-[10px] text-zinc-400 bg-zinc-800/80 px-1.5 py-0.5 rounded"
-                    >
-                      {t}
-                    </span>
-                  ))}
+                <div className="text-[10px] text-zinc-500 truncate">
+                  Link: <span className="text-sky-400">{v.destinationUrl}</span>
                 </div>
               </div>
             </div>
@@ -229,7 +246,7 @@ export function RepurposeModal({
         <div className="flex items-center justify-between border-t border-zinc-800 px-6 py-4 bg-zinc-900/60">
           <div className="text-xs text-zinc-400 flex items-center gap-1.5">
             <Layers className="size-3.5 text-zinc-400" />
-            <span>4 tailored variants ready for approval</span>
+            <span>3 tailored client-acquisition assets ready</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -239,7 +256,7 @@ export function RepurposeModal({
               className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-200 font-semibold flex items-center gap-1.5 transition-colors"
             >
               <Send className="size-3.5 text-amber-400" />
-              Send All to Approval Queue
+              Send to Approval Queue
             </button>
 
             <button

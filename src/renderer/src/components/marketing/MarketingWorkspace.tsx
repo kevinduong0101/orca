@@ -105,7 +105,7 @@ export default function MarketingWorkspace(): React.JSX.Element {
               const newPost: MarketingPost = {
                 id: `post-${Date.now()}`,
                 title: 'New Creative Concept',
-                channel: 'instagram',
+                channel: 'pinterest',
                 status: 'draft',
                 scheduledFor: '2026-11-07 18:00',
                 content: 'Write your caption or let the AI Agent draft it...',
@@ -231,13 +231,13 @@ export default function MarketingWorkspace(): React.JSX.Element {
                 const newPost: MarketingPost = {
                   id: `post-${Date.now()}`,
                   title: '',
-                  channel: channel || 'instagram',
+                  channel: channel || 'pinterest',
                   status: 'needs_review',
                   scheduledFor: scheduledDate ? `${scheduledDate} 12:00` : '2026-11-03 12:00',
                   content: '',
                   mediaType: 'image',
                   tags: [],
-                  authorAgent: 'Social Media Agent'
+                  authorAgent: 'Kevin Duong Visual AI'
                 }
                 savePost(newPost)
                 setSelectedPostForStudio(newPost)
