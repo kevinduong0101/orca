@@ -106,6 +106,19 @@ export function createUiViewActions(set: UISliceSet, get: UISliceGet): Partial<U
       set((state) => ({
         activeView: state.previousViewBeforeMobile
       })),
+    openMarketingPage: () => {
+      get().recordViewVisit('marketing')
+      set((state) => ({
+        activeView: 'marketing',
+        previousViewBeforeMarketing:
+          state.activeView === 'marketing' ? state.previousViewBeforeMarketing : state.activeView
+      }))
+    },
+    closeMarketingPage: () =>
+      set((state) => ({
+        activeView: state.previousViewBeforeMarketing,
+        worktreeNavHistoryIndex: rewindHistoryIndexPastView(state, 'marketing')
+      })),
     setNewWorkspaceDraft: (draft) => set({ newWorkspaceDraft: draft }),
     clearNewWorkspaceDraft: () => set({ newWorkspaceDraft: null })
   }
