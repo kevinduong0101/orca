@@ -36,6 +36,8 @@ export type UseNativeChatComposerKeyDownArgs = {
   send: (intent?: NativeChatComposerSendIntent) => void
   /** Cmd/Ctrl+Shift+Enter steers the head queued card, whatever the composer holds. */
   steerHead?: (() => boolean) | undefined
+  /** Cmd/Ctrl+U triggers file attachment picker. */
+  onAttach?: () => void
   setActiveSuggestion: Dispatch<SetStateAction<number>>
   setDraft: Dispatch<SetStateAction<string>>
   setCaret: Dispatch<SetStateAction<number>>
@@ -56,6 +58,7 @@ export function useNativeChatComposerKeyDown({
   interrupt,
   send,
   steerHead,
+  onAttach,
   setActiveSuggestion,
   setDraft,
   setCaret
@@ -70,6 +73,17 @@ export function useNativeChatComposerKeyDown({
         if (event.key === 'Enter') {
           event.preventDefault()
         }
+        return
+      }
+
+      const isAttach =
+        (isMacPlatform() ? event.metaKey : event.ctrlKey) &&
+        !event.shiftKey &&
+        !event.altKey &&
+        (event.key === 'u' || event.key === 'U')
+      if (isAttach) {
+        event.preventDefault()
+        onAttach?.()
         return
       }
       // An open layer that keeps focus here, like the context card, already spent this Escape closing
@@ -186,6 +200,7 @@ export function useNativeChatComposerKeyDown({
       interrupt,
       isComposing,
       mentionFiles,
+      onAttach,
       send,
       steerHead,
       setActiveSuggestion,

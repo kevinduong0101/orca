@@ -316,4 +316,45 @@ describe('useNativeChatComposerKeyDown', () => {
       expect(attached.press('ArrowUp')).toEqual({ draft: '', claimed: false })
     })
   })
+
+  describe('Cmd/Ctrl+U attachment shortcut', () => {
+    it('triggers onAttach on Cmd+U (macOS) or Ctrl+U (other platforms)', () => {
+      const onAttach = vi.fn()
+      const hook = renderHook(() =>
+        useNativeChatComposerKeyDown({
+          autocomplete: { mode: 'none' },
+          mentionFiles: { files: [], loading: false, failed: false },
+          activeSuggestion: 0,
+          draft: 'hello',
+          isComposing: () => false,
+          completeMention: vi.fn(),
+          completePickerItem: vi.fn(),
+          dispatchPickerCommand: vi.fn(),
+          dismissPicker: vi.fn(),
+          interrupt: vi.fn(),
+          send: vi.fn(),
+          onAttach,
+          setActiveSuggestion: vi.fn(),
+          setDraft: vi.fn(),
+          setCaret: vi.fn()
+        })
+      )
+
+      const isMac = navigator.userAgent.includes('Mac')
+      const preventDefault = vi.fn()
+      hook.result.current({
+        key: 'u',
+        metaKey: isMac,
+        ctrlKey: !isMac,
+        shiftKey: false,
+        altKey: false,
+        keyCode: 85,
+        nativeEvent: { isComposing: false },
+        preventDefault
+      } as unknown as React.KeyboardEvent<HTMLElement>)
+
+      expect(preventDefault).toHaveBeenCalled()
+      expect(onAttach).toHaveBeenCalledTimes(1)
+    })
+  })
 })

@@ -98,7 +98,10 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       terminalTabId,
       targetPtyId,
       onOptimisticSendCanceled,
-      { inputOwnedByCard, onPendingSendRetired: optimisticSendOutcome?.reject }
+      {
+        inputOwnedByCard,
+        onPendingSendRetired: optimisticSendOutcome?.reject
+      }
     )
 
     // Why inputOwnedByCard: the hidden field can still hold keyboard focus for a frame.
@@ -210,7 +213,8 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       revealPendingImageAttachment: attachments.revealPendingImageAttachment,
       dropPendingImageAttachment: attachments.dropPendingImageAttachment,
       pastedTextEditor: structuredTransport && !pending ? attachments.scopeEditor : null,
-      setNotice
+      setNotice,
+      attach: attachDisabled ? undefined : pickAttachments
     })
 
     const dictation = useNativeChatDictation(textareaRef, disabled)
@@ -350,6 +354,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       send,
       hasAttachments: imageAttachments.length > 0,
       ...(!editSession && steerHead ? { steerHead } : {}),
+      onAttach: attachDisabled ? undefined : pickAttachments,
       setActiveSuggestion,
       setDraft,
       setCaret

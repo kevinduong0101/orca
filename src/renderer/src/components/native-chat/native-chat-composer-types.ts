@@ -182,4 +182,6 @@ export type NativeChatComposerHandle = {
   contains: (node: Node | null) => boolean
   /** Sends the draft as Enter would, for a send control outside the composer. */
   submit?: () => void
+  /** Triggers the attachment file picker. */
+  attach?: () => void
 }

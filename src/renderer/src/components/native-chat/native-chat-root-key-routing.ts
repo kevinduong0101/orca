@@ -18,6 +18,21 @@ export function routeNativeChatRootKeyToInput(
   composer: NativeChatComposerHandle | null,
   questionAnswerInput: HTMLInputElement | null
 ): void {
+  if (event.defaultPrevented) {
+    return
+  }
+  const isMac = getShortcutPlatform() === 'darwin'
+  const isAttachChord =
+    (isMac ? event.metaKey && !event.ctrlKey : event.ctrlKey && !event.metaKey) &&
+    !event.shiftKey &&
+    !event.altKey &&
+    (event.key === 'u' || event.key === 'U')
+  if (isAttachChord && composer?.attach) {
+    event.preventDefault()
+    event.stopPropagation()
+    composer.attach()
+    return
+  }
   // A focused transcript or code box owns Space paging; typing elsewhere still reaches the composer.
   if (
     event.key === ' ' &&
@@ -33,7 +48,6 @@ export function routeNativeChatRootKeyToInput(
     return
   }
   // Resolve an editing card before the primary input so the native paste keeps its owner.
-  const isMac = getShortcutPlatform() === 'darwin'
   if (shouldFocusNativeChatInputForPaste(event, isMac)) {
     const field = findNativeChatPasteField(event.target)
     if (field) {

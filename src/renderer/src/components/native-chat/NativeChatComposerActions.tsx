@@ -6,6 +6,7 @@ import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 import { getScreenSubmitShortcutLabel } from '@/lib/screen-submit-shortcut'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
+import { isMacPlatform } from './native-chat-shortcut'
 import type { NativeChatFollowUpBehavior } from '../../../../shared/native-chat-follow-up-behavior'
 import type {
   SessionOptionDescriptor,
@@ -152,6 +153,7 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
     </Button>
   )
 
+  const attachShortcut = isMacPlatform() ? '⌘U' : 'Ctrl+U'
   const attach = (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -168,7 +170,7 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
         </Button>
       </TooltipTrigger>
       <TooltipContent side="top" sideOffset={4}>
-        {translate('components.native-chat.composer.attach', 'Attach file')}
+        {translate('components.native-chat.composer.attach', 'Attach file')} ({attachShortcut})
       </TooltipContent>
     </Tooltip>
   )

@@ -13,6 +13,8 @@ type UseNativeChatComposerHandleArgs = Parameters<typeof useNativeChatTypedInser
   Omit<UseNativeChatComposerPasteArgs, 'insertTypedText'> & {
     /** A structured chat's editor while it shows this scope, where a long paste saved as a file lands. */
     pastedTextEditor: (() => NativeChatComposerInput | null) | null
+    /** Triggers the attachment file picker. */
+    attach?: () => void
   }
 
 /** Expose typed/pasted insertion to pane routing and return the paste handler. */
@@ -63,7 +65,8 @@ export function useNativeChatComposerHandle(
       appendText,
       handlePasteEvent,
       pasteFromClipboard,
-      contains
+      contains,
+      attach: args.attach
     }),
     [
       textareaRef,
@@ -75,7 +78,8 @@ export function useNativeChatComposerHandle(
       appendText,
       handlePasteEvent,
       pasteFromClipboard,
-      contains
+      contains,
+      args.attach
     ]
   )
   return handlePasteEvent
