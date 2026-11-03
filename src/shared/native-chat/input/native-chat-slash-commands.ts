@@ -121,6 +121,16 @@ const OMP_COMMANDS: readonly SlashCommandSuggestion[] = [
 ]
 
 const ANTIGRAVITY_COMMANDS: readonly SlashCommandSuggestion[] = [
+  {
+    name: 'goal',
+    description: 'Run an autonomous objective to completion',
+    argumentHint: '<objective>'
+  },
+  {
+    name: 'btw',
+    description: 'Ask a quick side question without losing context',
+    argumentHint: '<question>'
+  },
   { name: 'model', description: 'Choose the model' },
   { name: 'effort', description: 'Choose reasoning effort' },
   { name: 'clear', description: 'Clear conversation context' },
