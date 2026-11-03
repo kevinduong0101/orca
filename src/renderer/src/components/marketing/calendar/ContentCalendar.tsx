@@ -169,7 +169,7 @@ export function ContentCalendar({
               <div
                 key={day.short}
                 className={cn(
-                  'group/col flex flex-col rounded-2xl border transition-all duration-200 min-h-[480px] p-3',
+                  'group/col flex flex-col rounded-2xl border transition-all duration-200 min-h-[340px] p-3',
                   day.isToday
                     ? 'border-amber-500/40 bg-zinc-900/80 shadow-lg shadow-amber-950/10 ring-1 ring-amber-500/20'
                     : 'border-zinc-800/80 bg-zinc-900/40 hover:border-zinc-700/80 hover:bg-zinc-900/60'
@@ -227,7 +227,7 @@ export function ContentCalendar({
                   {dayPosts.length === 0 && (
                     <div
                       onClick={() => onCreatePost?.(undefined, `2026-11-0${day.dayNum}`)}
-                      className="group/empty flex h-32 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800/80 hover:border-zinc-700 bg-zinc-950/20 hover:bg-zinc-950/50 cursor-pointer transition-all duration-150 text-center p-3"
+                      className="group/empty flex h-24 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800/80 hover:border-zinc-700 bg-zinc-950/20 hover:bg-zinc-950/50 cursor-pointer transition-all duration-150 text-center p-3"
                     >
                       <Plus className="size-4 text-zinc-600 group-hover/empty:text-zinc-400 transition-colors mb-1" />
                       <span className="text-[11px] font-medium text-zinc-500 group-hover/empty:text-zinc-300 transition-colors">

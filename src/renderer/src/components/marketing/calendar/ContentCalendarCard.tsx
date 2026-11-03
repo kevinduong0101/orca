@@ -20,58 +20,54 @@ export function ContentCalendarCard({
     <div
       onClick={onClick}
       className={cn(
-        'group/card relative flex flex-col justify-between rounded-xl border p-3 cursor-pointer transition-all duration-200 shadow-sm backdrop-blur-md hover:-translate-y-0.5 hover:shadow-md',
+        'group/card relative flex flex-col justify-between rounded-xl border p-3 cursor-pointer transition-all duration-200 shadow-sm backdrop-blur-md hover:-translate-y-0.5 hover:shadow-lg',
         conf.border,
         conf.glow,
-        isReview ? 'bg-amber-950/15' : 'bg-zinc-950/70 hover:bg-zinc-950/90'
+        isReview ? 'bg-amber-950/10' : 'bg-zinc-950/70 hover:bg-zinc-950/90'
       )}
+      style={{
+        borderLeftWidth: '3px',
+        borderLeftColor: conf.accentColor
+      }}
     >
-      {/* 1. Header: Channel Pill (Left) & Scheduled Time (Right) */}
-      <div className="flex items-center justify-between gap-1 mb-2.5">
-        <span
-          className={cn(
-            'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider',
-            conf.badgeBg,
-            conf.text
-          )}
-        >
-          <span>{conf.icon}</span>
-          <span>{conf.label}</span>
-        </span>
+      {/* 1. Header: Channel Name (Left) & Scheduled Time (Right) */}
+      <div className="flex items-center justify-between gap-1.5 mb-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-xs">{conf.icon}</span>
+          <span
+            className={cn('text-[11px] font-bold uppercase tracking-wider truncate', conf.text)}
+          >
+            {conf.label}
+          </span>
+        </div>
 
-        <span className="inline-flex items-center gap-1 text-[11px] font-mono font-medium text-zinc-400 bg-zinc-900/80 px-1.5 py-0.5 rounded border border-zinc-800/80">
+        <div className="flex items-center gap-1 text-[11px] font-mono font-medium text-zinc-400 shrink-0 bg-zinc-900/90 px-1.5 py-0.5 rounded border border-zinc-800">
           <Clock className="size-3 text-zinc-400" />
           <span>{time}</span>
-        </span>
+        </div>
       </div>
 
-      {/* 2. Body: Title + Media Format Pill */}
-      <div className="space-y-1.5">
+      {/* 2. Body: Title */}
+      <div className="space-y-1 mb-2.5">
         <h4 className="text-xs font-semibold text-zinc-100 leading-snug line-clamp-2 group-hover/card:text-white transition-colors">
           {post.title}
         </h4>
-
-        {post.mediaType && (
-          <div className="flex items-center gap-1.5 pt-0.5">
-            <span className="text-[10px] capitalize font-medium text-zinc-300 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
-              {post.mediaType}
-            </span>
-            {post.destinationUrl && (
-              <ExternalLink className="size-3 text-zinc-500 hover:text-zinc-300 transition-colors" />
-            )}
-          </div>
-        )}
       </div>
 
-      {/* 3. Footer: Author Agent + Status Badge */}
-      <div className="mt-3 flex items-center justify-between gap-1 pt-2 border-t border-zinc-800/60 text-[10px]">
-        <span className="text-zinc-400 font-medium truncate">
-          {post.authorAgent.replace(' Agent', '')}
-        </span>
+      {/* 3. Footer: Format Tag + Status Tag */}
+      <div className="flex items-center justify-between gap-1 pt-2 border-t border-zinc-800/60 text-[10px]">
+        {/* Format / Media Pill */}
+        <div className="flex items-center gap-1 min-w-0">
+          <span className="capitalize font-medium text-zinc-400 bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800 truncate">
+            {post.mediaType || 'Post'}
+          </span>
+          {post.destinationUrl && <ExternalLink className="size-3 text-zinc-500 shrink-0" />}
+        </div>
 
+        {/* Status Pill */}
         <span
           className={cn(
-            'inline-flex items-center gap-1.5 font-semibold capitalize px-2 py-0.5 rounded-full border shrink-0',
+            'inline-flex items-center gap-1 font-semibold capitalize px-2 py-0.5 rounded-full border shrink-0',
             isReview
               ? 'text-amber-300 bg-amber-500/15 border-amber-500/30'
               : isPublished

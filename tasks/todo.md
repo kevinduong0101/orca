@@ -44,9 +44,9 @@
 
 ## Checkpoint 1: Foundation & Overview Display
 
-- [ ] Navigation sidebar chuyển vào Marketing OS hoạt động mượt mà.
-- [ ] Màn hình Overview hiển thị đầy đủ thẻ 4 kênh và các chỉ số trực quan.
-- [ ] Ứng dụng build sạch, không lỗi TypeScript hay Tailwind.
+- [x] Navigation sidebar chuyển vào Marketing OS hoạt động mượt mà.
+- [x] Màn hình Overview hiển thị đầy đủ thẻ 4 kênh và các chỉ số trực quan.
+- [x] Ứng dụng build sạch, không lỗi TypeScript hay Tailwind.
 
 ---
 

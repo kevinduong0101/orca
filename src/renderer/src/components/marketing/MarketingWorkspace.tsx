@@ -169,7 +169,7 @@ export default function MarketingWorkspace(): React.JSX.Element {
 
       {/* Main Workspace Body */}
       <div className="flex-1 overflow-y-auto scrollbar-sleek p-6">
-        <div className="mx-auto max-w-7xl">
+        <div className={activeTab === 'calendar' ? 'w-full px-2' : 'mx-auto max-w-7xl'}>
           {activeTab === 'overview' && (
             <MarketingOverview
               agents={agents}
