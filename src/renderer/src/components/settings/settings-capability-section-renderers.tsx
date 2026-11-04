@@ -1,4 +1,5 @@
 import { AccountsPane } from './AccountsPane'
+import { MultiAccountSettingsManager } from './MultiAccountSettingsManager'
 import { getProviderAccountsOwnerKey } from '@/runtime/runtime-provider-accounts-client'
 import { AgentsPane } from './AgentsPane'
 import { AgentDefaultSurfaceSection } from './AgentDefaultSurfaceSection'
@@ -64,37 +65,43 @@ export function renderAccountsSettingsSection(context: SettingsRenderContext): R
     >
       {!view.isSectionMounted('accounts') ? null : !model.settingsHostScope.available ? (
         <SettingsHostScopeUnavailableNotice />
-      ) : wslHostDistro ? (
-        // A WSL host's orcad has no account services; this desktop owns its distro's accounts.
-        <AccountsPane
-          key={wslHostDistro ?? getProviderAccountsOwnerKey(model.settingsHostScope.target)}
-          nativeAccounts={model.nativeAccounts}
-          onAccountLocationChange={model.releaseNativeAccounts}
-          settings={model.settings}
-          updateSettings={model.updateSettings}
-          updateSettingsOrThrow={model.updateSettingsOrThrow}
-          hostScope={LOCAL_SETTINGS_HOST_SCOPE}
-          wslHostDistro={wslHostDistro}
-          wslSupportedPlatform={terminal.localWslSupportedPlatform}
-          wslAvailable={terminal.localWindowsRuntimeCapabilities.wslAvailable}
-          wslDistros={terminal.localWindowsRuntimeCapabilities.wslDistros}
-          wslCapabilitiesLoading={terminal.localWindowsRuntimeCapabilities.isLoading}
-        />
       ) : (
-        <AccountsPane
-          key={wslHostDistro ?? getProviderAccountsOwnerKey(model.settingsHostScope.target)}
-          nativeAccounts={model.nativeAccounts}
-          onAccountLocationChange={model.releaseNativeAccounts}
-          settings={model.settings}
-          updateSettings={model.updateSettings}
-          updateSettingsOrThrow={model.updateSettingsOrThrow}
-          hostScope={model.settingsHostScope}
-          wslSupportedPlatform={terminal.runtimeWslSupportedPlatform}
-          wslAvailable={terminal.windowsTerminalCapabilities.wslAvailable}
-          wslDistros={terminal.windowsTerminalCapabilities.wslDistros}
-          wslCapabilitiesLoading={terminal.windowsTerminalCapabilities.isLoading}
-          accountOwnerPlatform={terminal.windowsTerminalCapabilities.hostPlatform}
-        />
+        <div className="space-y-8">
+          <MultiAccountSettingsManager />
+          <AccountsPane
+            key={wslHostDistro ?? getProviderAccountsOwnerKey(model.settingsHostScope.target)}
+            nativeAccounts={model.nativeAccounts}
+            onAccountLocationChange={model.releaseNativeAccounts}
+            settings={model.settings}
+            updateSettings={model.updateSettings}
+            updateSettingsOrThrow={model.updateSettingsOrThrow}
+            hostScope={wslHostDistro ? LOCAL_SETTINGS_HOST_SCOPE : model.settingsHostScope}
+            wslHostDistro={wslHostDistro}
+            wslSupportedPlatform={
+              wslHostDistro
+                ? terminal.localWslSupportedPlatform
+                : terminal.runtimeWslSupportedPlatform
+            }
+            wslAvailable={
+              wslHostDistro
+                ? terminal.localWindowsRuntimeCapabilities.wslAvailable
+                : terminal.windowsTerminalCapabilities.wslAvailable
+            }
+            wslDistros={
+              wslHostDistro
+                ? terminal.localWindowsRuntimeCapabilities.wslDistros
+                : terminal.windowsTerminalCapabilities.wslDistros
+            }
+            wslCapabilitiesLoading={
+              wslHostDistro
+                ? terminal.localWindowsRuntimeCapabilities.isLoading
+                : terminal.windowsTerminalCapabilities.isLoading
+            }
+            accountOwnerPlatform={
+              wslHostDistro ? null : terminal.windowsTerminalCapabilities.hostPlatform
+            }
+          />
+        </div>
       )}
     </SettingsSection>
   )
