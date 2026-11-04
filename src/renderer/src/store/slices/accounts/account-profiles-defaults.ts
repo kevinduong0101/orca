@@ -19,98 +19,35 @@ export const DEFAULT_FAILOVER_CONFIG: AccountFailoverConfig = {
 }
 
 export const DEFAULT_ACTIVE_ACCOUNTS: Record<AIProvider, string | null> = {
-  gemini: 'default-gemini-1',
-  chatgpt: 'default-chatgpt-1',
-  claude: 'default-claude-1',
+  gemini: null,
+  chatgpt: null,
+  claude: null,
   custom: null
 }
 
-export const DEFAULT_PROFILES: AccountProfile[] = [
-  {
-    id: 'default-gemini-1',
-    name: 'Gemini Primary (A)',
-    email: 'kevin.gemini.primary@gmail.com',
-    avatarUrl: null,
-    provider: 'gemini',
-    partitionId: 'persist:account_gemini_primary',
-    authKind: 'oauth-web',
-    quotaStatus: 'ready',
-    quotaResetAt: null,
-    rateLimitCount: 0,
-    lastUsedAt: Date.now(),
-    createdAt: Date.now()
-  },
-  {
-    id: 'default-gemini-2',
-    name: 'Gemini Backup (B)',
-    email: 'kevin.gemini.backup@gmail.com',
-    avatarUrl: null,
-    provider: 'gemini',
-    partitionId: 'persist:account_gemini_backup',
-    authKind: 'oauth-web',
-    quotaStatus: 'ready',
-    quotaResetAt: null,
-    rateLimitCount: 0,
-    lastUsedAt: Date.now() - 3600000,
-    createdAt: Date.now() - 3600000
-  },
-  {
-    id: 'default-chatgpt-1',
-    name: 'ChatGPT Plus (A)',
-    email: 'kevin.chatgpt.1@openai.com',
-    avatarUrl: null,
-    provider: 'chatgpt',
-    partitionId: 'persist:account_chatgpt_primary',
-    authKind: 'oauth-web',
-    quotaStatus: 'ready',
-    quotaResetAt: null,
-    rateLimitCount: 0,
-    lastUsedAt: Date.now(),
-    createdAt: Date.now()
-  },
-  {
-    id: 'default-chatgpt-2',
-    name: 'ChatGPT Backup (B)',
-    email: 'kevin.chatgpt.2@openai.com',
-    avatarUrl: null,
-    provider: 'chatgpt',
-    partitionId: 'persist:account_chatgpt_backup',
-    authKind: 'oauth-web',
-    quotaStatus: 'ready',
-    quotaResetAt: null,
-    rateLimitCount: 0,
-    lastUsedAt: Date.now() - 7200000,
-    createdAt: Date.now() - 7200000
-  },
-  {
-    id: 'default-claude-1',
-    name: 'Claude Pro (A)',
-    email: 'kevin.claude.1@anthropic.com',
-    avatarUrl: null,
-    provider: 'claude',
-    partitionId: 'persist:account_claude_primary',
-    authKind: 'oauth-web',
-    quotaStatus: 'ready',
-    quotaResetAt: null,
-    rateLimitCount: 0,
-    lastUsedAt: Date.now(),
-    createdAt: Date.now()
-  }
-]
+export const DEFAULT_PROFILES: AccountProfile[] = []
 
 export function loadStoredProfiles(): AccountProfile[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw) as AccountProfile[]
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed
+      if (Array.isArray(parsed)) {
+        // Filter out any stale mock profiles that were previously seeded
+        return parsed.filter(
+          (p) =>
+            !p.id.startsWith('default-') &&
+            !p.id.startsWith('mock-') &&
+            !p.email?.includes('kevin.gemini') &&
+            !p.email?.includes('kevin.chatgpt') &&
+            !p.email?.includes('kevin.claude')
+        )
       }
     }
   } catch {
-    // Ignore parse error and fallback to defaults
+    // Ignore parse error and fallback to empty
   }
-  return DEFAULT_PROFILES
+  return []
 }
 
 export function loadStoredActive(): Record<AIProvider, string | null> {

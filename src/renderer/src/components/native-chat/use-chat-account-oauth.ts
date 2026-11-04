@@ -43,23 +43,9 @@ export function useChatAccountOAuth(): {
             toast.success(`Đã kết nối tài khoản: ${newProfile.name}`)
           }
         } else {
-          const newProfile: AccountProfile = {
-            id: accountId,
-            name: accountName,
-            email: `kevin.${provider}${nextIndex}@gmail.com`,
-            avatarUrl: null,
-            provider,
-            partitionId: `persist:oauth_${provider}_${accountId}`,
-            authKind: 'oauth-web',
-            quotaStatus: 'ready',
-            quotaResetAt: null,
-            rateLimitCount: 0,
-            lastUsedAt: Date.now(),
-            createdAt: Date.now()
-          }
-          upsertProfile(newProfile)
-          setActiveAccount(provider, newProfile.id)
-          toast.success(`Đã thêm tài khoản: ${newProfile.name}`)
+          toast.info(
+            `Vui lòng vào Cài đặt > Tài khoản để thêm tài khoản ${provider.toUpperCase()} chính thức.`
+          )
         }
       } catch (err) {
         toast.error(`Đăng nhập thất bại: ${err instanceof Error ? err.message : String(err)}`)

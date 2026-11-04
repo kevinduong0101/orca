@@ -78,26 +78,9 @@ export function AddAccountDialog({
           setAccountName('')
         }
       } else {
-        // Mock fallback for browser / development preview
-        const newProfile: AccountProfile = {
-          id: accountId,
-          name: resolvedName,
-          email: `kevin.${provider}${providerCount + 1}@gmail.com`,
-          avatarUrl: null,
-          provider,
-          partitionId: `persist:oauth_${provider}_${accountId}`,
-          authKind: 'oauth-web',
-          quotaStatus: 'ready',
-          quotaResetAt: null,
-          rateLimitCount: 0,
-          lastUsedAt: Date.now(),
-          createdAt: Date.now()
-        }
-        upsertProfile(newProfile)
-        setActiveAccount(provider, newProfile.id)
-        toast.success(`Đã thêm tài khoản: ${newProfile.name}`)
-        onOpenChange(false)
-        setAccountName('')
+        toast.info(
+          `Vui lòng sử dụng mục Native Accounts (Antigravity/Codex) bên dưới để đăng nhập chính thức.`
+        )
       }
     } catch (err) {
       toast.error(`Đăng nhập thất bại: ${err instanceof Error ? err.message : String(err)}`)
