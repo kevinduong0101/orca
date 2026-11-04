@@ -1,8 +1,7 @@
 import type { RefObject } from 'react'
 import { useMemo } from 'react'
-import { ArrowLeft, Search, Server } from 'lucide-react'
+import { ArrowLeft, Search, X } from 'lucide-react'
 import type { RepoIcon } from '../../../../shared/repo-icon'
-import type { SettingsNavIcon, SettingsNavInstallStatus } from '@/lib/settings-navigation-types'
 import type { GitHubRepositoryIdentity } from '../../../../shared/github/pull-request-types'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import { useShortcutKeyComboDetails } from '@/hooks/useShortcutLabel'
@@ -18,20 +17,11 @@ import type { SettingsSetupGuideProgress } from './settings-setup-guide-progress
 import { translate } from '@/i18n/i18n'
 import { resolveLeftSidebarStyleVariables } from '@/lib/left-sidebar-appearance'
 import { useAppStore } from '@/store'
-
-type NavSection = {
-  id: string
-  title: string
-  icon: SettingsNavIcon
-  badge?: string
-  installStatus?: SettingsNavInstallStatus
-}
-
-type NavGroup = {
-  id: string
-  title: string
-  sections: NavSection[]
-}
+import {
+  groupSectionsByModernCategory,
+  type NavGroup,
+  type NavSection
+} from './settings-sidebar-groups'
 
 type RepoNavSection = NavSection & {
   badgeColor?: string
@@ -61,9 +51,9 @@ function SettingsSearchField({
   const searchShortcutCombos = useShortcutKeyComboDetails('settings.search')
 
   return (
-    <div className="border-b border-worktree-sidebar-border px-3 py-3">
+    <div className="border-b border-border/40 px-3 py-2.5">
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/70" />
         <Input
           ref={searchInputRef}
           autoFocus={searchAutoFocus}
@@ -71,9 +61,9 @@ function SettingsSearchField({
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder={translate(
             'auto.components.settings.SettingsSidebar.dbceaa8840',
-            'Search settings'
+            'Tìm kiếm cài đặt...'
           )}
-          className="bg-background/60 pl-9 pr-14 text-[13px]"
+          className="h-8 bg-muted/30 pl-8 pr-12 text-xs rounded-lg border-border/50 focus-visible:bg-background transition-colors"
         />
         {searchQuery === '' ? (
           <span className="pointer-events-none absolute right-2 top-1/2 flex -translate-y-1/2 items-center">
@@ -87,62 +77,48 @@ function SettingsSearchField({
               />
             ))}
           </span>
-        ) : null}
+        ) : (
+          <button
+            type="button"
+            onClick={() => onSearchChange('')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-3.5" />
+          </button>
+        )}
       </div>
     </div>
   )
-}
-
-type VisibleInstallStatus = Extract<
-  SettingsNavInstallStatus,
-  'update-available' | 'needs-attention'
->
-
-function isVisibleInstallStatus(
-  status: SettingsNavInstallStatus | undefined
-): status is VisibleInstallStatus {
-  return status === 'update-available' || status === 'needs-attention'
-}
-
-type SettingsSetupGuideRowProps = {
-  progress: SettingsSetupGuideProgress
-  setupActive: boolean
-  onSelect: () => void
 }
 
 function SettingsSetupGuideNavRow({
   progress,
   setupActive,
   onSelect
-}: SettingsSetupGuideRowProps): React.JSX.Element {
+}: {
+  progress: SettingsSetupGuideProgress
+  setupActive: boolean
+  onSelect: () => void
+}): React.JSX.Element {
   return (
     <button
       type="button"
       aria-current={setupActive ? 'page' : undefined}
-      aria-label={translate(
-        'auto.components.settings.SettingsSidebar.82db1b7de4',
-        'Onboarding checklist, {{value0}} of {{value1}} done. Show setup guide.',
-        { value0: progress.doneCount, value1: progress.total }
-      )}
-      onClick={() => onSelect()}
+      onClick={onSelect}
       className={cn(
-        'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50',
+        'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left outline-none transition-colors',
         setupActive
-          ? 'bg-worktree-sidebar-accent font-medium text-worktree-sidebar-accent-foreground'
-          : 'text-worktree-sidebar-foreground/60 hover:bg-worktree-sidebar-foreground/8 hover:text-worktree-sidebar-foreground'
+          ? 'bg-primary/10 font-medium text-primary'
+          : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
       )}
     >
       <SetupGuideProgressRing
         done={progress.doneCount}
         total={progress.total}
         sizeClassName="size-4"
-        tooltipLabel={`${progress.doneCount}/${progress.total} complete`}
+        tooltipLabel={`${progress.doneCount}/${progress.total} hoàn thành`}
       />
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-[13px] font-medium leading-4">
-          {translate('auto.components.settings.SettingsSidebar.6503182299', 'Onboarding checklist')}
-        </span>
-      </span>
+      <span className="truncate text-xs font-medium">Hướng dẫn thiết lập ban đầu</span>
     </button>
   )
 }
@@ -152,7 +128,7 @@ export function SettingsSidebar({
   settings,
   generalGroups,
   repoSections,
-  hasRepos,
+  hasRepos: _hasRepos,
   searchInputRef,
   searchAutoFocus = false,
   onBack,
@@ -160,154 +136,160 @@ export function SettingsSidebar({
 }: SettingsSidebarProps): React.JSX.Element {
   const setupGuideProgress = useSettingsSetupGuideProgress(true)
   const leftSidebarStyle = useMemo(() => resolveLeftSidebarStyleVariables(settings), [settings])
-  const setupActive = activeSectionId === 'setup-guide'
-  // Hiding the app-sidebar prompt must not remove Settings’ stable checklist entry.
+  const searchQuery = useAppStore((state) => state.settingsSearchInputQuery)
+  const isSearching = searchQuery.trim().length > 0
+
+  const modernGroups = useMemo(() => {
+    if (isSearching) {
+      return generalGroups.map((g) => ({
+        category: { id: g.id, title: g.title, subtitle: '', icon: Search },
+        sections: g.sections
+      }))
+    }
+    return groupSectionsByModernCategory(generalGroups)
+  }, [generalGroups, isSearching])
+
   const showSetupGuideTopRow =
     setupGuideProgress.ready && setupGuideProgress.doneCount < setupGuideProgress.total
-  const navItemClassName = (isActive: boolean): string =>
-    cn(
-      'flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left text-[13px] outline-none transition-colors duration-150 focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50',
-      isActive
-        ? 'bg-worktree-sidebar-accent font-medium text-worktree-sidebar-accent-foreground ring-1 ring-worktree-sidebar-ring/25'
-        : 'text-worktree-sidebar-foreground/60 hover:bg-worktree-sidebar-accent/60 hover:text-worktree-sidebar-foreground'
-    )
-  const installStatusLabel = (status: VisibleInstallStatus): string => {
-    switch (status) {
-      case 'update-available':
-        return translate(
-          'auto.components.skills.SkillFreshnessStatusPill.updateAvailable',
-          'Update available'
-        )
-      case 'needs-attention':
-        return translate(
-          'auto.components.skills.SkillFreshnessStatusPill.needsAttention',
-          'Review skill'
-        )
+
+  const renderSectionBadge = (section: NavSection): React.JSX.Element | null => {
+    if (section.id === 'accounts') {
+      return (
+        <span className="ml-auto rounded-full bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.2 text-[9px] font-semibold text-emerald-500">
+          Multi-Account
+        </span>
+      )
     }
+    if (section.badge) {
+      return (
+        <span className="ml-auto rounded-full bg-muted/60 px-1.5 py-0.2 text-[9px] font-medium text-muted-foreground">
+          {section.badge}
+        </span>
+      )
+    }
+    return null
   }
-  const installStatusClassName =
-    'ml-auto shrink-0 rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium leading-none text-amber-700 dark:text-amber-300'
 
   return (
     <aside
-      className="flex w-[280px] shrink-0 flex-col border-r border-worktree-sidebar-border bg-worktree-sidebar"
+      className="flex w-[290px] shrink-0 flex-col border-r border-border/50 bg-background/95 backdrop-blur-sm"
       style={leftSidebarStyle}
     >
-      <div className="border-b border-worktree-sidebar-border px-3 py-3">
+      <div className="border-b border-border/40 px-3 py-2.5 flex items-center justify-between">
         <Button
           variant="ghost"
           size="sm"
           onClick={onBack}
-          className="w-full justify-start gap-2 text-[13px] text-muted-foreground"
+          className="h-8 gap-2 px-2 text-xs text-muted-foreground hover:text-foreground font-medium"
         >
-          <ArrowLeft className="size-4" />
-          {translate('auto.components.settings.SettingsSidebar.60f8a673a7', 'Back to app')}
+          <ArrowLeft className="size-3.5" />
+          <span>Quay lại ứng dụng</span>
         </Button>
+        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+          Kevin Studio
+        </span>
       </div>
 
       <SettingsSearchField searchInputRef={searchInputRef} searchAutoFocus={searchAutoFocus} />
 
       {showSetupGuideTopRow ? (
-        <div className="border-b border-worktree-sidebar-border px-3 py-3">
+        <div className="border-b border-border/40 px-3 py-2">
           <SettingsSetupGuideNavRow
             progress={setupGuideProgress}
-            setupActive={setupActive}
+            setupActive={activeSectionId === 'setup-guide'}
             onSelect={() => onSelectSection('setup-guide')}
           />
         </div>
       ) : null}
 
-      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-sleek px-3 py-4">
-        <div className="space-y-5">
-          {generalGroups.map((group) => (
-            <div key={group.id} className="space-y-2">
-              <p className="px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                {group.title}
-              </p>
-              <div className="space-y-1">
-                {group.sections
-                  .filter((section) => section.id !== 'setup-guide')
-                  .map((section) => {
-                    const Icon = section.icon
-                    const isActive = activeSectionId === section.id
-
-                    return (
-                      <button
-                        key={section.id}
-                        aria-current={isActive ? 'page' : undefined}
-                        data-current={isActive ? 'true' : undefined}
-                        onClick={() => onSelectSection(section.id)}
-                        className={navItemClassName(isActive)}
-                      >
-                        <Icon className="size-4 shrink-0" />
-                        <span className="truncate">{section.title}</span>
-                        {isVisibleInstallStatus(section.installStatus) ? (
-                          <span className={installStatusClassName}>
-                            {installStatusLabel(section.installStatus)}
-                          </span>
-                        ) : section.badge ? (
-                          <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
-                            {section.badge}
-                          </span>
-                        ) : null}
-                      </button>
-                    )
-                  })}
+      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-sleek px-3 py-3 space-y-5">
+        {modernGroups.map(({ category, sections }) => {
+          const GroupIcon = category.icon
+          return (
+            <div key={category.id} className="space-y-1.5">
+              <div className="px-2 flex items-center gap-1.5 text-muted-foreground">
+                <GroupIcon className="size-3.5 text-primary/70" />
+                <span className="text-[11px] font-semibold tracking-wide uppercase">
+                  {category.title}
+                </span>
+                {category.subtitle ? (
+                  <span className="text-[10px] text-muted-foreground/60 font-normal">
+                    · {category.subtitle}
+                  </span>
+                ) : null}
               </div>
-            </div>
-          ))}
 
-          <div className="space-y-2">
-            <p className="px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              {translate('auto.components.settings.SettingsSidebar.5c9669ff9c', 'Projects')}
-            </p>
-
-            {repoSections.length > 0 ? (
-              <div className="space-y-1">
-                {repoSections.map((section) => {
+              <div className="space-y-0.5">
+                {sections.map((section) => {
+                  const Icon = section.icon
                   const isActive = activeSectionId === section.id
-
                   return (
                     <button
                       key={section.id}
+                      type="button"
                       aria-current={isActive ? 'page' : undefined}
-                      data-current={isActive ? 'true' : undefined}
                       onClick={() => onSelectSection(section.id)}
-                      className={navItemClassName(isActive)}
-                    >
-                      <RepoIconGlyph
-                        repoIcon={section.repoIcon}
-                        color={section.badgeColor}
-                        className="size-4 shrink-0 text-muted-foreground"
-                        iconClassName="size-3.5"
-                      />
-                      <span className="truncate">{section.title}</span>
-                      <RepoForkIndicator upstream={section.upstream} />
-                      {section.isRemote && (
-                        <span className="ml-auto inline-flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground">
-                          <Server className="size-3" />
-                          {translate('auto.components.settings.SettingsSidebar.e0900f83e7', 'SSH')}
-                        </span>
+                      className={cn(
+                        'relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-xs outline-none transition-all duration-150',
+                        isActive
+                          ? 'bg-primary/10 text-primary font-medium shadow-xs before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:rounded-r before:bg-primary'
+                          : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                       )}
+                    >
+                      <div
+                        className={cn(
+                          'flex size-6 items-center justify-center rounded-md transition-colors',
+                          isActive ? 'bg-primary/15 text-primary' : 'bg-muted/40 text-muted-foreground'
+                        )}
+                      >
+                        <Icon className="size-3.5 shrink-0" />
+                      </div>
+                      <span className="truncate">{section.title}</span>
+                      {renderSectionBadge(section)}
                     </button>
                   )
                 })}
               </div>
-            ) : (
-              <p className="px-3 text-xs text-muted-foreground">
-                {hasRepos
-                  ? translate(
-                      'auto.components.settings.SettingsSidebar.3e483e256b',
-                      'No matching project settings.'
-                    )
-                  : translate(
-                      'auto.components.settings.SettingsSidebar.df38d612b7',
-                      'No projects added yet.'
+            </div>
+          )
+        })}
+
+        {repoSections.length > 0 ? (
+          <div className="space-y-1.5 pt-2 border-t border-border/40">
+            <div className="px-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Dự án (Projects)
+            </div>
+            <div className="space-y-0.5">
+              {repoSections.map((section) => {
+                const isActive = activeSectionId === section.id
+                return (
+                  <button
+                    key={section.id}
+                    type="button"
+                    aria-current={isActive ? 'page' : undefined}
+                    onClick={() => onSelectSection(section.id)}
+                    className={cn(
+                      'relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-xs transition-colors',
+                      isActive
+                        ? 'bg-primary/10 text-primary font-medium before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:rounded-r before:bg-primary'
+                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                     )}
-              </p>
-            )}
+                  >
+                    <RepoIconGlyph
+                      repoIcon={section.repoIcon}
+                      color={section.badgeColor}
+                      className="size-4 shrink-0"
+                    />
+                    <span className="truncate flex-1">{section.title}</span>
+                    {section.upstream ? (
+                      <RepoForkIndicator upstream={section.upstream} className="shrink-0" />
+                    ) : null}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
     </aside>
   )
