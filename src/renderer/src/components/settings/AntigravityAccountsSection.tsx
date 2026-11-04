@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { AgentIcon } from '@/lib/agent-catalog'
 import { callAntigravityAccounts } from '@/runtime/runtime-antigravity-accounts-client'
@@ -18,8 +18,10 @@ import { antigravityChatSignInRunning } from '@/runtime/antigravity-chat-sign-in
 import {
   AntigravityChatSignInRow,
   antigravityChatSignInBlocked,
-  useAntigravityChatSignIn
+  useAntigravityChatSignIn,
+  useAntigravityChatSignInControls
 } from './AntigravityChatSignInRow'
+import { AntigravityAddAccountDialog } from './AntigravityAddAccountDialog'
 import { openAppHttpLinkFromAnchor } from '@/lib/app-http-link-open'
 
 export function AntigravityAccountsSection({
@@ -50,6 +52,15 @@ export function AntigravityAccountsSection({
   // A remote host's sign-in finishes from the address pasted back into its row.
   const chatSignIn = chats && chatRuntime.kind === 'active'
   const signIn = useAntigravityChatSignIn(chatSignIn ? owner : null)
+  const [isAddAccountOpen, setIsAddAccountOpen] = useState(false)
+  const signInControls = useAntigravityChatSignInControls({
+    owner,
+    label,
+    signedOut: translate('accounts.antigravity.chatNotSignedIn', 'Not signed in on {{host}}.', {
+      host: label
+    }),
+    disabled: antigravityChatSignInBlocked(chatRuntime)
+  })
 
   useEffect(() => {
     mounted.current = true
@@ -242,7 +253,40 @@ export function AntigravityAccountsSection({
                 )}
             </p>
           )}
-          {state.accounts.map((account) => (
+          <div className="flex items-center justify-between gap-3 pt-2">
+            <div className="space-y-0.5">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {translate('accounts.codex.sectionTitle', 'Accounts')}
+              </h4>
+              <p className="text-xs text-muted-foreground">
+                {translate(
+                  'accounts.codex.sectionDescription',
+                  'Showing accounts for this device. New accounts are added there.'
+                )}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={() => setIsAddAccountOpen(true)}
+              disabled={busy}
+              className="gap-1.5"
+            >
+              <Plus className="size-3" />
+              {translate('auto.components.settings.AccountsPane.b0e948a4f9', 'Add Account')}
+            </Button>
+          </div>
+          {state.accounts.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-border/80 p-4 text-center">
+              <p className="text-xs text-muted-foreground">
+                {translate(
+                  'accounts.antigravity.noAccounts',
+                  'No managed Antigravity accounts for this device. Antigravity will use the default sign-in until you add one.'
+                )}
+              </p>
+            </div>
+          ) : (
+            state.accounts.map((account) => (
             <div
               key={account.id}
               className="flex items-center justify-between gap-3 rounded-md border p-3"
@@ -282,7 +326,7 @@ export function AntigravityAccountsSection({
                 </Button>
               </div>
             </div>
-          ))}
+          )))}
         </div>
       )}
       <p className="text-xs text-muted-foreground">
@@ -329,6 +373,16 @@ export function AntigravityAccountsSection({
           />
         </div>
       ) : null}
+      <AntigravityAddAccountDialog
+        open={isAddAccountOpen}
+        onOpenChange={setIsAddAccountOpen}
+        state={state}
+        busy={busy}
+        signInActionLabel={signInControls.actionLabel}
+        signInDisabled={signInControls.signInDisabled}
+        onStartBrowserSignIn={() => signInControls.start()}
+        onSaveCurrentAccount={() => void run('AddCurrent')}
+      />
     </section>
   )
 }
