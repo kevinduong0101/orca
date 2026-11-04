@@ -27,10 +27,7 @@ import { registerStatsHandlers } from '../stats'
 import { registerMemoryHandlers } from '../memory'
 import { registerRateLimitHandlers } from '../rate-limits'
 import { registerRuntimeHandlers } from '../runtime'
-import {
-  invalidateRuntimeEnvironmentTransport,
-  registerRuntimeEnvironmentHandlers
-} from '../runtime-environments/runtime-environments'
+import { invalidateRuntimeEnvironmentTransport, registerRuntimeEnvironmentHandlers } from '../runtime-environments/runtime-environments'
 import { registerWslHostHandlers } from '../wsl-host-handlers'
 import { registerEphemeralVmHandlers } from '../ephemeral-vm'
 import { registerAiVaultHandlers } from '../ai-vault'
@@ -79,11 +76,9 @@ import { registerMiniMaxCredentialsHandlers } from '../minimax-credentials'
 import { registerZcodePlanCredentialsHandlers } from '../zcode-plan-credentials'
 import { registerGrokAccountHandlers } from '../grok-accounts'
 import { registerCursorAccountHandlers } from '../cursor-accounts'
+import { registerMultiAccountOAuthHandlers } from '../multi-account-oauth-service'
 import { registerUpdaterHandlers } from '../../window/attach-main-window-services'
-import {
-  registerClipboardHandlers,
-  setTrustedClipboardRendererWebContentsId
-} from '../../window/clipboard-ipc-handlers'
+import { registerClipboardHandlers, setTrustedClipboardRendererWebContentsId } from '../../window/clipboard-ipc-handlers'
 import { isDashboardPopoutRenderer } from '../../window/dashboard-popout-window'
 import type { ClaudeUsageStore } from '../../claude-usage/store'
 import type { CodexUsageStore } from '../../codex-usage/store'
@@ -96,17 +91,8 @@ import type { AutomationService } from '../../automations/service'
 import type { AgentAwakeService } from '../../agent-awake-service'
 import type { CrashReportStore } from '../../crash-reporting/crash-report-store'
 import type { KeybindingService } from '../../keybindings/keybinding-service'
-import type {
-  AiVaultPrepareSessionResumeArgs,
-  AiVaultPrepareSessionResumeResult
-} from '../../../shared/ai-vault-resume-preparation'
-import {
-  getSavedRuntimeAiVaultHostInfos,
-  deleteRuntimeAiVaultSession,
-  prepareRuntimeAiVaultSessionResume,
-  resolveRuntimeAiVaultSessionTitles,
-  scanRuntimeAiVaultSessions
-} from '../../ai-vault/runtime-session-scanner'
+import type { AiVaultPrepareSessionResumeArgs, AiVaultPrepareSessionResumeResult } from '../../../shared/ai-vault-resume-preparation'
+import { getSavedRuntimeAiVaultHostInfos, deleteRuntimeAiVaultSession, prepareRuntimeAiVaultSessionResume, resolveRuntimeAiVaultSessionTitles, scanRuntimeAiVaultSessions } from '../../ai-vault/runtime-session-scanner'
 import { callRuntimeSessionSearch } from '../../ai-vault/runtime-session-search-call'
 import { configureRuntimeAiVaultSessionDelete } from '../ai-vault-delete'
 import { ensureStructuredAgentSessionHostUnlessRefused } from '../../runtime/agent-session/structured-agent-session-host-refusal'
@@ -198,6 +184,7 @@ export function registerCoreHandlers(
   registerZcodePlanCredentialsHandlers(rateLimits)
   registerGrokAccountHandlers()
   registerCursorAccountHandlers()
+  registerMultiAccountOAuthHandlers()
   registerRateLimitHandlers(rateLimits, codexAccounts)
   registerGitHubHandlers(store, stats)
   registerGitLabHandlers(store)

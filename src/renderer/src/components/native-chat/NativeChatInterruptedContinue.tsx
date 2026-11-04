@@ -1,4 +1,5 @@
 import { useNativeChatUsageLimitAutoContinue } from './use-native-chat-usage-limit-auto-continue'
+import { useNativeChatAutoFailover } from './use-native-chat-auto-failover'
 import { useCallback, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -153,6 +154,11 @@ export function useNativeChatInterruptedContinuation(input: {
     },
     [usageLimitTurnItemId, usageCapability, sessionId, reportComposerError, focusComposer, agent]
   )
+  useNativeChatAutoFailover({
+    agent,
+    usageLimitTurnItemId,
+    continueUsageLimit
+  })
   const continueNow = useCallback((): void => {
     if (offered === null) {
       return

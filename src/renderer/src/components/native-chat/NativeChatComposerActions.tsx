@@ -12,6 +12,7 @@ import type {
   SessionOptionDescriptor,
   SessionOptionsSurface
 } from '../../../../shared/native-chat/input/native-chat-session-options'
+import { ChatAccountSwitcher } from './ChatAccountSwitcher'
 import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
 import { NativeChatComposerPermissionPicker } from './NativeChatPermissionModePicker'
 import { NativeChatComposerGoalChip } from './NativeChatComposerGoalChip'
@@ -237,6 +238,7 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
         {onExitGoalMode ? <NativeChatComposerGoalChip onExit={onExitGoalMode} /> : null}
       </div>
       <div className="ml-auto flex items-center gap-1.5">
+        <ChatAccountSwitcher agent={agent} disabled={isWorking} />
         {/* Keep option pickers beside the session actions they affect. */}
         <NativeChatSessionOptionPickers
           surface={sessionOptionsSurface}

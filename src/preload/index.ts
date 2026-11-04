@@ -41,6 +41,7 @@ import { localhostWorktreeLabelsApi } from './api/localhost-worktree-labels-brid
 import { keybindingsApi } from './api/keybindings-bridge'
 import { codexAccountsApi } from './api/codex-accounts-bridge'
 import { claudeAccountsApi } from './api/claude-accounts-bridge'
+import { multiAccountOAuthApi } from './api/multi-account-oauth-bridge'
 import { cliApi } from './api/cli-bridge'
 import { codexConfigSyncApi } from './api/codex-config-sync-bridge'
 import { preflightApi } from './api/preflight-bridge'
@@ -186,6 +187,7 @@ const api = {
   zcodePlanCredentials: zcodePlanCredentialsApi,
   grokAccounts: grokAccountsApi,
   cursorAccounts: cursorAccountsApi,
+  multiAccountOAuth: multiAccountOAuthApi,
   ssh: sshApi,
   plainSsh: plainSshTerminalApi,
   legacyRelayBridge: legacyRelayBridgeApi,

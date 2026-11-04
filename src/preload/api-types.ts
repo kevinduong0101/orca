@@ -7,6 +7,7 @@ import type {
   MinimaxCredentialsApi,
   ZcodePlanCredentialsApi
 } from './api/agent-account-api'
+import type { MultiAccountOAuthApi } from './api/multi-account-oauth-bridge'
 import type { HooksApi } from './api/agent-hook-api'
 import type { SkillsApi } from './api/agent-skill-api'
 import type { AgentAwakeApi, AgentStatusApi } from './api/agent-status-api'
@@ -157,6 +158,7 @@ export type PreloadApi = {
   zcodePlanCredentials: ZcodePlanCredentialsApi
   grokAccounts: GrokAccountsApi
   cursorAccounts: CursorAccountsApi
+  multiAccountOAuth?: MultiAccountOAuthApi
   ssh: SshApi
   /** Desktop only: an unmanaged ssh login to a host whose move is blocked. */
   plainSsh?: PlainSshTerminalApi
