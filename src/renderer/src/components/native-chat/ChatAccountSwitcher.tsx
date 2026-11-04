@@ -9,6 +9,7 @@ import { useAppStore } from '@/store'
 import type { AIProvider, AccountProfile } from '../../../../shared/account-profile-types'
 import { useAccountProfilesStore } from '@/store/slices/accounts/account-profiles-store'
 import { useChatAccountOAuth } from './use-chat-account-oauth'
+import { useSyncNativeAccounts } from './use-sync-native-accounts'
 
 export function resolveProviderFromAgent(agent?: string): AIProvider {
   if (!agent) {
@@ -44,6 +45,7 @@ export const ChatAccountSwitcher = memo(function ChatAccountSwitcher({
   agent,
   disabled = false
 }: ChatAccountSwitcherProps): React.JSX.Element {
+  useSyncNativeAccounts()
   const currentProvider = resolveProviderFromAgent(agent)
   const [selectedProvider, setSelectedProvider] = useState<AIProvider>(currentProvider)
   const [isOpen, setIsOpen] = useState(false)

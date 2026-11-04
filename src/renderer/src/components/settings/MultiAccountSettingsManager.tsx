@@ -14,8 +14,10 @@ import { cn } from '@/lib/utils'
 import type { AIProvider } from '../../../../shared/account-profile-types'
 import { useAccountProfilesStore } from '@/store/slices/accounts/account-profiles-store'
 import { AddAccountDialog } from './AddAccountDialog'
+import { useSyncNativeAccounts } from '../native-chat/use-sync-native-accounts'
 
 export const MultiAccountSettingsManager = memo(function MultiAccountSettingsManager(): React.JSX.Element {
+  useSyncNativeAccounts()
   const profiles = useAccountProfilesStore((s) => s.profiles)
   const activeAccountByProvider = useAccountProfilesStore((s) => s.activeAccountByProvider)
   const failoverConfig = useAccountProfilesStore((s) => s.failoverConfig)
