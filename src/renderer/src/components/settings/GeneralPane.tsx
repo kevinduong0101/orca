@@ -6,6 +6,7 @@ import { GeneralEditorSettingsSection } from './GeneralEditorSettingsSection'
 import { GeneralSupportSection } from './GeneralSupportSection'
 
 import { GeneralWorkspaceSettingsSection } from './GeneralWorkspaceSettingsSection'
+import { GeneralAiAccountsQuickBanner } from './GeneralAiAccountsQuickBanner'
 import {
   getGeneralCliSearchEntries,
   getGeneralEditorSearchEntries,
@@ -271,8 +272,15 @@ export function GeneralPane({
     // Render Support separately so its placeholder/divider can collapse without leaving a dangling separator.
   ]
 
+  const showAccountsBanner =
+    !searchQuery.trim() ||
+    ['account', 'tài khoản', 'gemini', 'chatgpt', 'claude'].some((k) =>
+      searchQuery.toLowerCase().includes(k)
+    )
+
   return (
     <div className="space-y-6">
+      {showAccountsBanner ? <GeneralAiAccountsQuickBanner /> : null}
       <SettingsSectionStack sections={visibleSections} spacing="section" />
       {matchesSettingsSearch(searchQuery, getGeneralSupportSearchEntries()) ? (
         <GeneralSupportSection

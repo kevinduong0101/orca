@@ -1,10 +1,11 @@
 import { memo, useCallback, useState } from 'react'
-import { Check, ChevronDown, Plus, Shield, Sparkles, User, Zap } from 'lucide-react'
+import { Check, ChevronDown, Plus, Settings, Shield, Sparkles, User, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
+import { useAppStore } from '@/store'
 import type { AIProvider, AccountProfile } from '../../../../shared/account-profile-types'
 import { useAccountProfilesStore } from '@/store/slices/accounts/account-profiles-store'
 
@@ -252,21 +253,34 @@ export const ChatAccountSwitcher = memo(function ChatAccountSwitcher({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-1.5 border-t bg-muted/20 flex items-center justify-between">
+        <div className="p-1.5 border-t bg-muted/20 flex flex-col gap-1">
           <Button
             type="button"
             variant="outline"
             size="xs"
             disabled={isLoggingIn}
             onClick={() => handleOAuthLogin(selectedProvider)}
-            className="w-full text-xs gap-1.5 justify-center"
+            className="w-full text-xs gap-1.5 justify-center font-medium"
           >
             {isLoggingIn ? (
               <Sparkles className="size-3 animate-spin" />
             ) : (
               <Plus className="size-3" />
             )}
-            <span>Thêm tài khoản {selectedProvider.toUpperCase()} (OAuth Web)</span>
+            <span>+ Thêm tài khoản {selectedProvider.toUpperCase()} (OAuth Web)</span>
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            onClick={() => {
+              setIsOpen(false)
+              useAppStore.getState().openSettingsTarget({ pane: 'accounts', repoId: null })
+            }}
+            className="w-full text-[11px] text-muted-foreground hover:text-foreground h-6 justify-center gap-1.5"
+          >
+            <Settings className="size-3" />
+            <span>Mở Quản lý Đa tài khoản trong Cài đặt</span>
           </Button>
         </div>
       </PopoverContent>

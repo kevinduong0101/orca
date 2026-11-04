@@ -1,22 +1,20 @@
 import type { RefObject } from 'react'
-import { useMemo } from 'react'
-import { ArrowLeft, Search, X } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { ArrowLeft, Plus, Search } from 'lucide-react'
 import type { RepoIcon } from '../../../../shared/repo-icon'
 import type { GitHubRepositoryIdentity } from '../../../../shared/github/pull-request-types'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
-import { useShortcutKeyComboDetails } from '@/hooks/useShortcutLabel'
-import { ShortcutKeyCombo } from '../ShortcutKeyCombo'
 import { cn } from '@/lib/utils'
 import { RepoIconGlyph } from '../repo/repo-icon'
 import { RepoForkIndicator } from '../repo/repo-fork-indicator'
 import { Button } from '../ui/button'
-import { Input } from '../ui/input'
 import { SetupGuideProgressRing } from '../setup-guide/SetupGuideProgressRing'
 import { useSettingsSetupGuideProgress } from './settings-setup-guide-progress'
 import type { SettingsSetupGuideProgress } from './settings-setup-guide-progress'
-import { translate } from '@/i18n/i18n'
 import { resolveLeftSidebarStyleVariables } from '@/lib/left-sidebar-appearance'
 import { useAppStore } from '@/store'
+import { SettingsSearchField } from './SettingsSearchField'
+import { AddAccountDialog } from './AddAccountDialog'
 import {
   groupSectionsByModernCategory,
   type NavGroup,
@@ -40,55 +38,6 @@ type SettingsSidebarProps = {
   searchAutoFocus?: boolean
   onBack: () => void
   onSelectSection: (sectionId: string) => void
-}
-
-function SettingsSearchField({
-  searchInputRef,
-  searchAutoFocus = false
-}: Pick<SettingsSidebarProps, 'searchInputRef' | 'searchAutoFocus'>): React.JSX.Element {
-  const searchQuery = useAppStore((state) => state.settingsSearchInputQuery)
-  const onSearchChange = useAppStore((state) => state.setSettingsSearchQuery)
-  const searchShortcutCombos = useShortcutKeyComboDetails('settings.search')
-
-  return (
-    <div className="border-b border-border/40 px-3 py-2.5">
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/70" />
-        <Input
-          ref={searchInputRef}
-          autoFocus={searchAutoFocus}
-          value={searchQuery}
-          onChange={(event) => onSearchChange(event.target.value)}
-          placeholder={translate(
-            'auto.components.settings.SettingsSidebar.dbceaa8840',
-            'Tìm kiếm cài đặt...'
-          )}
-          className="h-8 bg-muted/30 pl-8 pr-12 text-xs rounded-lg border-border/50 focus-visible:bg-background transition-colors"
-        />
-        {searchQuery === '' ? (
-          <span className="pointer-events-none absolute right-2 top-1/2 flex -translate-y-1/2 items-center">
-            {searchShortcutCombos.map((combo) => (
-              <ShortcutKeyCombo
-                key={combo.keys.join('-')}
-                keys={combo.keys}
-                doubleTap={combo.doubleTap}
-                className="inline-flex gap-0.5"
-                separatorClassName="text-[10px] text-muted-foreground"
-              />
-            ))}
-          </span>
-        ) : (
-          <button
-            type="button"
-            onClick={() => onSearchChange('')}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-          >
-            <X className="size-3.5" />
-          </button>
-        )}
-      </div>
-    </div>
-  )
 }
 
 function SettingsSetupGuideNavRow({
@@ -134,6 +83,7 @@ export function SettingsSidebar({
   onBack,
   onSelectSection
 }: SettingsSidebarProps): React.JSX.Element {
+  const [isAddAccountOpen, setIsAddAccountOpen] = useState(false)
   const setupGuideProgress = useSettingsSetupGuideProgress(true)
   const leftSidebarStyle = useMemo(() => resolveLeftSidebarStyleVariables(settings), [settings])
   const searchQuery = useAppStore((state) => state.settingsSearchInputQuery)
@@ -155,9 +105,29 @@ export function SettingsSidebar({
   const renderSectionBadge = (section: NavSection): React.JSX.Element | null => {
     if (section.id === 'accounts') {
       return (
-        <span className="ml-auto rounded-full bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.2 text-[9px] font-semibold text-emerald-500">
-          Multi-Account
-        </span>
+        <div className="ml-auto flex items-center gap-1.5">
+          <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.2 text-[9px] font-semibold text-emerald-500">
+            Multi-Account
+          </span>
+          <span
+            role="button"
+            tabIndex={0}
+            title="Thêm tài khoản AI mới"
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsAddAccountOpen(true)
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.stopPropagation()
+                setIsAddAccountOpen(true)
+              }
+            }}
+            className="size-5 rounded flex items-center justify-center bg-primary/15 hover:bg-primary/25 text-primary transition-colors cursor-pointer"
+          >
+            <Plus className="size-3" />
+          </span>
+        </div>
       )
     }
     if (section.badge) {
@@ -223,6 +193,10 @@ export function SettingsSidebar({
                 {sections.map((section) => {
                   const Icon = section.icon
                   const isActive = activeSectionId === section.id
+                  const displayTitle =
+                    section.id === 'accounts'
+                      ? 'Tài khoản AI (Đa tài khoản)'
+                      : section.title
                   return (
                     <button
                       key={section.id}
@@ -239,12 +213,14 @@ export function SettingsSidebar({
                       <div
                         className={cn(
                           'flex size-6 items-center justify-center rounded-md transition-colors',
-                          isActive ? 'bg-primary/15 text-primary' : 'bg-muted/40 text-muted-foreground'
+                          isActive
+                            ? 'bg-primary/15 text-primary'
+                            : 'bg-muted/40 text-muted-foreground'
                         )}
                       >
                         <Icon className="size-3.5 shrink-0" />
                       </div>
-                      <span className="truncate">{section.title}</span>
+                      <span className="truncate">{displayTitle}</span>
                       {renderSectionBadge(section)}
                     </button>
                   )
@@ -291,6 +267,12 @@ export function SettingsSidebar({
           </div>
         ) : null}
       </div>
+
+      <AddAccountDialog
+        open={isAddAccountOpen}
+        onOpenChange={setIsAddAccountOpen}
+        defaultProvider="gemini"
+      />
     </aside>
   )
 }
