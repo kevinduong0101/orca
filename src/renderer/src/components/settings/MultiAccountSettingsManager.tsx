@@ -1,101 +1,36 @@
-import { memo, useCallback, useState } from 'react'
+import { memo, useState } from 'react'
 import {
   Check,
   Plus,
   ShieldAlert,
   ShieldCheck,
-  Sparkles,
   Trash2,
   Zap
 } from 'lucide-react'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
-import type { AIProvider, AccountProfile } from '../../../../shared/account-profile-types'
+import type { AIProvider } from '../../../../shared/account-profile-types'
 import { useAccountProfilesStore } from '@/store/slices/accounts/account-profiles-store'
+import { AddAccountDialog } from './AddAccountDialog'
 
 export const MultiAccountSettingsManager = memo(function MultiAccountSettingsManager(): React.JSX.Element {
   const profiles = useAccountProfilesStore((s) => s.profiles)
   const activeAccountByProvider = useAccountProfilesStore((s) => s.activeAccountByProvider)
   const failoverConfig = useAccountProfilesStore((s) => s.failoverConfig)
   const setActiveAccount = useAccountProfilesStore((s) => s.setActiveAccount)
-  const upsertProfile = useAccountProfilesStore((s) => s.upsertProfile)
   const removeProfile = useAccountProfilesStore((s) => s.removeProfile)
   const updateFailoverConfig = useAccountProfilesStore((s) => s.updateFailoverConfig)
 
   const [activeTab, setActiveTab] = useState<AIProvider>('gemini')
-  const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
   const tabProfiles = profiles.filter((p) => p.provider === activeTab)
   const activeId = activeAccountByProvider[activeTab]
 
-  const handleOAuthLogin = useCallback(
-    async (provider: AIProvider) => {
-      setIsLoggingIn(true)
-      try {
-        const nextIndex = profiles.filter((p) => p.provider === provider).length + 1
-        const accountId = `oauth-${provider}-${Date.now()}`
-        const accountName = `${provider.toUpperCase()} #${nextIndex}`
-
-        const api = window.electron?.multiAccountOAuth
-        if (api?.openOAuthLogin) {
-          const res = await api.openOAuthLogin({
-            provider,
-            accountId,
-            accountName
-          })
-          if (res.success) {
-            const newProfile: AccountProfile = {
-              id: res.accountId || accountId,
-              name: res.accountName || accountName,
-              email: res.email || null,
-              avatarUrl: null,
-              provider,
-              partitionId: `persist:oauth_${provider}_${res.accountId || accountId}`,
-              authKind: 'oauth-web',
-              quotaStatus: 'ready',
-              quotaResetAt: null,
-              rateLimitCount: 0,
-              lastUsedAt: Date.now(),
-              createdAt: Date.now()
-            }
-            upsertProfile(newProfile)
-            setActiveAccount(provider, newProfile.id)
-            toast.success(`Đã kết nối tài khoản web an toàn: ${newProfile.name}`)
-          }
-        } else {
-          // Mock preview
-          const newProfile: AccountProfile = {
-            id: accountId,
-            name: accountName,
-            email: `kevin.${provider}${nextIndex}@gmail.com`,
-            avatarUrl: null,
-            provider,
-            partitionId: `persist:oauth_${provider}_${accountId}`,
-            authKind: 'oauth-web',
-            quotaStatus: 'ready',
-            quotaResetAt: null,
-            rateLimitCount: 0,
-            lastUsedAt: Date.now(),
-            createdAt: Date.now()
-          }
-          upsertProfile(newProfile)
-          setActiveAccount(provider, newProfile.id)
-          toast.success(`Đã thêm tài khoản: ${newProfile.name}`)
-        }
-      } catch (err) {
-        toast.error(`Đăng nhập lỗi: ${err instanceof Error ? err.message : String(err)}`)
-      } finally {
-        setIsLoggingIn(false)
-      }
-    },
-    [profiles, upsertProfile, setActiveAccount]
-  )
-
   return (
-    <div className="space-y-6 rounded-xl border border-border/60 bg-muted/20 p-5">
+    <div className="space-y-5 rounded-xl border border-border/60 bg-muted/20 p-5">
       {/* Header Banner */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-4">
         <div>
@@ -109,49 +44,69 @@ export const MultiAccountSettingsManager = memo(function MultiAccountSettingsMan
             </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Mỗi tài khoản được bảo vệ trong một không gian lưu trữ riêng biệt, không bị đá session và tuân thủ giới hạn an toàn của nhà cung cấp.
+            Mỗi tài khoản lưu trữ độc lập qua Electron Partitions, tự động chuyển tài khoản khi hết quota 429.
           </p>
         </div>
 
-        {/* Global Auto Failover Toggle */}
-        <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-background/80 px-3 py-2">
-          <div className="space-y-0.5">
+        {/* Action Controls Header */}
+        <div className="flex items-center gap-2.5">
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => setIsAddDialogOpen(true)}
+            className="gap-1.5 text-xs font-semibold shadow-xs"
+          >
+            <Plus className="size-4" />
+            <span>+ Thêm tài khoản</span>
+          </Button>
+
+          <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-background/80 px-3 py-1.5">
             <Label className="text-xs font-medium flex items-center gap-1.5 cursor-pointer">
               <Zap className="size-3.5 text-amber-500" />
-              <span>Tự động chuyển khi đầy Quota (429)</span>
+              <span>Auto-Failover</span>
             </Label>
-            <p className="text-[10px] text-muted-foreground">
-              Tự đổi sang tài khoản khả dụng tiếp theo và tiếp tục task
-            </p>
+            <Switch
+              checked={failoverConfig.enabled}
+              onCheckedChange={(checked) => updateFailoverConfig({ enabled: checked })}
+            />
           </div>
-          <Switch
-            checked={failoverConfig.enabled}
-            onCheckedChange={(checked) => updateFailoverConfig({ enabled: checked })}
-          />
         </div>
       </div>
 
       {/* Provider Selector Tabs */}
-      <div className="flex gap-2 border-b border-border/40 pb-2">
-        {(['gemini', 'chatgpt', 'claude'] as const).map((prov) => (
-          <button
-            key={prov}
-            type="button"
-            onClick={() => setActiveTab(prov)}
-            className={cn(
-              'px-3.5 py-1.5 text-xs font-medium rounded-lg capitalize transition-colors',
-              activeTab === prov
-                ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-            )}
-          >
-            {prov} ({profiles.filter((p) => p.provider === prov).length})
-          </button>
-        ))}
+      <div className="flex items-center justify-between border-b border-border/40 pb-2">
+        <div className="flex gap-1.5">
+          {(['gemini', 'chatgpt', 'claude'] as const).map((prov) => (
+            <button
+              key={prov}
+              type="button"
+              onClick={() => setActiveTab(prov)}
+              className={cn(
+                'px-3.5 py-1.5 text-xs font-medium rounded-lg capitalize transition-colors',
+                activeTab === prov
+                  ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              )}
+            >
+              {prov} ({profiles.filter((p) => p.provider === prov).length})
+            </button>
+          ))}
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          size="xs"
+          onClick={() => setIsAddDialogOpen(true)}
+          className="gap-1 text-xs text-primary border-primary/30 hover:bg-primary/10"
+        >
+          <Plus className="size-3" />
+          <span>Thêm {activeTab.toUpperCase()}</span>
+        </Button>
       </div>
 
-      {/* Account List for Active Provider */}
-      <div className="grid gap-2 sm:grid-cols-2">
+      {/* Account List Grid */}
+      <div className="grid gap-2.5 sm:grid-cols-2">
         {tabProfiles.map((p) => {
           const isActive = activeId === p.id
           const isLimited = p.quotaStatus === 'limited'
@@ -218,29 +173,18 @@ export const MultiAccountSettingsManager = memo(function MultiAccountSettingsMan
             </div>
           )
         })}
-      </div>
 
-      {/* Action Row */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-        <Button
+        {/* Add Account Card Button in Grid */}
+        <button
           type="button"
-          variant="outline"
-          size="sm"
-          disabled={isLoggingIn}
-          onClick={() => handleOAuthLogin(activeTab)}
-          className="gap-2 text-xs"
+          onClick={() => setIsAddDialogOpen(true)}
+          className="flex min-h-18 flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-border/80 p-3 text-center text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:bg-primary/5 hover:text-primary"
         >
-          {isLoggingIn ? (
-            <Sparkles className="size-3.5 animate-spin" />
-          ) : (
+          <div className="flex size-6 items-center justify-center rounded-full bg-muted/60 text-muted-foreground group-hover:text-primary">
             <Plus className="size-3.5" />
-          )}
-          <span>Thêm tài khoản {activeTab.toUpperCase()} (OAuth Web Độc lập)</span>
-        </Button>
-
-        <div className="text-[11px] text-muted-foreground">
-          Thời gian hồi phục Quota: <strong>{failoverConfig.cooldownMinutes} phút</strong> (tự động mở lại khi hết hạn 429)
-        </div>
+          </div>
+          <span className="font-medium">+ Thêm tài khoản {activeTab.toUpperCase()} mới</span>
+        </button>
       </div>
 
       {/* Safety & Compliance Checklist */}
@@ -252,10 +196,17 @@ export const MultiAccountSettingsManager = memo(function MultiAccountSettingsMan
         <div className="grid gap-1 sm:grid-cols-2 text-[11px]">
           <div>• <strong>Isolated Storage:</strong> Phân vùng riêng, không đá cookie giữa các tài khoản.</div>
           <div>• <strong>Whitelisted HTTPS:</strong> Chỉ mở đúng domain chính thức của Google/OpenAI.</div>
-          <div>• <strong>Tôn trọng Rate Limit:</strong> Nghỉ 15 phút khi chạm mốc 429, không spam request.</div>
+          <div>• <strong>Tôn trọng Rate Limit:</strong> Nghỉ {failoverConfig.cooldownMinutes} phút khi đầy Quota 429.</div>
           <div>• <strong>Zero Credential Leak:</strong> Không lưu password thô, dùng OAuth chuẩn.</div>
         </div>
       </div>
+
+      {/* Dialog for adding account */}
+      <AddAccountDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        initialProvider={activeTab}
+      />
     </div>
   )
 })
