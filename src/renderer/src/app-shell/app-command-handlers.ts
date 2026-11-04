@@ -129,22 +129,19 @@ export function createAppCommandHandlers(
   return new Map<KeybindingActionId, () => boolean>([
     [
       'worktree.history.back',
-      () => {
-        if (creationLayoutActive || !shouldShowWorktreeHistoryControls(activeView)) {
-          return false
-        }
-        return claim('worktree.history.back', () => useAppStore.getState().goBackWorktree())
-      }
+      () =>
+        creationLayoutActive || !shouldShowWorktreeHistoryControls(activeView)
+          ? false
+          : claim('worktree.history.back', () => useAppStore.getState().goBackWorktree())
     ],
     [
       'worktree.history.forward',
-      () => {
-        if (creationLayoutActive || !shouldShowWorktreeHistoryControls(activeView)) {
-          return false
-        }
-        return claim('worktree.history.forward', () => useAppStore.getState().goForwardWorktree())
-      }
+      () =>
+        creationLayoutActive || !shouldShowWorktreeHistoryControls(activeView)
+          ? false
+          : claim('worktree.history.forward', () => useAppStore.getState().goForwardWorktree())
     ],
+    ['app.settings', () => claim('app.settings', () => useAppStore.getState().openSettingsPage())],
     ['sidebar.left.toggle', () => claim('sidebar.left.toggle', () => actions.toggleSidebar())],
     [
       'sidebar.sleepingWorkspaces.toggle',

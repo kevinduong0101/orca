@@ -222,6 +222,14 @@ export function useGlobalKeybindings(args: {
       }
 
       const handlers = createAppCommandHandlers(state, input, context)
+      const isCmdComma =
+        (input.metaKey || input.ctrlKey) &&
+        !input.shiftKey &&
+        !input.altKey &&
+        (input.key === ',' || input.code === 'Comma')
+      if ((isCmdComma || matchShortcut('app.settings')) && handlers.get('app.settings')?.()) {
+        return
+      }
       if (matchShortcut('workspace.delete') && handlers.get('workspace.delete')?.()) {
         return
       }
