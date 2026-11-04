@@ -13,9 +13,8 @@ import {
 import type { CommentMarkdownLinkClickHandler } from '@/components/sidebar/CommentMarkdown'
 import { createNativeChatFileHref } from '../../../../shared/native-chat/native-chat-href-routing'
 import { useAppStore } from '@/store'
-import { resolveWorkspaceDirectory } from '@/lib/workspace-directory'
-import { openDetectedFilePath } from '@/components/terminal-pane/terminal-file-open-routing'
 import { resolveDeliverableFilePath } from './native-chat-deliverable-resolver'
+import { openDeliverableFileInSplit } from './native-chat-open-split'
 
 export type DeliverableFile = {
   path: string
@@ -219,7 +218,7 @@ export function NativeChatDeliverableCards({
     e.preventDefault()
     e.stopPropagation()
 
-    const { absolutePath, relativePath, exists } = await resolveDeliverableFilePath(
+    const { absolutePath, exists } = await resolveDeliverableFilePath(
       item.path,
       item.name
     )
@@ -229,50 +228,7 @@ export function NativeChatDeliverableCards({
       return
     }
 
-    const isMac = window.api.platform?.get().platform === 'darwin'
-    const syntheticEvent = {
-      preventDefault: () => {},
-      stopPropagation: () => {},
-      metaKey: isMac,
-      ctrlKey: !isMac,
-      button: 0,
-      shiftKey: false,
-      currentTarget: e.currentTarget
-    } as unknown as React.MouseEvent<HTMLElement>
-
-    if (onLinkClick) {
-      const href = createNativeChatFileHref(absolutePath, 'literal')
-      onLinkClick(syntheticEvent, href)
-      return
-    }
-
-    // Direct store open fallback
-    const state = useAppStore.getState()
-    const worktreeId = state.activeWorktreeId || ''
-    const rootPath = resolveWorkspaceDirectory(state, worktreeId) || ''
-
-    try {
-      openDetectedFilePath(absolutePath, null, null, {
-        worktreeId,
-        worktreePath: rootPath,
-        runtimeEnvironmentId: null,
-        hostFileOnly: true
-      })
-    } catch {
-      state.openFile(
-        {
-          filePath: absolutePath,
-          relativePath,
-          worktreeId,
-          language: detectLanguage(absolutePath),
-          mode: 'edit'
-        },
-        {
-          preview: true,
-          focusEditor: true
-        }
-      )
-    }
+    openDeliverableFileInSplit(absolutePath, item.name)
   }
 
   return (
