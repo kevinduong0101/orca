@@ -19,7 +19,12 @@ describe('useNativeChatAutoFailover', () => {
     state.setActiveAccount('gemini', 'default-gemini-1')
     state.recordQuotaStatus('default-gemini-1', 'ready')
     state.recordQuotaStatus('default-gemini-2', 'ready')
-    state.updateFailoverConfig({ enabled: true, autoRetryOnFailover: true })
+    state.updateFailoverConfig({
+      enabled: true,
+      autoRetryOnFailover: true,
+      crossProviderFallback: false,
+      safetyDelaySeconds: 1
+    })
   })
 
   it('triggers auto failover and retries continuation when usageLimitTurnItemId is set', () => {
@@ -44,9 +49,38 @@ describe('useNativeChatAutoFailover', () => {
     // Auto failover should have switched account to backup
     expect(useAccountProfilesStore.getState().activeAccountByProvider.gemini).toBe('default-gemini-2')
 
-    // Fast-forward delay
-    vi.advanceTimersByTime(700)
+    // Fast-forward safety delay
+    vi.advanceTimersByTime(1200)
 
+    expect(continueUsageLimit).toHaveBeenCalledTimes(1)
+  })
+
+  it('performs cross-provider safe failover to claude when crossProviderFallback is true', () => {
+    useAccountProfilesStore.getState().updateFailoverConfig({
+      enabled: true,
+      autoRetryOnFailover: true,
+      crossProviderFallback: true,
+      safetyDelaySeconds: 1
+    })
+    const continueUsageLimit = vi.fn()
+
+    const { rerender } = renderHook(
+      ({ turnItemId }: { turnItemId: string | null }) =>
+        useNativeChatAutoFailover({
+          agent: 'gemini',
+          usageLimitTurnItemId: turnItemId,
+          continueUsageLimit
+        }),
+      { initialProps: { turnItemId: null } }
+    )
+
+    rerender({ turnItemId: 'turn-cross-789' })
+
+    // Cross-provider failover switches to claude or chatgpt
+    const activeClaude = useAccountProfilesStore.getState().activeAccountByProvider.claude
+    expect(activeClaude).toBe('default-claude-1')
+
+    vi.advanceTimersByTime(1200)
     expect(continueUsageLimit).toHaveBeenCalledTimes(1)
   })
 

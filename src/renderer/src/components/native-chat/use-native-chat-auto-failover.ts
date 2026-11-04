@@ -39,16 +39,24 @@ export function useNativeChatAutoFailover({
       handledTurnRef.current = usageLimitTurnItemId
 
       if (failoverConfig.notifyOnFailover) {
-        toast.info(
-          `Quota giới hạn! Kevin Studio đã tự động chuyển sang: ${result.nextAccount.name} và tiếp tục thực hiện task.`,
-          { duration: 5000 }
-        )
+        if (result.isCrossProvider) {
+          toast.info(
+            `Bảo vệ an toàn ToS: Đã chuyển sang ${result.nextAccount.provider.toUpperCase()} (${result.nextAccount.name}) để tiếp tục task mà không bị trùng lặp hạn ngạch.`,
+            { duration: 6000 }
+          )
+        } else {
+          toast.info(
+            `Quota giới hạn! Đã chuyển sang tài khoản an toàn: ${result.nextAccount.name} và tiếp tục thực hiện task.`,
+            { duration: 5000 }
+          )
+        }
       }
 
-      // Small delay to allow session state to propagate, then trigger continuation
+      // Safety delay to allow session state to propagate and avoid rapid burst
+      const delayMs = (failoverConfig.safetyDelaySeconds ?? 3) * 1000
       const timer = setTimeout(() => {
         continueUsageLimit()
-      }, 600)
+      }, Math.max(delayMs, 1000))
 
       return () => {
         clearTimeout(timer)
@@ -61,6 +69,7 @@ export function useNativeChatAutoFailover({
     failoverConfig.enabled,
     failoverConfig.autoRetryOnFailover,
     failoverConfig.notifyOnFailover,
+    failoverConfig.safetyDelaySeconds,
     performAutoFailover
   ])
 }

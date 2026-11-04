@@ -28,6 +28,15 @@ export type AccountFailoverConfig = {
   autoRetryOnFailover: boolean
   cooldownMinutes: number
   notifyOnFailover: boolean
+  crossProviderFallback?: boolean
+  safetyDelaySeconds?: number
+}
+
+export type AccountFailoverResult = {
+  switched: boolean
+  previousAccount: AccountProfile | null
+  nextAccount: AccountProfile | null
+  isCrossProvider?: boolean
 }
 
 export type OAuthLoginRequest = {

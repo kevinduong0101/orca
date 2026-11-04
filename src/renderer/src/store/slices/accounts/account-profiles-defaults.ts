@@ -13,7 +13,9 @@ export const DEFAULT_FAILOVER_CONFIG: AccountFailoverConfig = {
   strategy: 'round-robin',
   autoRetryOnFailover: true,
   cooldownMinutes: 15,
-  notifyOnFailover: true
+  notifyOnFailover: true,
+  crossProviderFallback: true,
+  safetyDelaySeconds: 3
 }
 
 export const DEFAULT_ACTIVE_ACCOUNTS: Record<AIProvider, string | null> = {

@@ -73,6 +73,33 @@ export const MultiAccountSettingsManager = memo(function MultiAccountSettingsMan
         </div>
       </div>
 
+      {/* Zero-Risk ToS Protection Strip */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-500/25 bg-emerald-500/5 px-3 py-2 text-xs">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="size-4 text-emerald-500 shrink-0" />
+          <span className="font-semibold text-foreground">
+            Bảo vệ ToS & Hạn ngạch (Zero-Risk):
+          </span>
+          <span className="text-muted-foreground text-[11px]">
+            Tự động chuyển chéo sang hãng AI khác khi gặp 429 để triệt tiêu nguy cơ trùng lặp hạn ngạch.
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-1.5 cursor-pointer">
+            <span className="text-[11px] font-medium text-foreground">
+              Chuyển đổi chéo hãng AI:
+            </span>
+            <Switch
+              checked={failoverConfig.crossProviderFallback ?? true}
+              onCheckedChange={(checked) =>
+                updateFailoverConfig({ crossProviderFallback: checked })
+              }
+            />
+          </label>
+        </div>
+      </div>
+
       {/* Provider Selector Tabs */}
       <div className="flex items-center justify-between border-b border-border/40 pb-2">
         <div className="flex gap-1.5">

@@ -193,12 +193,33 @@ export const useAccountProfilesStore = create<AccountProfilesState>()((set, get)
       get().recordQuotaStatus(activeId, 'limited', Date.now() + cooldownMs)
     }
 
+    // 1. Cross-Provider Safe Fallback first (100% ToS compliant: shifts workload to distinct platform)
+    if (state.failoverConfig.crossProviderFallback) {
+      const otherProviders: AIProvider[] = (['gemini', 'claude', 'chatgpt'] as const).filter(
+        (p) => p !== provider
+      )
+      for (const altProvider of otherProviders) {
+        const altCandidate = get().getNextAvailableAccount(altProvider)
+        if (altCandidate) {
+          get().setActiveAccount(altProvider, altCandidate.id)
+          return {
+            switched: true,
+            previousAccount: currentProfile,
+            nextAccount: altCandidate,
+            isCrossProvider: true
+          }
+        }
+      }
+    }
+
+    // 2. Same-provider fallback (when no alternate provider account is available)
     const nextAccount = get().getNextAvailableAccount(provider, activeId ?? undefined)
     if (!nextAccount) {
       return {
         switched: false,
         previousAccount: currentProfile,
-        nextAccount: null
+        nextAccount: null,
+        isCrossProvider: false
       }
     }
 
@@ -206,7 +227,8 @@ export const useAccountProfilesStore = create<AccountProfilesState>()((set, get)
     return {
       switched: true,
       previousAccount: currentProfile,
-      nextAccount
+      nextAccount,
+      isCrossProvider: false
     }
   },
 
