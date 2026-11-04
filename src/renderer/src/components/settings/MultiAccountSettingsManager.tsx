@@ -239,7 +239,21 @@ export const MultiAccountSettingsManager = memo(function MultiAccountSettingsMan
         </Button>
 
         <div className="text-[11px] text-muted-foreground">
-          Thời gian hồi phục Quota: <strong>{failoverConfig.cooldownMinutes} phút</strong> (tự động mở lại tài khoản khi hết hạn 429)
+          Thời gian hồi phục Quota: <strong>{failoverConfig.cooldownMinutes} phút</strong> (tự động mở lại khi hết hạn 429)
+        </div>
+      </div>
+
+      {/* Safety & Compliance Checklist */}
+      <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs space-y-1.5 text-muted-foreground">
+        <div className="font-semibold text-foreground flex items-center gap-1.5">
+          <ShieldCheck className="size-4 text-emerald-500 shrink-0" />
+          <span>Cam kết An toàn & Tuân thủ chính sách Gemini / ChatGPT:</span>
+        </div>
+        <div className="grid gap-1 sm:grid-cols-2 text-[11px]">
+          <div>• <strong>Isolated Storage:</strong> Phân vùng riêng, không đá cookie giữa các tài khoản.</div>
+          <div>• <strong>Whitelisted HTTPS:</strong> Chỉ mở đúng domain chính thức của Google/OpenAI.</div>
+          <div>• <strong>Tôn trọng Rate Limit:</strong> Nghỉ 15 phút khi chạm mốc 429, không spam request.</div>
+          <div>• <strong>Zero Credential Leak:</strong> Không lưu password thô, dùng OAuth chuẩn.</div>
         </div>
       </div>
     </div>

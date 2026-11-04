@@ -5,6 +5,13 @@ import type {
   OAuthLoginResult
 } from '../../shared/account-profile-types'
 
+const ALLOWED_HOSTS: Record<AIProvider, readonly string[]> = {
+  gemini: ['accounts.google.com', 'myaccount.google.com', 'google.com'],
+  chatgpt: ['chatgpt.com', 'auth.openai.com', 'auth0.openai.com', 'openai.com'],
+  claude: ['claude.ai', 'anthropic.com'],
+  custom: ['accounts.google.com', 'openai.com', 'claude.ai']
+}
+
 const DEFAULT_AUTH_URLS: Record<AIProvider, string> = {
   gemini: 'https://accounts.google.com/signin/v2/identifier?service=lso&flowName=GlifWebSignIn',
   chatgpt: 'https://chatgpt.com/auth/login',
@@ -12,31 +19,49 @@ const DEFAULT_AUTH_URLS: Record<AIProvider, string> = {
   custom: 'https://accounts.google.com'
 }
 
-function getProviderLoginUrl(provider: AIProvider, explicitUrl?: string): string {
-  if (explicitUrl && explicitUrl.trim().length > 0) {
-    return explicitUrl
+export function isAllowedProviderUrl(provider: AIProvider, targetUrl: string): boolean {
+  try {
+    const parsed = new URL(targetUrl)
+    if (parsed.protocol !== 'https:') {
+      return false
+    }
+    const allowed = ALLOWED_HOSTS[provider] || []
+    return allowed.some((host) => parsed.hostname === host || parsed.hostname.endsWith(`.${host}`))
+  } catch {
+    return false
   }
-  return DEFAULT_AUTH_URLS[provider] || 'https://accounts.google.com'
+}
+
+export function sanitizeAccountId(rawId?: string): string {
+  if (!rawId) {
+    return `acc-${Date.now()}`
+  }
+  return rawId.replace(/[^a-zA-Z0-9_-]/g, '')
 }
 
 export function openMultiAccountOAuthWindow(
   request: OAuthLoginRequest
 ): Promise<OAuthLoginResult> {
   return new Promise((resolve) => {
-    const accountId = request.accountId || `acc-${Date.now()}`
+    const accountId = sanitizeAccountId(request.accountId)
     const partitionId = `persist:oauth_${request.provider}_${accountId}`
-    const loginUrl = getProviderLoginUrl(request.provider, request.initialUrl)
+    const loginUrl =
+      request.initialUrl && isAllowedProviderUrl(request.provider, request.initialUrl)
+        ? request.initialUrl
+        : DEFAULT_AUTH_URLS[request.provider]
 
     const ses = session.fromPartition(partitionId)
     const win = new BrowserWindow({
       width: 620,
       height: 760,
-      title: `Kevin Studio - Đăng nhập ${request.provider.toUpperCase()} (${request.accountName || accountId})`,
+      title: `Kevin Studio - Đăng nhập an toàn ${request.provider.toUpperCase()} (${request.accountName || accountId})`,
       webPreferences: {
         partition: partitionId,
         nodeIntegration: false,
         contextIsolation: true,
-        sandbox: true
+        sandbox: true,
+        webSecurity: true,
+        allowRunningInsecureContent: false
       }
     })
 
@@ -44,7 +69,17 @@ export function openMultiAccountOAuthWindow(
 
     let detectedEmail: string | null = null
 
-    // Monitor headers or cookies to detect user info if possible
+    // Block navigations outside of official provider domains
+    win.webContents.on('will-navigate', (event, url) => {
+      if (!isAllowedProviderUrl(request.provider, url)) {
+        event.preventDefault()
+      }
+    })
+
+    win.webContents.setWindowOpenHandler(() => {
+      return { action: 'deny' }
+    })
+
     win.webContents.on('did-navigate', async (_event, url) => {
       try {
         const cookies = await ses.cookies.get({})
@@ -53,15 +88,12 @@ export function openMultiAccountOAuthWindow(
             detectedEmail = cookie.value
           }
         }
-        // If Google signin completed
         if (url.includes('myaccount.google.com') || url.includes('google.com/search')) {
           win.close()
         }
-        // If ChatGPT completed
         if (url.startsWith('https://chatgpt.com/') && !url.includes('/auth/')) {
           win.close()
         }
-        // If Claude completed
         if (url.startsWith('https://claude.ai/chats') || url === 'https://claude.ai/') {
           win.close()
         }
